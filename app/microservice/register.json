@@ -1,0 +1,12 @@
+{
+	"name": "#(service.name)",
+	"tags": ["gfw", "rw"],
+	"endpoints": [{
+		"path": "/dataset",
+		"method": "GET",
+		"redirect": {
+			"method": "GET",
+			"path": "/api/v1/dataset"
+		}
+	}]
+}

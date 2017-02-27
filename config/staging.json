@@ -1,0 +1,8 @@
+{
+    "logger": {
+        "name": "dataset",
+        "level": "debug",
+        "toFile": false,
+        "dirLogFile": null
+    }
+}

@@ -1,0 +1,17 @@
+{
+     "logger": {
+        "name": "dataset-DEV",
+        "level": "debug",
+        "toFile": false,
+        "dirLogFile": null
+    },
+    "service": {
+        "name": "Dataset",
+        "port": 3000
+    },
+    "mongodb":{
+        "database": "dataset_db",
+        "host": "mymachine",
+        "port": 27017
+    }
+}
