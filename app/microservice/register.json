@@ -1,12 +1,51 @@
 {
 	"name": "#(service.name)",
-	"tags": ["gfw", "rw"],
+	"tags": ["dataset"],
 	"endpoints": [{
 		"path": "/dataset",
 		"method": "GET",
 		"redirect": {
 			"method": "GET",
 			"path": "/api/v1/dataset"
+		}
+	},{
+		"path": "/dataset",
+		"method": "POST",
+		"authenticated": true,
+		"redirect": {
+			"method": "POST",
+			"path": "/api/v1/dataset"
+		}
+	},{
+		"path": "/dataset/:dataset",
+		"method": "GET",
+		"redirect": {
+			"method": "GET",
+			"path": "/api/v1/dataset/:dataset"
+		}
+	},{
+		"path": "/dataset/:dataset",
+		"method": "PATCH",
+		"authenticated": true,
+		"redirect": {
+			"method": "PATCH",
+			"path": "/api/v1/dataset/:dataset"
+		}
+	},{
+		"path": "/dataset/:dataset",
+		"method": "DELETE",
+		"authenticated": true,
+		"redirect": {
+			"method": "DELETE",
+			"path": "/api/v1/dataset/:dataset"
+		}
+	},{
+		"path": "/dataset/:dataset/clone",
+		"method": "POST",
+		"authenticated": true,
+		"redirect": {
+			"method": "POST",
+			"path": "/api/v1/dataset/:dataset/clone"
 		}
 	}]
 }

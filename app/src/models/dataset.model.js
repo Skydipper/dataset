@@ -1,11 +1,17 @@
 const mongoose = require('mongoose');
+const uuidV4 = require('uuid/v4');
 const Schema = mongoose.Schema;
 const STATUS = require('app.constants').STATUS;
 
 const Dataset = new Schema({
+    _id: { type: String, default: uuidV4 },
     name: { type: String, required: true, trim: true },
+    slug: { type: String, required: true, unique: true, trim: true },
+    type: { type: String, required: false, trim: true },
     subtitle: { type: String, required: false, trim: true },
-    application: { type: Array, required: true, trim: true },
+    application: [
+        { type: String, required: true, trim: true }
+    ],
     dataPath: { type: String, required: false, trim: true },
     attributesPath: { type: String, required: false, trim: true },
     connectorType: { type: String, required: true, trim: true },
@@ -17,19 +23,19 @@ const Dataset = new Schema({
     overwrite: { type: Boolean, required: false, default: false },
     legend: {
         _id: false,
-        lat: { type: String, required: true, trim: true },
-        long: { type: String, required: true, trim: true },
-        date: { type: Date, default: Date.now },
-        region: { type: String, required: true, trim: true },
-        country: { type: String, required: true, trim: true }
+        lat: { type: String, required: false, trim: true },
+        long: { type: String, required: false, trim: true },
+        date: { type: Date },
+        region: { type: String, required: false, trim: true },
+        country: { type: String, required: false, trim: true }
     },
     clonedHost: {
         _id: false,
-        hostProvider: { type: String, required: true, trim: true },
-        hostUrl: { type: String, required: true, trim: true },
-        hostId: { type: String, required: true, trim: true },
-        hostType: { type: String, required: true, trim: true },
-        hostPath: { type: String, required: true, trim: true }
+        hostProvider: { type: String, required: false, trim: true },
+        hostUrl: { type: String, required: false, trim: true },
+        hostId: { type: String, required: false, trim: true },
+        hostType: { type: String, required: false, trim: true },
+        hostPath: { type: String, required: false, trim: true }
     },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }

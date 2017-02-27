@@ -2,6 +2,8 @@ const Router = require('koa-router');
 const logger = require('logger');
 const DatasetService = require('services/dataset.service');
 const DatasetSerializer = require('serializers/dataset.serializer');
+const DatasetDuplicated = require('errors/datasetDuplicated.error');
+const DatasetNotFound = require('errors/datasetNotFound.error');
 
 const router = new Router({
     prefix: '/dataset',
@@ -9,22 +11,57 @@ const router = new Router({
 
 class DatasetRouter {
 
+    static getUser(ctx) {
+        return Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser);
+    }
+
     static async get(ctx) {
-        logger.info(`Getting dataset with id: ${ctx.params.id}`);
-        const dataset = await DatasetService.get(ctx.params.id);
-        ctx.body = DatasetSerializer.serialize(dataset);
+        const id = ctx.params.dataset;
+        logger.info(`[DatasetRouter] Getting dataset with id: ${id}`);
+        try {
+            const dataset = await DatasetService.get(id);
+            ctx.body = DatasetSerializer.serialize(dataset);
+        } catch (err) {
+            if (err instanceof DatasetNotFound) {
+                ctx.throw(404, err.message);
+                return;
+            }
+            throw err;
+        }
     }
 
     static async create(ctx) {
-        ctx.body = {
-            hi: 'hi'
-        };
+        logger.info(`[DatasetRouter] Creating dataset with name: ${ctx.request.body.name}`);
+        try {
+            const user = DatasetRouter.getUser(ctx);
+            const dataset = await DatasetService.create(ctx.request.body, user);
+            ctx.body = DatasetSerializer.serialize(dataset);
+        } catch (err) {
+            if (err instanceof DatasetDuplicated) {
+                ctx.throw(400, err.message);
+                return;
+            }
+            throw err;
+        }
     }
 
     static async update(ctx) {
-        ctx.body = {
-            hi: 'hi'
-        };
+        const datasetId = ctx.params.dataset;
+        logger.info(`[DatasetRouter] Updating dataset with id: ${datasetId}`);
+        try {
+            const user = DatasetRouter.getUser(ctx);
+            const dataset = await DatasetService.update(datasetId, ctx.request.body, user);
+            ctx.body = DatasetSerializer.serialize(dataset);
+        } catch (err) {
+            if (err instanceof DatasetNotFound) {
+                ctx.throw(404, err.message);
+                return;
+            } else if (err instanceof DatasetDuplicated) {
+                ctx.throw(400, err.message);
+                return;
+            }
+            throw err;
+        }
     }
 
     static async delete(ctx) {
@@ -34,6 +71,7 @@ class DatasetRouter {
     }
 
     static async getAll(ctx) {
+        logger.info(`Getting datasets`);
         ctx.body = {
             hi: 'hi'
         };
@@ -66,10 +104,11 @@ const authorizationMiddleware = async (ctx, next) => {
 };
 
 router.get('/', DatasetRouter.getAll);
-router.get('/dataset/:dataset', DatasetRouter.get);
-router.post('/dataset/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.create);
-router.patch('/dataset/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.update);
-router.delete('/dataset/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.delete);
-router.post('/dataset/:dataset/clone', validationMiddleware, authorizationMiddleware, DatasetRouter.clone);
+router.post('/', validationMiddleware, authorizationMiddleware, DatasetRouter.create);
+
+router.get('/:dataset', DatasetRouter.get);
+router.patch('/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.update);
+router.delete('/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.delete);
+router.post('/:dataset/clone', validationMiddleware, authorizationMiddleware, DatasetRouter.clone);
 
 module.exports = router;

@@ -18,6 +18,7 @@ module.exports = (() => {
     }
     const logger = bunyan.createLogger({
         name: config.get('logger.name'),
+        src: true,
         streams
     });
     return logger;

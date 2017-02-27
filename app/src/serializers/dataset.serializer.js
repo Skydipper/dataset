@@ -3,7 +3,7 @@ class DatasetSerializer {
 
     static serialize(dataset) {
         return {
-            hi: dataset
+            data: dataset
         };
     }
 
