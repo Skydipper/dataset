@@ -1,9 +1,9 @@
 
 class DatasetSerializer {
 
-    static serialize(dataset) {
+    static serialize(data) {
         return {
-            data: dataset
+            data
         };
     }
 

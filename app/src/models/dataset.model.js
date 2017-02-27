@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate');
 const uuidV4 = require('uuid/v4');
 const Schema = mongoose.Schema;
 const STATUS = require('app.constants').STATUS;
@@ -40,5 +41,7 @@ const Dataset = new Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
+
+Dataset.plugin(mongoosePaginate);
 
 module.exports = mongoose.model('Dataset', Dataset);

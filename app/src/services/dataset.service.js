@@ -87,7 +87,7 @@ class DatasetService {
         return await currentDataset.save();
     }
 
-    static async delete(id, user) {
+    static async delete(id) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.warn(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
@@ -96,14 +96,26 @@ class DatasetService {
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
         }
         logger.warn(`[DBACCESS-DELETE]: dataset.id: ${id}`);
-        return await currentDataset.delete();
+        return await currentDataset.remove();
     }
 
-    static async getAll(query) {
-        return await true;
+    static async getAll(query = {}) {
+        logger.debug(`[DatasetService]: Getting all datasets`);
+        logger.warn(`[DBACCESS-FIND]: dataset`);
+        const options = {
+            page: query.page || 1,
+            limit: query.limit || 10
+        };
+        const datasetAttributes = Object.keys(Dataset.schema.paths);
+        Object.keys(query).forEach((param) => {
+            if (datasetAttributes.indexOf(param) < 0) {
+                delete query[param];
+            }
+        });
+        return await Dataset.paginate(query, options);
     }
 
-    static async clone(datasetId, user) {
+    static async clone() {
         return await true;
     }
 

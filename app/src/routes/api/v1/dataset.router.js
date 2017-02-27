@@ -46,11 +46,11 @@ class DatasetRouter {
     }
 
     static async update(ctx) {
-        const datasetId = ctx.params.dataset;
-        logger.info(`[DatasetRouter] Updating dataset with id: ${datasetId}`);
+        const id = ctx.params.dataset;
+        logger.info(`[DatasetRouter] Updating dataset with id: ${id}`);
         try {
             const user = DatasetRouter.getUser(ctx);
-            const dataset = await DatasetService.update(datasetId, ctx.request.body, user);
+            const dataset = await DatasetService.update(id, ctx.request.body, user);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -65,22 +65,32 @@ class DatasetRouter {
     }
 
     static async delete(ctx) {
-        ctx.body = {
-            hi: 'hi'
-        };
+        const id = ctx.params.dataset;
+        logger.info(`[DatasetRouter] Deleting dataset with id: ${id}`);
+        try {
+            const dataset = await DatasetService.delete(id);
+            ctx.body = DatasetSerializer.serialize(dataset);
+        } catch (err) {
+            if (err instanceof DatasetNotFound) {
+                ctx.throw(404, err.message);
+                return;
+            }
+            throw err;
+        }
     }
 
     static async getAll(ctx) {
-        logger.info(`Getting datasets`);
-        ctx.body = {
-            hi: 'hi'
-        };
+        logger.info(`[DatasetRouter] Getting all datasets`);
+        const query = ctx.query;
+        delete query.loggedUser;
+        const datasets = await DatasetService.getAll(query);
+        ctx.body = DatasetSerializer.serialize(datasets);
     }
 
     static async clone(ctx) {
-        ctx.body = {
-            hi: 'hi'
-        };
+        const id = ctx.params.dataset;
+        logger.info(`[DatasetRouter] Cloning dataset with id: ${id}`);
+        ctx.body = {};
     }
 
 }
