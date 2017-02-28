@@ -9,6 +9,11 @@ const router = new Router({
     prefix: '/dataset',
 });
 
+const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
+    a.push(`${k}=${encodeURIComponent(obj[k])}`);
+    return a;
+}, []).join('&');
+
 class DatasetRouter {
 
     static getUser(ctx) {
@@ -83,8 +88,13 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
         delete query.loggedUser;
+        const clonedQuery = JSON.parse(JSON.stringify(query));
+        delete clonedQuery['page[size]'];
+        delete clonedQuery['page[number]'];
+        const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
+        const link = `${ctx.request.protocol}://${ctx.request.host}${ctx.request.path}${serializedQuery}`;
         const datasets = await DatasetService.getAll(query);
-        ctx.body = DatasetSerializer.serialize(datasets);
+        ctx.body = DatasetSerializer.serialize(datasets, link);
     }
 
     static async clone(ctx) {

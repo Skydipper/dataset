@@ -46,7 +46,7 @@ class DatasetService {
         sortParams.forEach((param) => {
             let sign = param.substr(0, 1);
             let realParam = param.substr(1);
-            if (sign !== '+' && sign !== '-') {
+            if (sign !== '-') {
                 sign = '+';
                 realParam = param;
             }
@@ -149,8 +149,8 @@ class DatasetService {
     static async getAll(query = {}) {
         logger.debug(`[DatasetService]: Getting all datasets`);
         const sort = query.sort || '';
-        const page = query.page ? parseInt(query.page, 10) : 1;
-        const limit = query.limit ? parseInt(query.limit, 10) : 10;
+        const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
+        const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
         const filteredQuery = DatasetService.getFilteredQuery(query);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
@@ -158,7 +158,6 @@ class DatasetService {
             limit,
             sort: filteredSort
         };
-        logger.debug(options);
         logger.warn(`[DBACCESS-FIND]: dataset`);
         return await Dataset.paginate(filteredQuery, options);
     }
