@@ -1,9 +1,4 @@
-const USER_ROLES = {
-    USER: 'USER',
-    MANAGER: 'MANGAER',
-    ADMIN: 'ADMIN',
-    SUPERADMIN: 'SUPERADMIN'
-};
+const USER_ROLES = ['USER', 'MANGAER', 'ADMIN', 'SUPERADMIN'];
 const STATUS = ['pending', 'saved', 'failed'];
 
 module.exports = {

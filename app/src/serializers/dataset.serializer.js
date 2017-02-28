@@ -1,10 +1,17 @@
+const JSONAPISerializer = require('jsonapi-serializer').Serializer;
+const datasetSerializer = new JSONAPISerializer('dataset', {
+    attributes: ['name', 'slug', 'type', 'subtitle', 'application', 'dataPath',
+    'attributesPath', 'connectorType', 'provider', 'userId', 'connectorUrl',
+    'tableName', 'status', 'overwrite', 'legend', 'clonedHost', 'createdAt', 'updatedAt'],
+    id: '_id',
+    typeForAttribute: attribute => attribute,
+    keyForAttribute: 'camelCase'
+});
 
 class DatasetSerializer {
 
     static serialize(data, link = null) {
-        const result = {
-            data: []
-        };
+        let result = {};
         if (data) {
             let arrayData = data;
             if (data.docs) {
@@ -13,15 +20,7 @@ class DatasetSerializer {
             if (!Array.isArray(arrayData)) {
                 arrayData = [data];
             }
-            arrayData.forEach((el) => {
-                result.data.push({
-                    id: el._id,
-                    type: 'dataset',
-                    attributes: {
-                        name: el.name
-                    }
-                });
-            });
+            result = datasetSerializer.serialize(arrayData);
         }
         if (link) {
             result.links = {

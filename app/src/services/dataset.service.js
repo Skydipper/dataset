@@ -166,6 +166,21 @@ class DatasetService {
         return await true;
     }
 
+    static async hasPermission(id, user) {
+        let permission = true;
+        const dataset = await DatasetService.get(id);
+        const appPermission = dataset.application.find(datasetApp =>
+            user.extraUserData.apps.find(app => app === datasetApp)
+        );
+        if (!appPermission) {
+            permission = false;
+        }
+        if ((user.role === 'MANAGER') && (!dataset.userId || dataset.userId !== user.id)) {
+            permission = false;
+        }
+        return permission;
+    }
+
 }
 
 module.exports = DatasetService;

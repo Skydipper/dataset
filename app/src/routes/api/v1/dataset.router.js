@@ -4,6 +4,7 @@ const DatasetService = require('services/dataset.service');
 const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
+const USER_ROLES = require('app.constants').USER_ROLES;
 
 const router = new Router({
     prefix: '/dataset',
@@ -115,12 +116,33 @@ const validationMiddleware = async (ctx, next) => {
 };
 
 const authorizationMiddleware = async (ctx, next) => {
-    try {
-        logger.debug('auth');
-    } catch (err) {
-        throw err;
+    // Get user from query (delete) or body (post-patch)
+    const user = DatasetRouter.getUser(ctx);
+    if (user.id === 'microservice') {
+        await next();
+        return;
     }
-    await next();
+    if (!user || USER_ROLES.indexOf(user.role) === -1) {
+        ctx.throw(401, 'Unauthorized'); // if not logged or invalid ROLE -> out
+        return;
+    }
+    if (user.role === 'USER') {
+        ctx.throw(403, 'Forbidden'); // if user is USER -> out
+        return;
+    }
+    // Get application from query (delete) or body (post-patch)
+    if (user.role === 'MANAGER' || user.role === 'ADMIN') {
+        try {
+            const permission = await DatasetService.hasPermission(ctx.params.dataset, user);
+            if (!permission) {
+                this.throw(403, 'Forbidden');
+                return;
+            }
+        } catch (err) {
+            throw err;
+        }
+    }
+    await next(); // SUPERADMIN is included here
 };
 
 router.get('/', DatasetRouter.getAll);
