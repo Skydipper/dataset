@@ -10,6 +10,53 @@ class DatasetService {
         return slug;
     }
 
+    static getFilteredQuery(query) {
+        const datasetAttributes = Object.keys(Dataset.schema.obj);
+        Object.keys(query).forEach((param) => {
+            if (datasetAttributes.indexOf(param) < 0) {
+                delete query[param];
+            } else {
+                switch (Dataset.schema.paths[param].instance) {
+
+                case 'String':
+                    query[param] = { $regex: query[param], $options: 'i' };
+                    break;
+                case 'Array':
+                    query[param] = { $in: query[param].split(',').map(elem => elem.trim()) };
+                    break;
+                case 'Object':
+                    query[param] = query[param];
+                    break;
+                case 'Date':
+                    query[param] = query[param];
+                    break;
+                default:
+                    query[param] = query[param];
+
+                }
+            }
+        });
+        return query;
+    }
+
+    static getFilteredSort(sort) {
+        const sortParams = sort.split(',');
+        const filteredSort = {};
+        const datasetAttributes = Object.keys(Dataset.schema.obj);
+        sortParams.forEach((param) => {
+            let sign = param.substr(0, 1);
+            let realParam = param.substr(1);
+            if (sign !== '+' && sign !== '-') {
+                sign = '+';
+                realParam = param;
+            }
+            if (datasetAttributes.indexOf(realParam) >= 0) {
+                filteredSort[realParam] = parseInt(sign + 1, 10);
+            }
+        });
+        return filteredSort;
+    }
+
     static async get(id) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.warn(`[DBACCESS-FIND]: dataset.id: ${id}`);
@@ -101,18 +148,19 @@ class DatasetService {
 
     static async getAll(query = {}) {
         logger.debug(`[DatasetService]: Getting all datasets`);
-        logger.warn(`[DBACCESS-FIND]: dataset`);
+        const sort = query.sort || '';
+        const page = query.page ? parseInt(query.page, 10) : 1;
+        const limit = query.limit ? parseInt(query.limit, 10) : 10;
+        const filteredQuery = DatasetService.getFilteredQuery(query);
+        const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
-            page: query.page || 1,
-            limit: query.limit || 10
+            page,
+            limit,
+            sort: filteredSort
         };
-        const datasetAttributes = Object.keys(Dataset.schema.paths);
-        Object.keys(query).forEach((param) => {
-            if (datasetAttributes.indexOf(param) < 0) {
-                delete query[param];
-            }
-        });
-        return await Dataset.paginate(query, options);
+        logger.debug(options);
+        logger.warn(`[DBACCESS-FIND]: dataset`);
+        return await Dataset.paginate(filteredQuery, options);
     }
 
     static async clone() {
