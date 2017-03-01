@@ -1,12 +1,13 @@
 const Koa = require('koa');
 const logger = require('logger');
 const koaLogger = require('koa-logger');
+const koaValidate = require('koa-validate');
 const config = require('config');
 const loader = require('loader');
 const mongoose = require('mongoose');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const ErrorSerializer = require('serializers/error.serializer');
-const mongoUri = process.env.MONGO_URI || 'mongodb://' + config.get('mongodb.host') + ':' + config.get('mongodb.port') + '/' + config.get('mongodb.database');
+const mongoUri = process.env.MONGO_URI || `mongodb://${config.get('mongodb.host')}:${config.get('mongodb.port')}/${config.get('mongodb.database')}`;
 
 const koaBody = require('koa-body')({
     multipart: true,
@@ -47,6 +48,8 @@ const onDbReady = (err) => {
     });
 
     app.use(koaLogger());
+
+    koaValidate(app);
 
     loader.loadRoutes(app);
 

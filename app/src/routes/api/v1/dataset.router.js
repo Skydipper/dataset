@@ -1,9 +1,11 @@
 const Router = require('koa-router');
 const logger = require('logger');
 const DatasetService = require('services/dataset.service');
+const DatasetValidator = require('validators/dataset.validator');
 const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
+const DatasetNotValid = require('errors/datasetNotValid.error');
 const USER_ROLES = require('app.constants').USER_ROLES;
 
 const router = new Router({
@@ -107,15 +109,22 @@ class DatasetRouter {
 }
 
 const validationMiddleware = async (ctx, next) => {
+    logger.info(`[DatasetRouter] Validating`);
     try {
-        logger.debug('validating');
+        // @TODO different endpoints - methods
+        await DatasetValidator.validateCreation(ctx);
     } catch (err) {
+        if (err instanceof DatasetNotValid) {
+            ctx.throw(400, err.getMessages());
+            return;
+        }
         throw err;
     }
     await next();
 };
 
 const authorizationMiddleware = async (ctx, next) => {
+    logger.info(`[DatasetRouter] Checking authorization`);
     // Get user from query (delete) or body (post-patch)
     const user = DatasetRouter.getUser(ctx);
     if (user.id === 'microservice') {
@@ -131,11 +140,12 @@ const authorizationMiddleware = async (ctx, next) => {
         return;
     }
     // Get application from query (delete) or body (post-patch)
-    if (user.role === 'MANAGER' || user.role === 'ADMIN') {
+    const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
+    if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !newDatasetCreation) {
         try {
             const permission = await DatasetService.hasPermission(ctx.params.dataset, user);
             if (!permission) {
-                this.throw(403, 'Forbidden');
+                ctx.throw(403, 'Forbidden');
                 return;
             }
         } catch (err) {

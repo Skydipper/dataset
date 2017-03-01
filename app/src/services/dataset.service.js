@@ -2,12 +2,12 @@ const logger = require('logger');
 const Dataset = require('models/dataset.model');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
+const slug = require('slug');
 
 class DatasetService {
 
     static getSlug(name) {
-        const slug = name; // @TODO
-        return slug;
+        return slug(name);
     }
 
     static getFilteredQuery(query) {
@@ -59,7 +59,7 @@ class DatasetService {
 
     static async get(id) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
-        logger.warn(`[DBACCESS-FIND]: dataset.id: ${id}`);
+        logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const dataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
         if (!dataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
@@ -70,15 +70,16 @@ class DatasetService {
 
     static async create(dataset, user) {
         logger.debug(`[DatasetService]: Getting dataset with name:  ${dataset.name}`);
-        logger.warn(`[DBACCES-FIND]: dataset.name: ${dataset.name}`);
+        logger.info(`[DBACCES-FIND]: dataset.name: ${dataset.name}`);
+        const tempSlug = DatasetService.getSlug(dataset.name);
         const currentDataset = await Dataset.findOne({
-            slug: DatasetService.getSlug(dataset.name)
+            slug: tempSlug
         });
         if (currentDataset) {
-            logger.error(`[DatasetService]: Dataset with name ${dataset.name} already exists`);
-            throw new DatasetDuplicated(`Dataset with name '${dataset.name}' already exists`);
+            logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
+            throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
         }
-        logger.warn(`[DBACCESS-SAVE]: dataset.name: ${dataset.name}`);
+        logger.info(`[DBACCESS-SAVE]: dataset.name: ${dataset.name}`);
         return await new Dataset({
             name: dataset.name,
             slug: DatasetService.getSlug(dataset.name),
@@ -100,21 +101,21 @@ class DatasetService {
 
     static async update(id, dataset, user) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
-        logger.warn(`[DBACCESS-FIND]: dataset.id: ${id}`);
+        logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
         }
-        const slug = DatasetService.getSlug(dataset.name);
+        const tempSlug = DatasetService.getSlug(dataset.name);
         const query = {
-            slug
+            slug: tempSlug
         };
-        logger.warn(`[DBACCESS-FIND]: dataset.name - ${dataset.name}`);
+        logger.info(`[DBACCESS-FIND]: dataset.name - ${dataset.name}`);
         const otherDataset = await Dataset.findOne(query).exec();
         if (otherDataset) {
-            logger.error(`[DatasetService]: Dataset with name ${dataset.name} generate an existing dataset slug ${slug}`);
-            throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generate an existing dataset '${slug}'`);
+            logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
+            throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
         }
         currentDataset.name = dataset.name ? dataset.name : currentDataset.name;
         currentDataset.slug = slug || currentDataset.slug;
@@ -136,13 +137,13 @@ class DatasetService {
 
     static async delete(id) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
-        logger.warn(`[DBACCESS-FIND]: dataset.id: ${id}`);
+        logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
         }
-        logger.warn(`[DBACCESS-DELETE]: dataset.id: ${id}`);
+        logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
         return await currentDataset.remove();
     }
 
@@ -158,7 +159,7 @@ class DatasetService {
             limit,
             sort: filteredSort
         };
-        logger.warn(`[DBACCESS-FIND]: dataset`);
+        logger.info(`[DBACCESS-FIND]: dataset`);
         return await Dataset.paginate(filteredQuery, options);
     }
 
