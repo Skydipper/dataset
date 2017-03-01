@@ -36,11 +36,12 @@ const onDbReady = (err) => {
                 error = JSON.parse(inErr);
             } catch (e) {
                 logger.error('Error parse');
+                error = inErr;
             }
-            ctx.status = error.status || 500;
+            ctx.status = error.status || ctx.status || 500;
             logger.error(error);
             ctx.body = ErrorSerializer.serializeError(ctx.status, error.message);
-            if (process.env.NODE_ENV === 'prod' && this.status === 500) {
+            if (process.env.NODE_ENV === 'prod' && ctx.status === 500) {
                 ctx.body = 'Unexpected error';
             }
             ctx.response.type = 'application/vnd.api+json';

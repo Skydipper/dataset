@@ -3,6 +3,7 @@ const Dataset = require('models/dataset.model');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const slug = require('slug');
+const ctRegisterMicroservice = require('ct-register-microservice-node');
 
 class DatasetService {
 
@@ -21,7 +22,7 @@ class DatasetService {
         } else if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
             return 'data';
         }
-        return dataset.connectorUrl;
+        return dataset.tableName;
     }
 
     static getFilteredQuery(query) {
@@ -70,6 +71,13 @@ class DatasetService {
         });
         return filteredSort;
     }
+
+    // static getRelationships(datasets, includes) {
+    //     // const hash = datasets.unshift({}).reduce((acc, val) => { acc[val._id] = val; return acc; });
+    //     // includes.forEach((include) => {
+    //     //
+    //     // });
+    // }
 
     static async get(id) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
@@ -121,7 +129,10 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
         }
-        const tempSlug = DatasetService.getSlug(dataset.name);
+        let tempSlug;
+        if (dataset.name) {
+            tempSlug = DatasetService.getSlug(dataset.name);
+        }
         const tableName = DatasetService.getTableName(dataset);
         const query = {
             slug: tempSlug
@@ -132,22 +143,28 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
             throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
         }
-        currentDataset.name = dataset.name ? dataset.name : currentDataset.name;
+        currentDataset.name = dataset.name || currentDataset.name;
         currentDataset.slug = tempSlug || currentDataset.slug;
-        currentDataset.subtitle = dataset.subtitle ? dataset.subtitle : currentDataset.subtitle;
-        currentDataset.application = dataset.application ? dataset.application : currentDataset.application;
-        currentDataset.dataPath = dataset.dataPath ? dataset.dataPath : currentDataset.dataPath;
-        currentDataset.attributesPath = dataset.attributesPath ? dataset.attributesPath : currentDataset.attributesPath;
-        currentDataset.connectorType = dataset.connectorType ? dataset.connectorType : currentDataset.connectorType;
-        currentDataset.provider = dataset.provider ? dataset.provider : currentDataset.provider;
-        currentDataset.userId = user.id ? user.id : currentDataset.userId;
-        currentDataset.connectorUrl = dataset.connectorUrl ? dataset.connectorUrl : currentDataset.connectorUrl;
+        currentDataset.subtitle = dataset.subtitle || currentDataset.subtitle;
+        currentDataset.application = dataset.application || currentDataset.application;
+        currentDataset.dataPath = dataset.dataPath || currentDataset.dataPath;
+        currentDataset.attributesPath = dataset.attributesPath || currentDataset.attributesPath;
+        currentDataset.connectorType = dataset.connectorType || currentDataset.connectorType;
+        currentDataset.provider = dataset.provider || currentDataset.provider;
+        if (user.id !== 'microservice') {
+            currentDataset.userId = user.id || currentDataset.userId;
+        }
+        currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
         currentDataset.tableName = tableName || currentDataset.tableName;
-        currentDataset.overwrite = dataset.overwrite ? dataset.overwrite : currentDataset.overwrite;
-        currentDataset.status = dataset.status ? dataset.status : currentDataset.status;
-        currentDataset.legend = dataset.legend ? dataset.legend : currentDataset.legend;
-        currentDataset.clonedHost = dataset.clonedHost ? dataset.clonedHost : currentDataset.clonedHost;
+        currentDataset.overwrite = dataset.overwrite || currentDataset.overwrite;
+        currentDataset.legend = dataset.legend || currentDataset.legend;
+        currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
         currentDataset.updatedAt = new Date();
+        logger.debug(dataset);
+        if (user.id === 'microservice' && (dataset.status === 1 || dataset.status === 2)) {
+            currentDataset.status = dataset.status === 1 ? 'saved' : 'failed';
+        }
+        logger.info(`[DBACCESS-SAVE]: dataset`);
         return await currentDataset.save();
     }
 
@@ -168,6 +185,7 @@ class DatasetService {
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
+        // const includes = query.includes.split(',').map(elem => elem.trim());
         const filteredQuery = DatasetService.getFilteredQuery(query);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
@@ -176,7 +194,11 @@ class DatasetService {
             sort: filteredSort
         };
         logger.info(`[DBACCESS-FIND]: dataset`);
-        return await Dataset.paginate(filteredQuery, options);
+        const pages = await Dataset.paginate(filteredQuery, options);
+        // if (includes.length > 0) {
+        //     pages.docs = DatasetService.getRelationships(pages.docs, includes);
+        // }
+        return pages;
     }
 
     static async clone() {

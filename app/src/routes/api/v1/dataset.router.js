@@ -27,13 +27,13 @@ class DatasetRouter {
     static notifyAdapter(ctx, dataset) {
         const connectorType = dataset.connectorType;
         const provider = dataset.provider;
-        dataset.id = dataset._id;
-        dataset.data_columns = dataset.datasetAttributes;
-
-        if (provider === 'csv') {
-            dataset.polygon = ctx.request.body.polygon;
-            dataset.points = ctx.request.body.points;
-        }
+        const clonedDataset = Object.assign({}, dataset);
+        clonedDataset.id = dataset._id;
+        clonedDataset.connector_url = dataset.connectorUrl;
+        clonedDataset.attributes_path = dataset.attributesPath;
+        clonedDataset.data_columns = dataset.datasetAttributes;
+        clonedDataset.data_path = dataset.dataPath;
+        clonedDataset.table_name = dataset.tableName;
 
         let uri = '';
         if (connectorType === 'json') {
@@ -54,7 +54,7 @@ class DatasetRouter {
             uri,
             method,
             json: true,
-            body: dataset
+            body: { connector: clonedDataset }
         });
     }
 
@@ -141,7 +141,7 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
         delete query.loggedUser;
-        const clonedQuery = JSON.parse(JSON.stringify(query));
+        const clonedQuery = Object.assign({}, query);
         delete clonedQuery['page[size]'];
         delete clonedQuery['page[number]'];
         const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';

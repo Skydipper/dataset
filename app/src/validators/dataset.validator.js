@@ -47,7 +47,7 @@ class DatasetValidator {
     }
 
     static async validateUpdate(koaObj) {
-        logger.info('Validating Dataset Creation');
+        logger.info('Validating Dataset Update');
         koaObj.checkBody('name').optional().notEmpty()
         .isAscii();
         koaObj.checkBody('type').optional().isAscii()
@@ -63,13 +63,6 @@ class DatasetValidator {
         koaObj.checkBody('connectorUrl').optional().isUrl();
         koaObj.checkBody('tableName').optional().isAscii();
         koaObj.checkBody('overwrite').optional().toBoolean();
-        koaObj.checkBody('status').optional().check((status) => {
-            const user = DatasetValidator.getUser(koaObj);
-            if (user.id === 'microservice' && typeof status === 'string' && STATUS.indexOf(status) >= 0) {
-                return true;
-            }
-            return false;
-        }, koaObj);
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.objectValidation(legend));
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');

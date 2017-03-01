@@ -20,6 +20,9 @@ class DatasetSerializer {
             if (!Array.isArray(arrayData)) {
                 arrayData = [data];
             }
+            if (arrayData.length === 1) {
+                arrayData = arrayData[0];
+            }
             result = datasetSerializer.serialize(arrayData);
         }
         if (link) {
