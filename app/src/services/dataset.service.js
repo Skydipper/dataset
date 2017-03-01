@@ -10,6 +10,20 @@ class DatasetService {
         return slug(name);
     }
 
+    static getTableName(dataset) {
+        if (dataset.provider === 'cartodb' && dataset.connectorUrl) {
+            if (dataset.connectorUrl.indexOf('/tables/')) {
+                return new URL(dataset.connectorUrl).pathname.split('/tables/')[1].split('/')[0];
+            }
+            return decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split('from ')[1].split(' ')[0];
+        } else if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
+            return new URL(dataset.connectorUrl).pathname.split(/services|FeatureServer/)[1].replace(/\//g, '');
+        } else if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
+            return 'data';
+        }
+        return dataset.connectorUrl;
+    }
+
     static getFilteredQuery(query) {
         const datasetAttributes = Object.keys(Dataset.schema.obj);
         Object.keys(query).forEach((param) => {
@@ -82,7 +96,7 @@ class DatasetService {
         logger.info(`[DBACCESS-SAVE]: dataset.name: ${dataset.name}`);
         return await new Dataset({
             name: dataset.name,
-            slug: DatasetService.getSlug(dataset.name),
+            slug: tempSlug,
             type: dataset.type,
             subtitle: dataset.subtitle,
             application: dataset.application,
@@ -92,7 +106,7 @@ class DatasetService {
             provider: dataset.provider,
             userId: user.id,
             connectorUrl: dataset.connectorUrl,
-            tableName: dataset.tableName,
+            tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite,
             legend: dataset.legend,
             dataset: dataset.clonedHost
@@ -108,6 +122,7 @@ class DatasetService {
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
         }
         const tempSlug = DatasetService.getSlug(dataset.name);
+        const tableName = DatasetService.getTableName(dataset);
         const query = {
             slug: tempSlug
         };
@@ -118,7 +133,7 @@ class DatasetService {
             throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
         }
         currentDataset.name = dataset.name ? dataset.name : currentDataset.name;
-        currentDataset.slug = slug || currentDataset.slug;
+        currentDataset.slug = tempSlug || currentDataset.slug;
         currentDataset.subtitle = dataset.subtitle ? dataset.subtitle : currentDataset.subtitle;
         currentDataset.application = dataset.application ? dataset.application : currentDataset.application;
         currentDataset.dataPath = dataset.dataPath ? dataset.dataPath : currentDataset.dataPath;
@@ -127,8 +142,9 @@ class DatasetService {
         currentDataset.provider = dataset.provider ? dataset.provider : currentDataset.provider;
         currentDataset.userId = user.id ? user.id : currentDataset.userId;
         currentDataset.connectorUrl = dataset.connectorUrl ? dataset.connectorUrl : currentDataset.connectorUrl;
-        currentDataset.tableName = dataset.tableName ? dataset.tableName : currentDataset.tableName;
+        currentDataset.tableName = tableName || currentDataset.tableName;
         currentDataset.overwrite = dataset.overwrite ? dataset.overwrite : currentDataset.overwrite;
+        currentDataset.status = dataset.status ? dataset.status : currentDataset.status;
         currentDataset.legend = dataset.legend ? dataset.legend : currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost ? dataset.clonedHost : currentDataset.clonedHost;
         currentDataset.updatedAt = new Date();

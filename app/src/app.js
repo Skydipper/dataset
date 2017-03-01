@@ -30,10 +30,10 @@ const onDbReady = (err) => {
     app.use(async (ctx, next) => {
         try {
             await next();
-        } catch (err) {
-            let error = err;
+        } catch (inErr) {
+            let error = inErr;
             try {
-                error = JSON.parse(err);
+                error = JSON.parse(inErr);
             } catch (e) {
                 logger.error('Error parse');
             }

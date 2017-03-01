@@ -6,6 +6,7 @@ const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const DatasetNotValid = require('errors/datasetNotValid.error');
+const ctRegisterMicroservice = require('ct-register-microservice-node');
 const USER_ROLES = require('app.constants').USER_ROLES;
 
 const router = new Router({
@@ -21,6 +22,40 @@ class DatasetRouter {
 
     static getUser(ctx) {
         return Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser);
+    }
+
+    static notifyAdapter(ctx, dataset) {
+        const connectorType = dataset.connectorType;
+        const provider = dataset.provider;
+        dataset.id = dataset._id;
+        dataset.data_columns = dataset.datasetAttributes;
+
+        if (provider === 'csv') {
+            dataset.polygon = ctx.request.body.polygon;
+            dataset.points = ctx.request.body.points;
+        }
+
+        let uri = '';
+        if (connectorType === 'json') {
+            uri += `/json-datasets`;
+        } else if (connectorType === 'rest') {
+            uri += `/rest-datasets/${provider}`;
+        } else {
+            uri += `/doc-datasets/${provider}`;
+        }
+
+        if (ctx.request.method === 'DELETE' || ctx.request.method === 'PATCH') {
+            uri += `/${dataset.id}`;
+        }
+
+        const method = ctx.request.method === 'DELETE' ? 'DELETE' : 'POST';
+
+        ctRegisterMicroservice.requestToMicroservice({
+            uri,
+            method,
+            json: true,
+            body: dataset
+        });
     }
 
     static async get(ctx) {
@@ -43,6 +78,11 @@ class DatasetRouter {
         try {
             const user = DatasetRouter.getUser(ctx);
             const dataset = await DatasetService.create(ctx.request.body, user);
+            try {
+                DatasetRouter.notifyAdapter(ctx, dataset);
+            } catch (error) {
+                // do nothing
+            }
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetDuplicated) {
@@ -59,6 +99,11 @@ class DatasetRouter {
         try {
             const user = DatasetRouter.getUser(ctx);
             const dataset = await DatasetService.update(id, ctx.request.body, user);
+            try {
+                DatasetRouter.notifyAdapter(ctx, dataset);
+            } catch (error) {
+                // do nothing
+            }
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -77,6 +122,11 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Deleting dataset with id: ${id}`);
         try {
             const dataset = await DatasetService.delete(id);
+            try {
+                DatasetRouter.notifyAdapter(ctx, dataset);
+            } catch (error) {
+                // do nothing
+            }
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -111,8 +161,12 @@ class DatasetRouter {
 const validationMiddleware = async (ctx, next) => {
     logger.info(`[DatasetRouter] Validating`);
     try {
-        // @TODO different endpoints - methods
-        await DatasetValidator.validateCreation(ctx);
+        const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
+        if (newDatasetCreation) {
+            await DatasetValidator.validateCreation(ctx);
+        } else {
+            await DatasetValidator.validateUpdate(ctx);
+        }
     } catch (err) {
         if (err instanceof DatasetNotValid) {
             ctx.throw(400, err.getMessages());
