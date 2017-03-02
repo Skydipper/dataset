@@ -37,7 +37,7 @@ class DatasetValidator {
         koaObj.checkBody('connectorUrl').optional().isUrl();
         koaObj.checkBody('tableName').optional().isAscii();
         koaObj.checkBody('overwrite').optional().toBoolean();
-        koaObj.checkBody('data').optional().check(data => DatasetValidator.objectValidation(data));
+        koaObj.checkBody('data').optional().isJSON();
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.objectValidation(legend));
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
@@ -64,7 +64,7 @@ class DatasetValidator {
         koaObj.checkBody('tableName').optional().isAscii();
         koaObj.checkBody('overwrite').optional().toBoolean();
         koaObj.checkBody('errorMessage').optional().isAscii();
-        koaObj.checkBody('data').optional().check(data => DatasetValidator.objectValidation(data));
+        koaObj.checkBody('data').optional().isJSON();
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.objectValidation(legend));
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
