@@ -1,29 +1,50 @@
-const JSONAPISerializer = require('jsonapi-serializer').Serializer;
-const datasetSerializer = new JSONAPISerializer('dataset', {
-    attributes: ['name', 'slug', 'type', 'subtitle', 'application', 'dataPath',
-    'attributesPath', 'connectorType', 'provider', 'userId', 'connectorUrl',
-    'tableName', 'status', 'overwrite', 'legend', 'clonedHost', 'errorMessage', 'createdAt', 'updatedAt'],
-    id: '_id',
-    typeForAttribute: attribute => attribute,
-    keyForAttribute: 'camelCase'
-});
 
 class DatasetSerializer {
 
+    static serializeElement(el) {
+        return {
+            id: el._id,
+            type: 'dataset',
+            attributes: {
+                name: el.name,
+                slug: el.slug,
+                type: el.type,
+                subtitle: el.subtitle,
+                application: el.application,
+                dataPath: el.dataPath,
+                attributesPath: el.attributesPath,
+                connectorType: el.connectorType,
+                provider: el.provider,
+                userId: el.userId,
+                connectorUrl: el.connectorUrl,
+                tableName: el.tableName,
+                status: el.status,
+                overwrite: el.overwrite,
+                legend: el.legend,
+                clonedHost: el.clonedHost,
+                errorMessage: el.errorMessage,
+                createdAt: el.createdAt,
+                updatedAt: el.updatedAt,
+                metadata: el.metadata,
+                widget: el.widget,
+                layer: el.layer,
+                vocabulary: el.vocabulary
+            }
+        };
+    }
+
     static serialize(data, link = null) {
-        let result = {};
+        const result = {};
         if (data) {
-            let arrayData = data;
             if (data.docs) {
-                arrayData = data.docs;
+                result.data = data.docs.map(el => DatasetSerializer.serializeElement(el));
+            } else {
+                if (Array.isArray(data)) {
+                    result.data = DatasetSerializer.serializeElement(data[0]);
+                } else {
+                    result.data = DatasetSerializer.serializeElement(data);
+                }
             }
-            if (!Array.isArray(arrayData)) {
-                arrayData = [data];
-            }
-            if (arrayData.length === 1) {
-                arrayData = arrayData[0];
-            }
-            result = datasetSerializer.serialize(arrayData);
         }
         if (link) {
             result.links = {

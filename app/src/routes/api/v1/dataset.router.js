@@ -61,8 +61,10 @@ class DatasetRouter {
     static async get(ctx) {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Getting dataset with id: ${id}`);
+        const query = ctx.query;
+        delete query.loggedUser;
         try {
-            const dataset = await DatasetService.get(id);
+            const dataset = await DatasetService.get(id, query);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {

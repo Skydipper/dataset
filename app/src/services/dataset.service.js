@@ -90,21 +90,32 @@ class DatasetService {
             }
             return obj;
         });
-        resources = (await Promise.all(resources)) // [array of promises]
-        .reduce((acc, val) => { acc[Object.keys(val)[0]] = val; return acc; }); // object with include as keys
+        resources = (await Promise.all(resources)); // [array of promises]
+        resources.unshift({});
+        resources = resources.reduce((acc, val) => { const key = Object.keys(val)[0]; acc[key] = val[key]; return acc; }); // object with include as keys
         includes.forEach((include) => {
-            const data = resources[include].data;
-            const result = [];
-            if (data.length > 0) {
-                data.forEach(el => {
-                    if (Object.keys(result).indexOf(el.attributes.dataset) < 0) {
-                        result[el.attributes.dataset] = [el];
-                    } else {
-                        result[el.attributes.dataset].push(el);
-                    }
-                });
+            if (resources[include]) {
+                const data = resources[include].data;
+                const result = {};
+                if (data.length > 0) {
+                    data.forEach(el => {
+                        if (include === 'vocabulary') { // particular case of vocabulary. it changes the matching attr
+                            if (Object.keys(result).indexOf(el.attributes.resource.id) < 0) {
+                                result[el.attributes.resource.id] = [el];
+                            } else {
+                                result[el.attributes.resource.id].push(el);
+                            }
+                        } else {
+                            if (Object.keys(result).indexOf(el.attributes.dataset) < 0) {
+                                result[el.attributes.dataset] = [el];
+                            } else {
+                                result[el.attributes.dataset].push(el);
+                            }
+                        }
+                    });
+                }
+                resources[include].data = result;
             }
-            resources[include].data = result;
         }); // into each include data shouldn't be an array but a object id:ARRAY
         return resources;
     }
@@ -116,21 +127,26 @@ class DatasetService {
         const resources = await DatasetService.getResources(ids, includes);
         ids.forEach((id) => {
             includes.forEach((include) => {
-                if (resources[include].data[id]) {
+                if (resources[include] && resources[include].data[id]) {
                     map[id][include] = resources[include].data[id];
                 }
             });
         });
-        return Object.keys(map).map(key => map[key]);
+        const relationships = Object.keys(map).map(key => map[key]);
+        return relationships;
     }
 
-    static async get(id) {
+    static async get(id, query = {}) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        const dataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
+        let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
+        const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         if (!dataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
+        }
+        if (includes.length > 0) {
+            dataset = await DatasetService.getRelationships([dataset], includes);
         }
         return dataset;
     }
