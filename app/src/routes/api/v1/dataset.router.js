@@ -99,11 +99,6 @@ class DatasetRouter {
         try {
             const user = DatasetRouter.getUser(ctx);
             const dataset = await DatasetService.update(id, ctx.request.body, user);
-            try {
-                DatasetRouter.notifyAdapter(ctx, dataset);
-            } catch (error) {
-                // do nothing
-            }
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {

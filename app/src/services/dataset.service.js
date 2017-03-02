@@ -74,11 +74,15 @@ class DatasetService {
     }
 
     static async getResources(ids, includes) {
-        const resources = includes.map(async (include) => {
+        let resources = includes.map(async (include) => {
             const obj = {};
             if (INCLUDES.indexOf(include)) {
+                let uri;
+                if (include === 'vocabulary' || include === 'metadata') {
+                    uri = '/dataset';
+                }
                 obj[include] = await ctRegisterMicroservice.requestToMicroservice({
-                    uri: `/${include}/find-by-ids`,
+                    uri: `${uri}/${include}/find-by-ids`,
                     method: 'POST',
                     json: true,
                     body: { ids }
@@ -86,7 +90,23 @@ class DatasetService {
             }
             return obj;
         });
-        await Promise.all(resources);
+        resources = (await Promise.all(resources)) // [array of promises]
+        .reduce((acc, val) => { acc[Object.keys(val)[0]] = val; return acc; }); // object with include as keys
+        includes.forEach((include) => {
+            const data = resources[include].data;
+            const result = [];
+            if (data.length > 0) {
+                data.forEach(el => {
+                    if (Object.keys(result).indexOf(el.attributes.dataset) < 0) {
+                        result[el.attributes.dataset] = [el];
+                    } else {
+                        result[el.attributes.dataset].push(el);
+                    }
+                });
+            }
+            resources[include].data = result;
+        }); // into each include data shouldn't be an array but a object id:ARRAY
+        return resources;
     }
 
     static async getRelationships(datasets, includes) {
@@ -96,7 +116,9 @@ class DatasetService {
         const resources = await DatasetService.getResources(ids, includes);
         ids.forEach((id) => {
             includes.forEach((include) => {
-                map[id][include] = resources[include][id]; // @TODO ID
+                if (resources[include].data[id]) {
+                    map[id][include] = resources[include].data[id];
+                }
             });
         });
         return Object.keys(map).map(key => map[key]);
@@ -218,9 +240,10 @@ class DatasetService {
             sort: filteredSort
         };
         logger.info(`[DBACCESS-FIND]: dataset`);
-        const pages = await Dataset.paginate(filteredQuery, options);
+        let pages = await Dataset.paginate(filteredQuery, options);
+        pages = Object.assign({}, pages);
         if (includes.length > 0) {
-            pages.docs = DatasetService.getRelationships(pages.docs, includes);
+            pages.docs = await DatasetService.getRelationships(pages.docs, includes);
         }
         return pages;
     }
