@@ -26,7 +26,7 @@ class DatasetService {
         return dataset.tableName;
     }
 
-    static getFilteredQuery(query) {
+    static getFilteredQuery(query, ids = []) {
         const datasetAttributes = Object.keys(Dataset.schema.obj);
         Object.keys(query).forEach((param) => {
             if (datasetAttributes.indexOf(param) < 0) {
@@ -50,6 +50,9 @@ class DatasetService {
                     query[param] = query[param];
 
                 }
+            }
+            if (ids.length > 0) {
+                query._id = { $in: ids };
             }
         });
         return query;
@@ -249,9 +252,9 @@ class DatasetService {
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
-        // const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
+        const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
-        const filteredQuery = DatasetService.getFilteredQuery(query);
+        const filteredQuery = DatasetService.getFilteredQuery(query, ids);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
             page,
