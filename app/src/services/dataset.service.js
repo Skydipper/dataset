@@ -178,7 +178,8 @@ class DatasetService {
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite,
             legend: dataset.legend,
-            dataset: dataset.clonedHost
+            clonedHost: dataset.clonedHost,
+            data: dataset.data
         }).save();
     }
 
@@ -220,6 +221,7 @@ class DatasetService {
         currentDataset.overwrite = dataset.overwrite || currentDataset.overwrite;
         currentDataset.legend = dataset.legend || currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
+        currentDataset.data = dataset.data || currentDataset.data;
         currentDataset.updatedAt = new Date();
         logger.debug(dataset);
         if (user.id === 'microservice' && (dataset.status === 1 || dataset.status === 2)) {
