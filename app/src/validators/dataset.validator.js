@@ -7,14 +7,21 @@ class DatasetValidator {
         return Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser);
     }
 
-    static arrayValidation(property) {
+    static isArray(property) {
+        if (property instanceof Array) {
+            return true;
+        }
+        return false;
+    }
+
+    static notEmptyArray(property) {
         if (property instanceof Array && property.length > 0) {
             return true;
         }
         return false;
     }
 
-    static objectValidation(property) {
+    static isObject(property) {
         if (property instanceof Object && property.length === undefined) {
             return true;
         }
@@ -27,7 +34,7 @@ class DatasetValidator {
         koaObj.checkBody('type').optional().isAscii()
         .toLow();
         koaObj.checkBody('subtitle').optional().isAscii();
-        koaObj.checkBody('application').optional().check(application => DatasetValidator.arrayValidation(application));
+        koaObj.checkBody('application').optional().check(application => DatasetValidator.notEmptyArray(application));
         koaObj.checkBody('dataPath').optional().isAscii();
         koaObj.checkBody('attributesPath').optional().isAscii();
         koaObj.checkBody('connectorType').notEmpty().isAscii()
@@ -37,8 +44,13 @@ class DatasetValidator {
         koaObj.checkBody('connectorUrl').optional().isUrl();
         koaObj.checkBody('tableName').optional().isAscii();
         koaObj.checkBody('overwrite').optional().toBoolean();
-        koaObj.checkBody('data').optional().isJSON();
-        koaObj.checkBody('legend').optional().check(legend => DatasetValidator.objectValidation(legend));
+        koaObj.checkBody('data').optional().check(data => {
+            if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
+                return true;
+            }
+            return false;
+        });
+        koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
@@ -53,7 +65,7 @@ class DatasetValidator {
         koaObj.checkBody('type').optional().isAscii()
         .toLow();
         koaObj.checkBody('subtitle').optional().isAscii();
-        koaObj.checkBody('application').optional().check(application => DatasetValidator.arrayValidation(application));
+        koaObj.checkBody('application').optional().check(application => DatasetValidator.notEmptyArray(application));
         koaObj.checkBody('dataPath').optional().isAscii();
         koaObj.checkBody('attributesPath').optional().isAscii();
         koaObj.checkBody('connectorType').optional().isAscii()
@@ -64,8 +76,13 @@ class DatasetValidator {
         koaObj.checkBody('tableName').optional().isAscii();
         koaObj.checkBody('overwrite').optional().toBoolean();
         koaObj.checkBody('errorMessage').optional().isAscii();
-        koaObj.checkBody('data').optional().isJSON();
-        koaObj.checkBody('legend').optional().check(legend => DatasetValidator.objectValidation(legend));
+        koaObj.checkBody('data').optional().check(data => {
+            if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
+                return true;
+            }
+            return false;
+        });
+        koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
