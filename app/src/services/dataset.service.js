@@ -4,6 +4,7 @@ const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const slug = require('slug');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
+const INCLUDES = require('app.constants').INCLUDES;
 
 class DatasetService {
 
@@ -72,12 +73,34 @@ class DatasetService {
         return filteredSort;
     }
 
-    // static getRelationships(datasets, includes) {
-    //     // const hash = datasets.unshift({}).reduce((acc, val) => { acc[val._id] = val; return acc; });
-    //     // includes.forEach((include) => {
-    //     //
-    //     // });
-    // }
+    static async getResources(ids, includes) {
+        const resources = includes.map(async (include) => {
+            const obj = {};
+            if (INCLUDES.indexOf(include)) {
+                obj[include] = await ctRegisterMicroservice.requestToMicroservice({
+                    uri: `/${include}/find-by-ids`,
+                    method: 'POST',
+                    json: true,
+                    body: { ids }
+                });
+            }
+            return obj;
+        });
+        await Promise.all(resources);
+    }
+
+    static async getRelationships(datasets, includes) {
+        datasets.unshift({});
+        const map = datasets.reduce((acc, val) => { acc[val._id] = val; return acc; });
+        const ids = Object.keys(map);
+        const resources = await DatasetService.getResources(ids, includes);
+        ids.forEach((id) => {
+            includes.forEach((include) => {
+                map[id][include] = resources[include][id]; // @TODO ID
+            });
+        });
+        return Object.keys(map).map(key => map[key]);
+    }
 
     static async get(id) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
@@ -163,6 +186,7 @@ class DatasetService {
         logger.debug(dataset);
         if (user.id === 'microservice' && (dataset.status === 1 || dataset.status === 2)) {
             currentDataset.status = dataset.status === 1 ? 'saved' : 'failed';
+            currentDataset.errorMessage = dataset.status === 1 ? null : dataset.errorMessage;
         }
         logger.info(`[DBACCESS-SAVE]: dataset`);
         return await currentDataset.save();
@@ -185,7 +209,7 @@ class DatasetService {
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
-        // const includes = query.includes.split(',').map(elem => elem.trim());
+        const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         const filteredQuery = DatasetService.getFilteredQuery(query);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
@@ -195,9 +219,9 @@ class DatasetService {
         };
         logger.info(`[DBACCESS-FIND]: dataset`);
         const pages = await Dataset.paginate(filteredQuery, options);
-        // if (includes.length > 0) {
-        //     pages.docs = DatasetService.getRelationships(pages.docs, includes);
-        // }
+        if (includes.length > 0) {
+            pages.docs = DatasetService.getRelationships(pages.docs, includes);
+        }
         return pages;
     }
 

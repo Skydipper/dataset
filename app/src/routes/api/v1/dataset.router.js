@@ -27,7 +27,7 @@ class DatasetRouter {
     static notifyAdapter(ctx, dataset) {
         const connectorType = dataset.connectorType;
         const provider = dataset.provider;
-        const clonedDataset = Object.assign({}, dataset);
+        const clonedDataset = Object.assign({}, dataset.toObject());
         clonedDataset.id = dataset._id;
         clonedDataset.connector_url = dataset.connectorUrl;
         clonedDataset.attributes_path = dataset.attributesPath;
@@ -44,7 +44,7 @@ class DatasetRouter {
             uri += `/doc-datasets/${provider}`;
         }
 
-        if (ctx.request.method === 'DELETE' || ctx.request.method === 'PATCH') {
+        if (ctx.request.method === 'DELETE') {
             uri += `/${dataset.id}`;
         }
 
