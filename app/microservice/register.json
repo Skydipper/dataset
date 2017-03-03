@@ -2,14 +2,14 @@
 	"name": "#(service.name)",
 	"tags": ["dataset"],
 	"endpoints": [{
-		"path": "/dataset",
+		"path": "/v1/dataset",
 		"method": "GET",
 		"redirect": {
 			"method": "GET",
 			"path": "/api/v1/dataset"
 		}
 	},{
-		"path": "/dataset",
+		"path": "/v1/dataset",
 		"method": "POST",
 		"authenticated": true,
 		"redirect": {
@@ -17,14 +17,14 @@
 			"path": "/api/v1/dataset"
 		}
 	},{
-		"path": "/dataset/:dataset",
+		"path": "/v1/dataset/:dataset",
 		"method": "GET",
 		"redirect": {
 			"method": "GET",
 			"path": "/api/v1/dataset/:dataset"
 		}
 	},{
-		"path": "/dataset/:dataset",
+		"path": "/v1/dataset/:dataset",
 		"method": "PATCH",
 		"authenticated": true,
 		"redirect": {
@@ -32,7 +32,7 @@
 			"path": "/api/v1/dataset/:dataset"
 		}
 	},{
-		"path": "/dataset/:dataset",
+		"path": "/v1/dataset/:dataset",
 		"method": "DELETE",
 		"authenticated": true,
 		"redirect": {
@@ -40,7 +40,7 @@
 			"path": "/api/v1/dataset/:dataset"
 		}
 	},{
-		"path": "/dataset/:dataset/clone",
+		"path": "/v1/dataset/:dataset/clone",
 		"method": "POST",
 		"authenticated": true,
 		"redirect": {
