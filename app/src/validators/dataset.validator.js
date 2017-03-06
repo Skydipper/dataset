@@ -90,6 +90,17 @@ class DatasetValidator {
         return true;
     }
 
+    static async validateCloning(koaObj) {
+        logger.info('Validating Dataset Cloning');
+        koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application));
+        koaObj.checkBody('datasetUrl').notEmpty().isAscii();
+        if (koaObj.errors) {
+            logger.error('Error validating dataset creation');
+            throw new DatasetNotValid(koaObj.errors);
+        }
+        return true;
+    }
+
 }
 
 module.exports = DatasetValidator;

@@ -226,7 +226,6 @@ class DatasetService {
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
         currentDataset.data = dataset.data || currentDataset.data;
         currentDataset.updatedAt = new Date();
-        logger.debug(dataset);
         if (user.id === 'microservice' && (dataset.status === 1 || dataset.status === 2)) {
             currentDataset.status = dataset.status === 1 ? 'saved' : 'failed';
             currentDataset.errorMessage = dataset.status === 1 ? null : dataset.errorMessage;
@@ -270,8 +269,29 @@ class DatasetService {
         return pages;
     }
 
-    static async clone() {
-        return await true;
+    static async clone(id, dataset, user) {
+        logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
+        logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
+        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
+        if (!currentDataset) {
+            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
+            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
+        }
+        const newDataset = {};
+        newDataset.name = `${currentDataset.name} - ${new Date().getTime()}`;
+        newDataset.subtitle = currentDataset.subtitle;
+        newDataset.application = dataset.application;
+        newDataset.dataPath = currentDataset.dataPath;
+        newDataset.attributesPath = currentDataset.attributesPath;
+        newDataset.connectorType = 'json';
+        newDataset.provider = 'rwjson';
+        newDataset.connectorUrl = dataset.datasetUrl;
+        newDataset.tableName = currentDataset.tableName;
+        newDataset.overwrite = currentDataset.overwrite;
+        newDataset.legend = currentDataset.legend;
+        newDataset.clonedHost = currentDataset.clonedHost;
+        newDataset.data = currentDataset.data;
+        return await DatasetService.create(newDataset, user);
     }
 
     static async hasPermission(id, user) {

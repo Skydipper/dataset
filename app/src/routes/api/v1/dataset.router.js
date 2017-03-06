@@ -142,7 +142,8 @@ class DatasetRouter {
         delete clonedQuery['page[size]'];
         delete clonedQuery['page[number]'];
         const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
-        const link = `${ctx.request.protocol}://${ctx.request.host}${ctx.request.path}${serializedQuery}`;
+        const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
+        const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
         const datasets = await DatasetService.getAll(query);
         ctx.body = DatasetSerializer.serialize(datasets, link);
     }
@@ -150,7 +151,22 @@ class DatasetRouter {
     static async clone(ctx) {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Cloning dataset with id: ${id}`);
-        ctx.body = {};
+        try {
+            const user = DatasetRouter.getUser(ctx);
+            const dataset = await DatasetService.clone(id, ctx.request.body, user);
+            try {
+                DatasetRouter.notifyAdapter(ctx, dataset);
+            } catch (error) {
+                // do nothing
+            }
+            ctx.body = DatasetSerializer.serialize(dataset);
+        } catch (err) {
+            if (err instanceof DatasetDuplicated) {
+                ctx.throw(400, err.message);
+                return;
+            }
+            throw err;
+        }
     }
 
 }
@@ -161,6 +177,8 @@ const validationMiddleware = async (ctx, next) => {
         const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
         if (newDatasetCreation) {
             await DatasetValidator.validateCreation(ctx);
+        } else if (ctx.request.path.indexOf('clone')) {
+            await DatasetValidator.validateCloning(ctx);
         } else {
             await DatasetValidator.validateUpdate(ctx);
         }
