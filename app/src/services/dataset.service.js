@@ -281,10 +281,10 @@ class DatasetService {
         newDataset.name = `${currentDataset.name} - ${new Date().getTime()}`;
         newDataset.subtitle = currentDataset.subtitle;
         newDataset.application = dataset.application;
-        newDataset.dataPath = currentDataset.dataPath;
+        newDataset.dataPath = 'data';
         newDataset.attributesPath = currentDataset.attributesPath;
-        newDataset.connectorType = 'json';
-        newDataset.provider = 'rwjson';
+        newDataset.connectorType = 'document';
+        newDataset.provider = 'json';
         newDataset.connectorUrl = dataset.datasetUrl;
         newDataset.tableName = currentDataset.tableName;
         newDataset.overwrite = currentDataset.overwrite;
@@ -295,7 +295,7 @@ class DatasetService {
             hostUrl: dataset.datasetUrl,
             hostId: currentDataset._id,
             hostType: currentDataset.connectorType,
-            hostPath: currentDataset.data
+            hostPath: currentDataset.tableName
         };
         return await DatasetService.create(newDataset, user);
     }

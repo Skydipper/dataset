@@ -40,11 +40,10 @@ class DatasetRouter {
             uri += `/json-datasets`;
         } else if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
-        } else if (ctx.query.version === 'v1') {
-            clonedDataset.connector_url = process.env.CT_URL + dataset.connectorUrl;
-            uri += `/v1/doc-datasets/${provider}`;
         } else {
-            uri += `/doc-datasets/${provider}`;
+            clonedDataset.connector_url = process.env.CT_URL + dataset.connector_url;
+            clonedDataset.connectorUrl = process.env.CT_URL + dataset.connectorUrl;
+            uri += `/v1/doc-datasets/${provider}`;
         }
 
         if (ctx.request.method === 'DELETE') {
