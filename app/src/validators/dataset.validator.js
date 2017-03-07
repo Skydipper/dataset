@@ -34,7 +34,7 @@ class DatasetValidator {
         koaObj.checkBody('type').optional().isAscii()
         .toLow();
         koaObj.checkBody('subtitle').optional().isAscii();
-        koaObj.checkBody('application').optional().check(application => DatasetValidator.notEmptyArray(application));
+        koaObj.checkBody('application').check(application => DatasetValidator.notEmptyArray(application));
         koaObj.checkBody('dataPath').optional().isAscii();
         koaObj.checkBody('attributesPath').optional().isAscii();
         koaObj.checkBody('connectorType').notEmpty().isAscii()

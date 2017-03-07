@@ -40,6 +40,8 @@ class DatasetRouter {
             uri += `/json-datasets`;
         } else if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
+        } else if (ctx.query.version === 'v1') {
+            uri += `/v1/doc-datasets/${provider}`;
         } else {
             uri += `/doc-datasets/${provider}`;
         }
@@ -177,7 +179,7 @@ const validationMiddleware = async (ctx, next) => {
         const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
         if (newDatasetCreation) {
             await DatasetValidator.validateCreation(ctx);
-        } else if (ctx.request.path.indexOf('clone')) {
+        } else if (ctx.request.path.indexOf('clone') >= 0) {
             await DatasetValidator.validateCloning(ctx);
         } else {
             await DatasetValidator.validateUpdate(ctx);

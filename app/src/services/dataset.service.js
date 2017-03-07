@@ -289,8 +289,14 @@ class DatasetService {
         newDataset.tableName = currentDataset.tableName;
         newDataset.overwrite = currentDataset.overwrite;
         newDataset.legend = currentDataset.legend;
-        newDataset.clonedHost = currentDataset.clonedHost;
         newDataset.data = currentDataset.data;
+        newDataset.clonedHost = {
+            hostProvider: currentDataset.provider,
+            hostUrl: dataset.datasetUrl,
+            hostId: currentDataset._id,
+            hostType: currentDataset.connectorType,
+            hostPath: currentDataset.data
+        };
         return await DatasetService.create(newDataset, user);
     }
 
