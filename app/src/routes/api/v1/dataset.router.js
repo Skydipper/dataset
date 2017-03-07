@@ -41,8 +41,10 @@ class DatasetRouter {
         } else if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
         } else {
-            clonedDataset.connector_url = process.env.CT_URL + dataset.connector_url;
-            clonedDataset.connectorUrl = process.env.CT_URL + dataset.connectorUrl;
+            if (ctx.request.path.indexOf('clone') >= 0) {
+                clonedDataset.connector_url = process.env.CT_URL + dataset.connector_url;
+                clonedDataset.connectorUrl = process.env.CT_URL + dataset.connectorUrl;
+            }
             uri += `/v1/doc-datasets/${provider}`;
         }
 
