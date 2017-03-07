@@ -51,6 +51,7 @@ class DatasetValidator {
             return false;
         });
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
+        koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies));
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
@@ -83,6 +84,7 @@ class DatasetValidator {
             return false;
         });
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
+        koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies));
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);

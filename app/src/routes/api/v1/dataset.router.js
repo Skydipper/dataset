@@ -34,6 +34,7 @@ class DatasetRouter {
         clonedDataset.data_columns = dataset.datasetAttributes;
         clonedDataset.data_path = dataset.dataPath;
         clonedDataset.table_name = dataset.tableName;
+        clonedDataset.data = dataset.data;
 
         let uri = '';
         if (connectorType === 'json') {

@@ -22,7 +22,6 @@ const Dataset = new Schema({
     tableName: { type: String, required: false, trim: true },
     status: { type: String, enum: STATUS, default: 'pending' },
     overwrite: { type: Boolean, required: false, default: false },
-    data: { type: Schema.Types.Mixed, required: false, default: {} },
     errorMessage: { type: String, required: false, trim: true, default: null },
     legend: {
         _id: false,

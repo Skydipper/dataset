@@ -1,10 +1,9 @@
 const logger = require('logger');
 const Dataset = require('models/dataset.model');
+const RelationshipsService = require('services/relationships.service');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const slug = require('slug');
-const ctRegisterMicroservice = require('ct-register-microservice-node');
-const INCLUDES = require('app.constants').INCLUDES;
 
 class DatasetService {
 
@@ -76,69 +75,6 @@ class DatasetService {
         return filteredSort;
     }
 
-    static async getResources(ids, includes) {
-        let resources = includes.map(async (include) => {
-            const obj = {};
-            if (INCLUDES.indexOf(include)) {
-                let uri;
-                if (include === 'vocabulary' || include === 'metadata') {
-                    uri = '/dataset';
-                }
-                obj[include] = await ctRegisterMicroservice.requestToMicroservice({
-                    uri: `${uri}/${include}/find-by-ids`,
-                    method: 'POST',
-                    json: true,
-                    body: { ids }
-                });
-            }
-            return obj;
-        });
-        resources = (await Promise.all(resources)); // [array of promises]
-        resources.unshift({});
-        resources = resources.reduce((acc, val) => { const key = Object.keys(val)[0]; acc[key] = val[key]; return acc; }); // object with include as keys
-        includes.forEach((include) => {
-            if (resources[include]) {
-                const data = resources[include].data;
-                const result = {};
-                if (data.length > 0) {
-                    data.forEach(el => {
-                        if (include === 'vocabulary') { // particular case of vocabulary. it changes the matching attr
-                            if (Object.keys(result).indexOf(el.attributes.resource.id) < 0) {
-                                result[el.attributes.resource.id] = [el];
-                            } else {
-                                result[el.attributes.resource.id].push(el);
-                            }
-                        } else {
-                            if (Object.keys(result).indexOf(el.attributes.dataset) < 0) {
-                                result[el.attributes.dataset] = [el];
-                            } else {
-                                result[el.attributes.dataset].push(el);
-                            }
-                        }
-                    });
-                }
-                resources[include].data = result;
-            }
-        }); // into each include data shouldn't be an array but a object id:ARRAY
-        return resources;
-    }
-
-    static async getRelationships(datasets, includes) {
-        datasets.unshift({});
-        const map = datasets.reduce((acc, val) => { acc[val._id] = val; return acc; });
-        const ids = Object.keys(map);
-        const resources = await DatasetService.getResources(ids, includes);
-        ids.forEach((id) => {
-            includes.forEach((include) => {
-                if (resources[include] && resources[include].data[id]) {
-                    map[id][include] = resources[include].data[id];
-                }
-            });
-        });
-        const relationships = Object.keys(map).map(key => map[key]);
-        return relationships;
-    }
-
     static async get(id, query = {}) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
@@ -149,7 +85,7 @@ class DatasetService {
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
         }
         if (includes.length > 0) {
-            dataset = await DatasetService.getRelationships([dataset], includes);
+            dataset = await RelationshipsService.getRelationships([dataset], includes);
         }
         return dataset;
     }
@@ -166,7 +102,7 @@ class DatasetService {
             throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
         }
         logger.info(`[DBACCESS-SAVE]: dataset.name: ${dataset.name}`);
-        return await new Dataset({
+        let newDataset = await new Dataset({
             name: dataset.name,
             slug: tempSlug,
             type: dataset.type,
@@ -181,9 +117,18 @@ class DatasetService {
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite,
             legend: dataset.legend,
-            clonedHost: dataset.clonedHost,
-            data: dataset.data
+            clonedHost: dataset.clonedHost
         }).save();
+        // if vocabularies
+        if (dataset.vocabularies) {
+            try {
+                await RelationshipsService.createVocabularies(newDataset._id, dataset.vocabularies);
+            } catch (err) {
+                newDataset.errorMessage = err.message;
+                newDataset = await DatasetService.update(newDataset._id, newDataset, { id: 'microservice' });
+            }
+        }
+        return newDataset;
     }
 
     static async update(id, dataset, user) {
@@ -197,17 +142,19 @@ class DatasetService {
         let tempSlug;
         if (dataset.name) {
             tempSlug = DatasetService.getSlug(dataset.name);
+            if (tempSlug !== currentDataset.slug) {
+                const query = {
+                    slug: tempSlug
+                };
+                logger.info(`[DBACCESS-FIND]: dataset.name - ${dataset.name}`);
+                const otherDataset = await Dataset.findOne(query).exec();
+                if (otherDataset) {
+                    logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
+                    throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
+                }
+            }
         }
         const tableName = DatasetService.getTableName(dataset);
-        const query = {
-            slug: tempSlug
-        };
-        logger.info(`[DBACCESS-FIND]: dataset.name - ${dataset.name}`);
-        const otherDataset = await Dataset.findOne(query).exec();
-        if (otherDataset) {
-            logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
-            throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
-        }
         currentDataset.name = dataset.name || currentDataset.name;
         currentDataset.slug = tempSlug || currentDataset.slug;
         currentDataset.subtitle = dataset.subtitle || currentDataset.subtitle;
@@ -224,7 +171,6 @@ class DatasetService {
         currentDataset.overwrite = dataset.overwrite || currentDataset.overwrite;
         currentDataset.legend = dataset.legend || currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
-        currentDataset.data = dataset.data || currentDataset.data;
         currentDataset.updatedAt = new Date();
         if (user.id === 'microservice' && (dataset.status === 1 || dataset.status === 2)) {
             currentDataset.status = dataset.status === 1 ? 'saved' : 'failed';
@@ -264,7 +210,7 @@ class DatasetService {
         let pages = await Dataset.paginate(filteredQuery, options);
         pages = Object.assign({}, pages);
         if (includes.length > 0) {
-            pages.docs = await DatasetService.getRelationships(pages.docs, includes);
+            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes);
         }
         return pages;
     }
@@ -289,7 +235,6 @@ class DatasetService {
         newDataset.tableName = currentDataset.tableName;
         newDataset.overwrite = currentDataset.overwrite;
         newDataset.legend = dataset.legend;
-        newDataset.data = currentDataset.data;
         newDataset.clonedHost = {
             hostProvider: currentDataset.provider,
             hostUrl: dataset.datasetUrl,
