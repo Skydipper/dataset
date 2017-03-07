@@ -288,7 +288,7 @@ class DatasetService {
         newDataset.connectorUrl = dataset.datasetUrl;
         newDataset.tableName = currentDataset.tableName;
         newDataset.overwrite = currentDataset.overwrite;
-        newDataset.legend = currentDataset.legend;
+        newDataset.legend = dataset.legend;
         newDataset.data = currentDataset.data;
         newDataset.clonedHost = {
             hostProvider: currentDataset.provider,

@@ -41,7 +41,7 @@ class DatasetValidator {
         .toLow();
         koaObj.checkBody('provider').notEmpty().isAscii()
         .toLow();
-        koaObj.checkBody('connectorUrl').optional().isUrl();
+        koaObj.checkBody('connectorUrl').optional().notEmpty();
         koaObj.checkBody('tableName').optional().isAscii();
         koaObj.checkBody('overwrite').optional().toBoolean();
         koaObj.checkBody('data').optional().check(data => {
@@ -72,7 +72,7 @@ class DatasetValidator {
         .toLow();
         koaObj.checkBody('provider').optional().isAscii()
         .toLow();
-        koaObj.checkBody('connectorUrl').optional().isUrl();
+        koaObj.checkBody('connectorUrl').optional().notEmpty();
         koaObj.checkBody('tableName').optional().isAscii();
         koaObj.checkBody('overwrite').optional().toBoolean();
         koaObj.checkBody('errorMessage').optional().isAscii();
