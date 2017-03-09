@@ -37,16 +37,14 @@ class DatasetRouter {
         clonedDataset.data = dataset.data;
 
         let uri = '';
-        if (connectorType === 'json') {
-            uri += `/json-datasets`;
-        } else if (connectorType === 'rest') {
+        if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
         } else {
             if (ctx.request.path.indexOf('clone') >= 0) {
                 clonedDataset.connector_url = process.env.CT_URL + dataset.connector_url;
                 clonedDataset.connectorUrl = process.env.CT_URL + dataset.connectorUrl;
             }
-            uri += `/v1/doc-datasets/${provider}`;
+            uri += `/doc-datasets/${provider}`;
         }
 
         if (ctx.request.method === 'DELETE') {
