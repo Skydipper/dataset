@@ -81,8 +81,8 @@ class DatasetService {
         let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         if (!dataset) {
-            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
-            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
+            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
+            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         if (includes.length > 0) {
             dataset = await RelationshipsService.getRelationships([dataset], includes);
@@ -136,8 +136,8 @@ class DatasetService {
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
         if (!currentDataset) {
-            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
-            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
+            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
+            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         let tempSlug;
         if (dataset.name) {
@@ -185,8 +185,8 @@ class DatasetService {
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
         if (!currentDataset) {
-            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
-            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
+            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
+            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
         return await currentDataset.remove();
@@ -220,8 +220,8 @@ class DatasetService {
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
         if (!currentDataset) {
-            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exists`);
-            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exists`);
+            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
+            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         const newDataset = {};
         newDataset.name = `${currentDataset.name} - ${new Date().getTime()}`;
