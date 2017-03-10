@@ -9,7 +9,7 @@ class RelationshipsService {
         let resources = includes.map(async (include) => {
             const obj = {};
             if (INCLUDES.indexOf(include) >= 0) {
-                let uri;
+                let uri = '';
                 let payload = {};
                 payload[include] = {
                     ids
