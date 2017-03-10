@@ -34,7 +34,7 @@ class DatasetRouter {
         clonedDataset.data_columns = dataset.datasetAttributes;
         clonedDataset.data_path = dataset.dataPath;
         clonedDataset.table_name = dataset.tableName;
-        clonedDataset.data = dataset.data;
+        clonedDataset.data = ctx.request.body.data;
 
         let uri = '';
         if (connectorType === 'rest') {
@@ -176,6 +176,10 @@ class DatasetRouter {
 
 const validationMiddleware = async (ctx, next) => {
     logger.info(`[DatasetRouter] Validating`);
+    if (ctx.request.body.dataset) {
+        ctx.request.body = Object.assign(ctx.request.body, ctx.request.body.dataset);
+        delete ctx.request.body.dataset;
+    }
     try {
         const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
         if (newDatasetCreation) {

@@ -139,24 +139,24 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
-        let tempSlug;
-        if (dataset.name) {
-            tempSlug = DatasetService.getSlug(dataset.name);
-            if (tempSlug !== currentDataset.slug) {
-                const query = {
-                    slug: tempSlug
-                };
-                logger.info(`[DBACCESS-FIND]: dataset.name - ${dataset.name}`);
-                const otherDataset = await Dataset.findOne(query).exec();
-                if (otherDataset) {
-                    logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
-                    throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
-                }
-            }
-        }
+        // let tempSlug;
+        // if (dataset.name) {
+        //     tempSlug = DatasetService.getSlug(dataset.name);
+        //     if (tempSlug !== currentDataset.slug) {
+        //         const query = {
+        //             slug: tempSlug
+        //         };
+        //         logger.info(`[DBACCESS-FIND]: dataset.name - ${dataset.name}`);
+        //         const otherDataset = await Dataset.findOne(query).exec();
+        //         if (otherDataset) {
+        //             logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
+        //             throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
+        //         }
+        //     }
+        // }
         const tableName = DatasetService.getTableName(dataset);
         currentDataset.name = dataset.name || currentDataset.name;
-        currentDataset.slug = tempSlug || currentDataset.slug;
+        // currentDataset.slug = tempSlug || currentDataset.slug;
         currentDataset.subtitle = dataset.subtitle || currentDataset.subtitle;
         currentDataset.application = dataset.application || currentDataset.application;
         currentDataset.dataPath = dataset.dataPath || currentDataset.dataPath;
