@@ -8,17 +8,24 @@ class RelationshipsService {
         logger.info(`Getting resources of ids: ${ids}`);
         let resources = includes.map(async (include) => {
             const obj = {};
-            if (INCLUDES.indexOf(include)) {
+            if (INCLUDES.indexOf(include) >= 0) {
                 let uri;
+                let payload = {};
+                payload[include] = {
+                    ids
+                };
                 if (include === 'vocabulary' || include === 'metadata') {
                     uri = '/dataset';
+                    payload = {
+                        ids
+                    };
                 }
                 try {
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
                         uri: `${uri}/${include}/find-by-ids`,
                         method: 'POST',
                         json: true,
-                        body: { ids }
+                        body: payload
                     });
                 } catch (e) {
                     throw new Error(e);
