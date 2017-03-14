@@ -115,7 +115,7 @@ class DatasetService {
             userId: user.id,
             connectorUrl: dataset.connectorUrl,
             tableName: DatasetService.getTableName(dataset),
-            overwrite: dataset.overwrite,
+            overwrite: dataset.overwrite || dataset.dataOverwrite,
             legend: dataset.legend,
             clonedHost: dataset.clonedHost
         }).save();
@@ -168,7 +168,7 @@ class DatasetService {
         }
         currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
         currentDataset.tableName = tableName || currentDataset.tableName;
-        currentDataset.overwrite = dataset.overwrite || currentDataset.overwrite;
+        currentDataset.overwrite = dataset.overwrite || dataset.dataOverwrite || currentDataset.overwrite;
         currentDataset.legend = dataset.legend || currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
         currentDataset.updatedAt = new Date();
@@ -233,7 +233,7 @@ class DatasetService {
         newDataset.provider = 'json';
         newDataset.connectorUrl = dataset.datasetUrl;
         newDataset.tableName = currentDataset.tableName;
-        newDataset.overwrite = currentDataset.overwrite;
+        newDataset.overwrite = currentDataset.overwrite || currentDataset.dataOverwrite;
         newDataset.legend = dataset.legend;
         newDataset.clonedHost = {
             hostProvider: currentDataset.provider,
