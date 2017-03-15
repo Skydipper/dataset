@@ -1,3 +1,4 @@
+const URL = require('url').URL;
 const logger = require('logger');
 const Dataset = require('models/dataset.model');
 const RelationshipsService = require('services/relationships.service');
