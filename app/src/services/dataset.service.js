@@ -14,7 +14,7 @@ class DatasetService {
 
     static getTableName(dataset) {
         if (dataset.provider === 'cartodb' && dataset.connectorUrl) {
-            if (dataset.connectorUrl.indexOf('/tables/')) {
+            if (dataset.connectorUrl.indexOf('/tables/') >= 0) {
                 return new URL(dataset.connectorUrl).pathname.split('/tables/')[1].split('/')[0];
             }
             return decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split('from ')[1].split(' ')[0];
