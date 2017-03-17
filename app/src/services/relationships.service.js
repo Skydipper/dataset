@@ -73,6 +73,8 @@ class RelationshipsService {
             includes.forEach((include) => {
                 if (resources[include] && resources[include].data[id]) {
                     map[id][include] = resources[include].data[id];
+                } else {
+                    map[id][include] = [];
                 }
             });
         });
