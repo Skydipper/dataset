@@ -27,7 +27,9 @@ class DatasetService {
     }
 
     static getFilteredQuery(query, ids = []) {
-        query.application = query.application || query.app;
+        if (!query.application && query.app) {
+            query.application = query.app;
+        }
         const datasetAttributes = Object.keys(Dataset.schema.obj);
         Object.keys(query).forEach((param) => {
             if (datasetAttributes.indexOf(param) < 0) {
