@@ -1,12 +1,13 @@
 const Koa = require('koa');
 const logger = require('logger');
 const koaLogger = require('koa-logger');
+const koaValidate = require('koa-validate');
 const config = require('config');
 const loader = require('loader');
 const mongoose = require('mongoose');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const ErrorSerializer = require('serializers/error.serializer');
-const mongoUri = process.env.MONGO_URI || 'mongodb://' + config.get('mongodb.host') + ':' + config.get('mongodb.port') + '/' + config.get('mongodb.database');
+const mongoUri = process.env.MONGO_URI || `mongodb://${config.get('mongodb.host')}:${config.get('mongodb.port')}/${config.get('mongodb.database')}`;
 
 const koaBody = require('koa-body')({
     multipart: true,
@@ -29,17 +30,18 @@ const onDbReady = (err) => {
     app.use(async (ctx, next) => {
         try {
             await next();
-        } catch (err) {
-            let error = err;
+        } catch (inErr) {
+            let error = inErr;
             try {
-                error = JSON.parse(err);
+                error = JSON.parse(inErr);
             } catch (e) {
                 logger.error('Error parse');
+                error = inErr;
             }
-            ctx.status = error.status || 500;
+            ctx.status = error.status || ctx.status || 500;
             logger.error(error);
             ctx.body = ErrorSerializer.serializeError(ctx.status, error.message);
-            if (process.env.NODE_ENV === 'prod' && this.status === 500) {
+            if (process.env.NODE_ENV === 'prod' && ctx.status === 500) {
                 ctx.body = 'Unexpected error';
             }
             ctx.response.type = 'application/vnd.api+json';
@@ -47,6 +49,8 @@ const onDbReady = (err) => {
     });
 
     app.use(koaLogger());
+
+    koaValidate(app);
 
     loader.loadRoutes(app);
 

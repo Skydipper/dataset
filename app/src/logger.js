@@ -1,6 +1,5 @@
-'use strict';
-var config = require('config');
-var bunyan = require('bunyan');
+const config = require('config');
+const bunyan = require('bunyan');
 /**
  * Create Logger
  */
@@ -18,6 +17,7 @@ module.exports = (() => {
     }
     const logger = bunyan.createLogger({
         name: config.get('logger.name'),
+        src: true,
         streams
     });
     return logger;
