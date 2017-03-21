@@ -41,7 +41,11 @@ class DatasetService {
                     query[param] = { $regex: query[param], $options: 'i' };
                     break;
                 case 'Array':
-                    query[param] = { $in: query[param].split(',').map(elem => elem.trim()) };
+                    if (query[param].indexOf('@') >= 0) {
+                        query[param] = { $all: query[param].split('@').map(elem => elem.trim()) };
+                    } else {
+                        query[param] = { $in: query[param].split(',').map(elem => elem.trim()) };
+                    }
                     break;
                 case 'Object':
                     query[param] = query[param];
