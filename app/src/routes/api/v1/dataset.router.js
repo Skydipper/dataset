@@ -1,6 +1,7 @@
 const Router = require('koa-router');
 const logger = require('logger');
 const DatasetService = require('services/dataset.service');
+const RelationshipsService = require('services/relationships.service');
 const DatasetValidator = require('validators/dataset.validator');
 const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
@@ -88,6 +89,7 @@ class DatasetRouter {
             } catch (error) {
                 // do nothing
             }
+            ctx.set('cache-control', 'flush');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetDuplicated) {
@@ -104,6 +106,7 @@ class DatasetRouter {
         try {
             const user = DatasetRouter.getUser(ctx);
             const dataset = await DatasetService.update(id, ctx.request.body, user);
+            ctx.set('cache-control', 'flush');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -127,6 +130,7 @@ class DatasetRouter {
             } catch (error) {
                 // do nothing
             }
+            ctx.set('cache-control', 'flush');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -141,9 +145,15 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
         delete query.loggedUser;
+        if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
+            ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
+            logger.debug('Ids from vocabulary-tag', ctx.query.ids);
+        }
+        // Links creation
         const clonedQuery = Object.assign({}, query);
         delete clonedQuery['page[size]'];
         delete clonedQuery['page[number]'];
+        delete clonedQuery.ids;
         const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
         const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
         const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
@@ -156,12 +166,14 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Cloning dataset with id: ${id}`);
         try {
             const user = DatasetRouter.getUser(ctx);
-            const dataset = await DatasetService.clone(id, ctx.request.body, user);
+            const fullCloning = ctx.query.full || false;
+            const dataset = await DatasetService.clone(id, ctx.request.body, user, fullCloning);
             try {
                 DatasetRouter.notifyAdapter(ctx, dataset);
             } catch (error) {
                 // do nothing
             }
+            ctx.set('cache-control', 'flush');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetDuplicated) {

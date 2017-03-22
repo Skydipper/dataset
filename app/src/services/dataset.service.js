@@ -223,7 +223,7 @@ class DatasetService {
         return pages;
     }
 
-    static async clone(id, dataset, user) {
+    static async clone(id, dataset, user, fullCloning = false) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
@@ -250,6 +250,9 @@ class DatasetService {
             hostType: currentDataset.connectorType,
             hostPath: currentDataset.tableName
         };
+        if (fullCloning) {
+            // do so
+        }
         return await DatasetService.create(newDataset, user);
     }
 

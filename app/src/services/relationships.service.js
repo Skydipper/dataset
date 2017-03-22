@@ -95,6 +95,24 @@ class RelationshipsService {
         }
     }
 
+    static async filterByVocabularyTag(query) {
+        logger.info(`Getting resources for vocabulary-tag query`);
+        let vocabularyQuery = '?';
+        Object.keys(query).forEach((key => {
+            if (key.indexOf('vocabulary[') >= 0) {
+                vocabularyQuery += `${key.split('vocabulary[')[1].split(']')[0]}=${query[key]}&`;
+            }
+        }));
+        vocabularyQuery = vocabularyQuery.substring(0, vocabularyQuery.length - 1);
+        logger.debug(vocabularyQuery);
+        const result = await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/dataset/vocabulary/find${vocabularyQuery}`,
+            method: 'GET',
+            json: true,
+        });
+        const ids = result.data[0].attributes.resources.map(el => el.id);
+        return ids.reduce((acc, next) => `${acc}, ${next}`);
+    }
 
 }
 
