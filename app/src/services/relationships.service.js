@@ -110,8 +110,12 @@ class RelationshipsService {
             method: 'GET',
             json: true,
         });
-        const ids = result.data[0].attributes.resources.map(el => el.id);
-        return ids.reduce((acc, next) => `${acc}, ${next}`);
+        let ids = ' ';
+        if (result.data.length > 0) {
+            const idsArray = result.data[0].attributes.resources.map(el => el.id);
+            ids = idsArray.reduce((acc, next) => `${acc}, ${next}`);
+        }
+        return ids;
     }
 
 }
