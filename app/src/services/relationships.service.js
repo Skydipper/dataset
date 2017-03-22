@@ -118,6 +118,36 @@ class RelationshipsService {
         return ids;
     }
 
+    static async cloneVocabularies(oldId, newId) {
+        try {
+            return await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/dataset/${oldId}/vocabulary/clone/dataset`,
+                method: 'POST',
+                json: true,
+                body: {
+                    newDataset: newId
+                }
+            });
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
+    static async cloneMetadatas(oldId, newId) {
+        try {
+            return await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/dataset/${oldId}/metadata/clone`,
+                method: 'POST',
+                json: true,
+                body: {
+                    newDataset: newId
+                }
+            });
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
 }
 
 module.exports = RelationshipsService;
