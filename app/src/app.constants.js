@@ -1,15 +1,15 @@
 const USER_ROLES = ['USER', 'MANGAER', 'ADMIN', 'SUPERADMIN'];
 const STATUS = ['pending', 'saved', 'failed'];
 const INCLUDES = ['widget', 'layer', 'vocabulary', 'metadata'];
-const PROVIDERS = {
+const CONNECTOR_TYPES = {
     rest: {
-        connectorType: ['cartodb', 'featureservice', 'gee']
+        provider: ['cartodb', 'featureservice', 'gee']
     },
     document: {
-        connectorType: ['csv', 'json', 'tsv', 'xml']
+        provider: ['csv', 'json', 'tsv', 'xml']
     },
     wms: {
-        connectorType: ['wms']
+        provider: ['wms']
     }
 };
 
@@ -17,5 +17,5 @@ module.exports = {
     USER_ROLES,
     STATUS,
     INCLUDES,
-    PROVIDERS,
+    CONNECTOR_TYPES,
 };

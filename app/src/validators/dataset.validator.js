@@ -1,6 +1,6 @@
 const logger = require('logger');
 const DatasetNotValid = require('errors/datasetNotValid.error');
-const PROVIDERS = require('app.constants').PROVIDERS;
+const CONNECTOR_TYPES = require('app.constants').CONNECTOR_TYPES;
 
 
 class DatasetValidator {
@@ -37,15 +37,15 @@ class DatasetValidator {
         return false;
     }
 
-    static checkProvider(provider) {
-        if (Object.keys(PROVIDERS).indexOf(provider) >= 0) {
+    static checkConnectorType(connectorType) {
+        if (Object.keys(CONNECTOR_TYPES).indexOf(connectorType) >= 0) {
             return true;
         }
         return false;
     }
 
-    static checkConnectorType(connectorType, koaObj = {}) {
-        if (Object.keys(PROVIDERS).indexOf(koaObj.request.body.provider) >= 0 && PROVIDERS[koaObj.request.body.provider].connectorType.indexOf(connectorType) >= 0) {
+    static checkProvider(provider, koaObj = {}) {
+        if (Object.keys(CONNECTOR_TYPES).indexOf(koaObj.request.body.connectorType) >= 0 && CONNECTOR_TYPES[koaObj.request.body.connectorType].provider.indexOf(provider) >= 0) {
             return true;
         }
         return false;
@@ -53,12 +53,12 @@ class DatasetValidator {
 
     static checkConnectorUrl(connectorUrl, koaObj) {
         let validation = false;
-        const provider = koaObj.request.body.provider;
         const connectorType = koaObj.request.body.connectorType;
+        const provider = koaObj.request.body.provider;
         const data = koaObj.request.body.data;
 
         // it is a document - json?
-        if (provider === 'document' && connectorType === 'json') {
+        if (connectorType === 'document' && provider === 'json') {
             // is it data valid?
             if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
                 validation = true;
@@ -84,14 +84,14 @@ class DatasetValidator {
 
         switch (property) {
 
-        case 'provider':
-            errorMessage = `must be valid [${Object.keys(PROVIDERS).reduce((acc, el) => `${acc}, ${el}`)}]`;
-            break;
         case 'connectorType':
-            if (PROVIDERS[koaObj.request.body.provider]) {
-                errorMessage = `must be valid [${PROVIDERS[koaObj.request.body.provider].connectorType.reduce((acc, el) => `${acc}, ${el}`)}]`;
+            errorMessage = `must be valid [${Object.keys(CONNECTOR_TYPES).reduce((acc, el) => `${acc}, ${el}`)}]`;
+            break;
+        case 'provider':
+            if (CONNECTOR_TYPES[koaObj.request.body.connectorType]) {
+                errorMessage = `must be valid [${CONNECTOR_TYPES[koaObj.request.body.connectorType].provider.reduce((acc, el) => `${acc}, ${el}`)}]`;
             } else {
-                errorMessage = `there is no connectorType for that provider`;
+                errorMessage = `there is no provider for that connectorType`;
             }
             break;
         case 'connectorUrl':
@@ -113,14 +113,14 @@ class DatasetValidator {
         koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('dataPath').optional().isAscii();
         koaObj.checkBody('attributesPath').optional().isAscii();
-        // provider
-        koaObj.checkBody('provider').notEmpty().isAscii()
-        .toLow()
-        .check(provider => DatasetValidator.checkProvider(provider), DatasetValidator.errorMessage('provider'));
         // connectorType
         koaObj.checkBody('connectorType').notEmpty().isAscii()
         .toLow()
-        .check(connectorType => DatasetValidator.checkConnectorType(connectorType, koaObj), DatasetValidator.errorMessage('connectorType', koaObj));
+        .check(connectorType => DatasetValidator.checkConnectorType(connectorType), DatasetValidator.errorMessage('connectorType'));
+        // provider
+        koaObj.checkBody('provider').notEmpty().isAscii()
+        .toLow()
+        .check(provider => DatasetValidator.checkProvider(provider, koaObj), DatasetValidator.errorMessage('provider', koaObj));
         // connectorUrl
         koaObj.checkBody('connectorUrl').check(connectorUrl => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
         koaObj.checkBody('tableName').optional().isAscii();
