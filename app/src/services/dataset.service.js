@@ -250,10 +250,12 @@ class DatasetService {
             hostType: currentDataset.connectorType,
             hostPath: currentDataset.tableName
         };
+        const createdDataset = await DatasetService.create(newDataset, user);
         if (fullCloning) {
-            // do so
+            RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);
+            RelationshipsService.cloneMetadatas(id, createdDataset.toObject()._id);
         }
-        return await DatasetService.create(newDataset, user);
+        return createdDataset;
     }
 
     static async hasPermission(id, user) {
