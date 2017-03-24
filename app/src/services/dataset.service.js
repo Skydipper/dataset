@@ -252,8 +252,8 @@ class DatasetService {
         };
         const createdDataset = await DatasetService.create(newDataset, user);
         if (fullCloning) {
-            RelationshipsService.createVocabularies(id, createdDataset.toObject().id);
-            RelationshipsService.createMetadatas(id, createdDataset.toObject().id);
+            RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);
+            RelationshipsService.cloneMetadatas(id, createdDataset.toObject()._id);
         }
         return createdDataset;
     }

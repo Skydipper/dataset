@@ -166,7 +166,7 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Cloning dataset with id: ${id}`);
         try {
             const user = DatasetRouter.getUser(ctx);
-            const fullCloning = ctx.query.full || false;
+            const fullCloning = ctx.query.full === 'true';
             const dataset = await DatasetService.clone(id, ctx.request.body, user, fullCloning);
             try {
                 DatasetRouter.notifyAdapter(ctx, dataset);
