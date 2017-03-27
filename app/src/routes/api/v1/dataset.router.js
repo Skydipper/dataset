@@ -7,6 +7,7 @@ const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const DatasetNotValid = require('errors/datasetNotValid.error');
+const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const USER_ROLES = require('app.constants').USER_ROLES;
 
@@ -95,6 +96,8 @@ class DatasetRouter {
             if (err instanceof DatasetDuplicated) {
                 ctx.throw(400, err.message);
                 return;
+            } else if (err instanceof ConnectorUrlNotValid) {
+                ctx.throw(400, err.message);
             }
             throw err;
         }
@@ -227,7 +230,11 @@ const authorizationMiddleware = async (ctx, next) => {
         ctx.throw(403, 'Forbidden'); // if user is USER -> out
         return;
     }
-    // Get application from query (delete) or body (post-patch)
+    // const application = ctx.request.query.application ? ctx.request.query.application : ctx.request.body.application;
+    // if (user.extraUserData.apps.indexOf(application) === -1) {
+    //     ctx.throw(403, 'Forbidden'); // if manager or admin but no application -> out
+    //     return;
+    // }
     const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
     if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !newDatasetCreation) {
         try {

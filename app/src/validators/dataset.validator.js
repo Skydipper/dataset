@@ -1,6 +1,7 @@
 const logger = require('logger');
 const DatasetNotValid = require('errors/datasetNotValid.error');
 const CONNECTOR_TYPES = require('app.constants').CONNECTOR_TYPES;
+const URL = require('url').URL;
 
 
 class DatasetValidator {
@@ -12,6 +13,17 @@ class DatasetValidator {
     static notEmptyString(property) {
         if (typeof property === 'string' && property.length > 0) {
             return true;
+        }
+        return false;
+    }
+
+    static validUrl(property) {
+        try {
+            if (typeof property === 'string' && new URL(property)) {
+                return true;
+            }
+        } catch (err) {
+            return false;
         }
         return false;
     }
@@ -64,7 +76,7 @@ class DatasetValidator {
                 validation = true;
             // if data is not provided, check if url is valid
             } else {
-                if (DatasetValidator.notEmptyString(connectorUrl)) {
+                if (DatasetValidator.validUrl(connectorUrl)) {
                     validation = true;
                 } else {
                     validation = false;
@@ -72,7 +84,7 @@ class DatasetValidator {
             }
         // in other cases just validate url
         } else {
-            if (DatasetValidator.notEmptyString(connectorUrl)) {
+            if (DatasetValidator.validUrl(connectorUrl)) {
                 validation = true;
             }
         }
@@ -95,7 +107,7 @@ class DatasetValidator {
             }
             break;
         case 'connectorUrl':
-            errorMessage = `can not be empty`;
+            errorMessage = `empty or invalid connectorUrl`;
             break;
         default:
             // do nothing

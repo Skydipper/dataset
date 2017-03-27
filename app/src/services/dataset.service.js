@@ -4,6 +4,7 @@ const Dataset = require('models/dataset.model');
 const RelationshipsService = require('services/relationships.service');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
+const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const slug = require('slug');
 
 class DatasetService {
@@ -13,17 +14,21 @@ class DatasetService {
     }
 
     static getTableName(dataset) {
-        if (dataset.provider === 'cartodb' && dataset.connectorUrl) {
-            if (dataset.connectorUrl.indexOf('/tables/') >= 0) {
-                return new URL(dataset.connectorUrl).pathname.split('/tables/')[1].split('/')[0];
+        try {
+            if (dataset.provider === 'cartodb' && dataset.connectorUrl) {
+                if (dataset.connectorUrl.indexOf('/tables/') >= 0) {
+                    return new URL(dataset.connectorUrl).pathname.split('/tables/')[1].split('/')[0];
+                }
+                return decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split('from ')[1].split(' ')[0];
+            } else if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
+                return new URL(dataset.connectorUrl).pathname.split(/services|FeatureServer/)[1].replace(/\//g, '');
+            } else if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
+                return 'data';
             }
-            return decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split('from ')[1].split(' ')[0];
-        } else if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
-            return new URL(dataset.connectorUrl).pathname.split(/services|FeatureServer/)[1].replace(/\//g, '');
-        } else if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
-            return 'data';
+            return dataset.tableName;
+        } catch (err) {
+            throw new ConnectorUrlNotValid('Invalid connectorUrl format');
         }
-        return dataset.tableName;
     }
 
     static getFilteredQuery(query, ids = []) {
@@ -93,7 +98,7 @@ class DatasetService {
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         if (includes.length > 0) {
-            dataset = await RelationshipsService.getRelationships([dataset], includes);
+            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query));
         }
         return dataset;
     }
@@ -207,7 +212,7 @@ class DatasetService {
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
         const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
-        const filteredQuery = DatasetService.getFilteredQuery(query, ids);
+        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
             page,
@@ -218,7 +223,7 @@ class DatasetService {
         let pages = await Dataset.paginate(filteredQuery, options);
         pages = Object.assign({}, pages);
         if (includes.length > 0) {
-            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes);
+            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query));
         }
         return pages;
     }
