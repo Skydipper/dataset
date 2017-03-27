@@ -28,8 +28,9 @@ class RelationshipsService {
                     ids
                 };
                 if (include === 'layer' || include === 'widget') {
-                    if (query.application) {
-                        payload[include].app = query.application.split(',');
+                    const apps = query.application || query.app;
+                    if (apps) {
+                        payload[include].app = apps.split(',');
                     }
                 }
                 if (include === 'vocabulary' || include === 'metadata') {
