@@ -206,7 +206,7 @@ class DatasetService {
         }
         logger.info(`[DBACCESS-SAVE]: dataset`);
         let newDataset = await currentDataset.save();
-        if (dataset.sync && dataset.connectorType === 'document') {
+        if (dataset.sync && newDataset.connectorType === 'document') {
             try {
                 await SyncService.update(Object.assign(newDataset, dataset));
             } catch (err) {
