@@ -27,6 +27,11 @@ class RelationshipsService {
                 payload[include] = {
                     ids
                 };
+                if (include === 'layer' || include === 'widget') {
+                    if (query.application) {
+                        payload[include].app = query.application.split(',');
+                    }
+                }
                 if (include === 'vocabulary' || include === 'metadata') {
                     uri = '/dataset';
                     payload = {
