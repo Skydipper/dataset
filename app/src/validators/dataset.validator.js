@@ -2,6 +2,7 @@ const logger = require('logger');
 const DatasetNotValid = require('errors/datasetNotValid.error');
 const CONNECTOR_TYPES = require('app.constants').CONNECTOR_TYPES;
 const URL = require('url').URL;
+const cronParser = require('cron-parser');
 
 
 class DatasetValidator {
@@ -91,6 +92,21 @@ class DatasetValidator {
         return validation;
     }
 
+    static checkSync(sync) {
+        if (DatasetValidator.isObject(sync)) {
+            try {
+                cronParser.parseExpression(sync.cronPattern);
+                if (['concat', 'overwrite'].indexOf(sync.action) >= 0 && DatasetValidator.validUrl(sync.url)) {
+                    return true;
+                }
+                return false;
+            } catch (err) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     static errorMessage(property, koaObj = {}) {
         let errorMessage = 'validation error';
 
@@ -146,6 +162,7 @@ class DatasetValidator {
         }, 'must be a valid JSON');
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend), 'must be an object');
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies), 'must be an object');
+        koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
         logger.debug(koaObj.errors);
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
@@ -181,6 +198,7 @@ class DatasetValidator {
         });
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies));
+        koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);

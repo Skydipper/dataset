@@ -2,9 +2,11 @@ const URL = require('url').URL;
 const logger = require('logger');
 const Dataset = require('models/dataset.model');
 const RelationshipsService = require('services/relationships.service');
+const SyncService = require('services/sync.service');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
+const SyncError = require('errors/sync.error');
 const slug = require('slug');
 
 class DatasetService {
@@ -141,6 +143,19 @@ class DatasetService {
                 newDataset = await DatasetService.update(newDataset._id, newDataset, { id: 'microservice' });
             }
         }
+        if (dataset.sync && dataset.connectorType === 'document') {
+            try {
+                await SyncService.create(Object.assign(newDataset, dataset));
+            } catch (err) {
+                if (err instanceof SyncError) {
+                    newDataset.status = 'failed';
+                    newDataset.errorMessage = 'Error synchronizing dataset';
+                    newDataset = await newDataset.save();
+                } else {
+                    logger.error(err.message);
+                }
+            }
+        }
         return newDataset;
     }
 
@@ -190,7 +205,21 @@ class DatasetService {
             currentDataset.errorMessage = dataset.status === 1 ? null : dataset.errorMessage;
         }
         logger.info(`[DBACCESS-SAVE]: dataset`);
-        return await currentDataset.save();
+        let newDataset = await currentDataset.save();
+        if (dataset.sync && newDataset.connectorType === 'document') {
+            try {
+                await SyncService.update(Object.assign(newDataset, dataset));
+            } catch (err) {
+                if (err instanceof SyncError) {
+                    newDataset.status = 'failed';
+                    newDataset.errorMessage = 'Error synchronizing dataset';
+                    newDataset = await newDataset.save();
+                } else {
+                    logger.error(err.message);
+                }
+            }
+        }
+        return newDataset;
     }
 
     static async delete(id) {
@@ -202,7 +231,15 @@ class DatasetService {
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
-        return await currentDataset.remove();
+        const deletedDataset = await currentDataset.remove();
+        if (deletedDataset.connectorType === 'document') {
+            try {
+                SyncService.delete(deletedDataset._id);
+            } catch (err) {
+                logger.error(err.message);
+            }
+        }
+        return deletedDataset;
     }
 
     static async getAll(query = {}) {

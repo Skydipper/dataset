@@ -230,11 +230,16 @@ const authorizationMiddleware = async (ctx, next) => {
         ctx.throw(403, 'Forbidden'); // if user is USER -> out
         return;
     }
-    // const application = ctx.request.query.application ? ctx.request.query.application : ctx.request.body.application;
-    // if (user.extraUserData.apps.indexOf(application) === -1) {
-    //     ctx.throw(403, 'Forbidden'); // if manager or admin but no application -> out
-    //     return;
-    // }
+    const application = ctx.request.query.application ? ctx.request.query.application : ctx.request.body.application;
+    if (application) {
+        const appPermission = application.find(app =>
+            user.extraUserData.apps.find(userApp => userApp === app)
+        );
+        if (!appPermission) {
+            ctx.throw(403, 'Forbidden'); // if manager or admin but no application -> out
+            return;
+        }
+    }
     const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
     if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !newDatasetCreation) {
         try {
