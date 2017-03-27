@@ -2,9 +2,22 @@ const logger = require('logger');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const INCLUDES = require('app.constants').INCLUDES;
 
+const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
+    a.push(`${k}=${encodeURIComponent(obj[k])}`);
+    return a;
+}, []).join('&');
+
 class RelationshipsService {
 
-    static async getResources(ids, includes) {
+    static treatQuery(query) {
+        if (!query.application && query.app) {
+            query.application = query.app;
+        }
+        delete query.includes;
+        return query;
+    }
+
+    static async getResources(ids, includes, query = '') {
         logger.info(`Getting resources of ids: ${ids}`);
         let resources = includes.map(async (include) => {
             const obj = {};
@@ -22,7 +35,7 @@ class RelationshipsService {
                 }
                 try {
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
-                        uri: `${uri}/${include}/find-by-ids`,
+                        uri: `${uri}/${include}/find-by-ids?${serializeObjToQuery(RelationshipsService.treatQuery(query))}`,
                         method: 'POST',
                         json: true,
                         body: payload
@@ -63,12 +76,12 @@ class RelationshipsService {
         return resources;
     }
 
-    static async getRelationships(datasets, includes) {
+    static async getRelationships(datasets, includes, query = '') {
         logger.info(`Getting relationships of datasets: ${datasets}`);
         datasets.unshift({});
         const map = datasets.reduce((acc, val) => { acc[val._id] = val; return acc; });
         const ids = Object.keys(map);
-        const resources = await RelationshipsService.getResources(ids, includes);
+        const resources = await RelationshipsService.getResources(ids, includes, query);
         ids.forEach((id) => {
             includes.forEach((include) => {
                 if (resources[include] && resources[include].data[id]) {
