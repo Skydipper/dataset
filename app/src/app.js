@@ -5,6 +5,7 @@ const koaValidate = require('koa-validate');
 const config = require('config');
 const loader = require('loader');
 const mongoose = require('mongoose');
+mongoose.Promise = require('bluebird');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const ErrorSerializer = require('serializers/error.serializer');
 const mongoUri = process.env.MONGO_URI || `mongodb://${config.get('mongodb.host')}:${config.get('mongodb.port')}/${config.get('mongodb.database')}`;
@@ -54,7 +55,6 @@ const onDbReady = (err) => {
 
     loader.loadRoutes(app);
 
-
     app.listen(process.env.PORT, () => {
         ctRegisterMicroservice.register({
             info: require('../microservice/register.json'),
@@ -77,5 +77,3 @@ const onDbReady = (err) => {
 };
 
 mongoose.connect(mongoUri, onDbReady);
-
-// module.exports = instance;
