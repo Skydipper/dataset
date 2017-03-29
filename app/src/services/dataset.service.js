@@ -111,7 +111,7 @@ class DatasetService {
         const tempSlug = DatasetService.getSlug(dataset.name);
         const currentDataset = await Dataset.findOne({
             slug: tempSlug
-        });
+        }).exec();
         if (currentDataset) {
             logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
             throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
@@ -150,6 +150,7 @@ class DatasetService {
                 if (err instanceof SyncError) {
                     newDataset.status = 'failed';
                     newDataset.errorMessage = 'Error synchronizing dataset';
+                    logger.info(`[DBACCESS-SAVE]: dataset`);
                     newDataset = await newDataset.save();
                 } else {
                     logger.error(err.message);
@@ -182,9 +183,9 @@ class DatasetService {
         //         }
         //     }
         // }
+        // currentDataset.slug = tempSlug || currentDataset.slug;
         const tableName = DatasetService.getTableName(dataset);
         currentDataset.name = dataset.name || currentDataset.name;
-        // currentDataset.slug = tempSlug || currentDataset.slug;
         currentDataset.subtitle = dataset.subtitle || currentDataset.subtitle;
         currentDataset.application = dataset.application || currentDataset.application;
         currentDataset.dataPath = dataset.dataPath || currentDataset.dataPath;
@@ -213,6 +214,7 @@ class DatasetService {
                 if (err instanceof SyncError) {
                     newDataset.status = 'failed';
                     newDataset.errorMessage = 'Error synchronizing dataset';
+                    logger.info(`[DBACCESS-SAVE]: dataset`);
                     newDataset = await newDataset.save();
                 } else {
                     logger.error(err.message);

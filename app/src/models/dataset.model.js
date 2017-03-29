@@ -19,7 +19,7 @@ const Dataset = new Schema({
     provider: { type: String, required: true, trim: true },
     userId: { type: String, required: true, trim: true },
     connectorUrl: { type: String, required: false, trim: true, default: null },
-    tableName: { type: String, required: false, trim: true },
+    tableName: { type: String, required: false, trim: true, default: null },
     status: { type: String, enum: STATUS, default: 'pending' },
     overwrite: { type: Boolean, required: false, default: false },
     errorMessage: { type: String, required: false, trim: true, default: null },
