@@ -34,13 +34,42 @@ describe('E2E test', () => {
 
     before(() => {
 
-        // simulating gatway communications
+        // simulating gateway communications
         nock(`${process.env.CT_URL}/v1`)
-            .get(/rest-datasets.*|doc-datasets.*/)
+            .post('/rest-datasets/gee', () => true)
             .reply(200, {
                 status: 200,
                 detail: 'Ok'
             });
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/rest-datasets/cartodb', () => true)
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/rest-datasets/featureservice', () => true)
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/json', () => true)
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/json', () => true)
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
     });
 
     /* Create a Carto Dataset */
@@ -237,7 +266,7 @@ describe('E2E test', () => {
     });
 
     /* Delete */
-    it('Delete a dataset', async() => {
+    it('Not authorized dataset deletion', async() => {
         try {
             await request.delete(`${BASE_URL}/dataset/${referencedDataset.id}?loggedUser=null`).send();
         } catch (e) {
@@ -247,6 +276,5 @@ describe('E2E test', () => {
     });
 
     after(() => {
-        // do stuff
     });
 });
