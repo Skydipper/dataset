@@ -76,6 +76,7 @@ class DatasetValidator {
         const connectorType = koaObj.request.body.connectorType;
         const provider = koaObj.request.body.provider;
         const data = koaObj.request.body.data;
+        const tableName = koaObj.request.body.tableName;
 
         // it is a document - json?
         if (connectorType === 'document' && provider === 'json') {
@@ -89,6 +90,15 @@ class DatasetValidator {
                 } else {
                     validation = false;
                 }
+            }
+        // is it a gee dataset?
+        } else if (connectorType === 'rest' && provider === 'gee') {
+            // is it tableName valid?
+            if (DatasetValidator.notEmptyString(tableName)) {
+                validation = true;
+            // if tableName not provided
+            } else {
+                validation = false;
             }
         // in other cases just validate url
         } else {
