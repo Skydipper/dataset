@@ -192,18 +192,25 @@ class DatasetService {
         currentDataset.attributesPath = dataset.attributesPath || currentDataset.attributesPath;
         currentDataset.connectorType = dataset.connectorType || currentDataset.connectorType;
         currentDataset.provider = dataset.provider || currentDataset.provider;
-        if (user.id !== 'microservice') {
-            currentDataset.userId = user.id || currentDataset.userId;
-        }
         currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
         currentDataset.tableName = tableName || currentDataset.tableName;
-        currentDataset.overwrite = dataset.overwrite || dataset.dataOverwrite || currentDataset.overwrite;
+        if (dataset.overwrite === false || dataset.overwrite === true) {
+            currentDataset.overwrite = dataset.overwrite;
+        } else if (dataset.dataOverwrite === false || dataset.dataOverwrite === true) {
+            currentDataset.overwrite = dataset.dataOverwrite;
+        }
         currentDataset.legend = dataset.legend || currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
         currentDataset.updatedAt = new Date();
-        if (user.id === 'microservice' && (dataset.status === 1 || dataset.status === 2)) {
-            currentDataset.status = dataset.status === 1 ? 'saved' : 'failed';
-            currentDataset.errorMessage = dataset.status === 1 ? null : dataset.errorMessage;
+        if (user.id === 'microservice' && (dataset.status === 0 || dataset.status === 1 || dataset.status === 2)) {
+            if (dataset.status === 0) {
+                currentDataset.status = 'pending';
+            } else if (dataset.status === 1) {
+                currentDataset.status = 'saved';
+            } else {
+                currentDataset.status = 'failed';
+                currentDataset.errorMessage = dataset.errorMessage;
+            }
         }
         logger.info(`[DBACCESS-SAVE]: dataset`);
         let newDataset = await currentDataset.save();
