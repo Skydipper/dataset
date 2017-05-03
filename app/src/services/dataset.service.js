@@ -132,7 +132,10 @@ class DatasetService {
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
             legend: dataset.legend,
-            clonedHost: dataset.clonedHost
+            clonedHost: dataset.clonedHost,
+            widgetRelevantProps: dataset.widgetRelevantProps,
+            layerRelevantProps: dataset.layerRelevantProps
+
         }).save();
         // if vocabularies
         if (dataset.vocabularies) {

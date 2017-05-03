@@ -39,7 +39,8 @@ const Dataset = new Schema({
         hostType: { type: String, required: false, trim: true },
         hostPath: { type: String, required: false, trim: true }
     },
-    createdAt: { type: Date, default: Date.now },
+    widgetRelevantProps: [{ type: String, required: false, trim: true }],
+    layerRelevantProps: [{ type: String, required: false, trim: true }],
     updatedAt: { type: Date, default: Date.now }
 });
 
