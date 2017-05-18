@@ -1,3 +1,4 @@
+const fs = require('fs');
 const Router = require('koa-router');
 const koaMulter = require('koa-multer');
 const logger = require('logger');
@@ -27,7 +28,11 @@ const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
 class DatasetRouter {
 
     static getUser(ctx) {
-        return Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser, JSON.parse(ctx.request.body.fields.loggedUser));
+        let user = Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser);
+        if (ctx.request.body.fields) {
+            user = Object.assign(user, JSON.parse(ctx.request.body.fields.loggedUser));
+        }
+        return user;
     }
 
     static notifyAdapter(ctx, dataset) {
@@ -194,9 +199,11 @@ class DatasetRouter {
     static async upload(ctx) {
         logger.info(`[DatasetRouter] Uploading new file`);
         try {
-            const dataset = ctx.request.body.files.dataset.path.split('/tmp/')[1];
+            const dataset = `${ctx.request.body.files.dataset.path}-${ctx.request.body.files.dataset.name}`;
+            fs.rename(ctx.request.body.files.dataset.path, dataset);
+            FileDataService.deferRemoveFromTempDirectory(dataset);
             ctx.body = {
-                connectorUrl: `rw.dataset.raw/${dataset}`
+                connectorUrl: `rw.dataset.raw${dataset}`
             };
         } catch (err) {
             ctx.throw(500, 'Error uploading file');
