@@ -47,5 +47,13 @@
 			"method": "POST",
 			"path": "/api/v1/dataset/:dataset/clone"
 		}
+	},{
+		"path": "/v1/dataset/upload",
+		"method": "POST",
+		"authenticated": true,
+		"redirect": {
+			"method": "POST",
+			"path": "/api/v1/dataset/upload"
+		}
 	}]
 }

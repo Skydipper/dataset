@@ -233,6 +233,21 @@ class DatasetValidator {
         return true;
     }
 
+    static async validateUpload(koaObj) {
+        logger.info('Validating Dataset Raw Upload');
+        koaObj.checkFile('dataset')
+            .notEmpty()
+            .suffixIn(CONNECTOR_TYPES.document.provider);
+        if (koaObj.errors) {
+            koaObj.errors = [{
+                dataset: 'it has to be a valid file'
+            }];
+            logger.error('Error validating dataset creation');
+            throw new DatasetNotValid(koaObj.errors);
+        }
+        return true;
+    }
+
 }
 
 module.exports = DatasetValidator;

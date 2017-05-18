@@ -1,7 +1,9 @@
 const Router = require('koa-router');
+const koaMulter = require('koa-multer');
 const logger = require('logger');
 const DatasetService = require('services/dataset.service');
 const RelationshipsService = require('services/relationships.service');
+const FileDataService = require('services/fileDataService.service');
 const DatasetValidator = require('validators/dataset.validator');
 const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
@@ -15,6 +17,8 @@ const router = new Router({
     prefix: '/dataset',
 });
 
+const upload = koaMulter({ dest: 'uploads/' });
+
 const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
     return a;
@@ -23,7 +27,7 @@ const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
 class DatasetRouter {
 
     static getUser(ctx) {
-        return Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser);
+        return Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser, JSON.parse(ctx.request.body.fields.loggedUser));
     }
 
     static notifyAdapter(ctx, dataset) {
@@ -187,6 +191,19 @@ class DatasetRouter {
         }
     }
 
+    static async upload(ctx) {
+        logger.info(`[DatasetRouter] Uploading new file`);
+        try {
+            const dataset = ctx.request.body.files.dataset.path.split('/tmp/')[1];
+            ctx.body = {
+                connectorUrl: `rw.dataset.raw/${dataset}`
+            };
+        } catch (err) {
+            ctx.throw(500, 'Error uploading file');
+            return;
+        }
+    }
+
 }
 
 const validationMiddleware = async (ctx, next) => {
@@ -201,6 +218,8 @@ const validationMiddleware = async (ctx, next) => {
             await DatasetValidator.validateCreation(ctx);
         } else if (ctx.request.path.indexOf('clone') >= 0) {
             await DatasetValidator.validateCloning(ctx);
+        } else if (ctx.request.path.indexOf('upload') >= 0) {
+            await DatasetValidator.validateUpload(ctx);
         } else {
             await DatasetValidator.validateUpdate(ctx);
         }
@@ -241,7 +260,9 @@ const authorizationMiddleware = async (ctx, next) => {
         }
     }
     const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
-    if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !newDatasetCreation) {
+    const uploadDataset = ctx.request.path.indexOf('upload') >= 0 && ctx.request.method === 'POST';
+    const allowedOperations = newDatasetCreation || uploadDataset;
+    if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !allowedOperations) {
         try {
             const permission = await DatasetService.hasPermission(ctx.params.dataset, user);
             if (!permission) {
@@ -255,12 +276,14 @@ const authorizationMiddleware = async (ctx, next) => {
     await next(); // SUPERADMIN is included here
 };
 
+
 router.get('/', DatasetRouter.getAll);
 router.post('/', validationMiddleware, authorizationMiddleware, DatasetRouter.create);
+router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRouter.upload);
 
 router.get('/:dataset', DatasetRouter.get);
 router.patch('/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.update);
-router.delete('/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.delete);
+router.delete('/:dataset', authorizationMiddleware, DatasetRouter.delete);
 router.post('/:dataset/clone', validationMiddleware, authorizationMiddleware, DatasetRouter.clone);
 
 module.exports = router;

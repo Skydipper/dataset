@@ -1,6 +1,6 @@
 {
   "name": "rw-dataset-microservice",
-  "version": "1.1.0",
+  "version": "1.1.5",
   "description": "Dataset Microservice",
   "repository": "https://github.com/resource-watch/dataset",
   "main": "index.js",
@@ -8,7 +8,12 @@
     "test": "NODE_PATH=app/src node ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
     "start": "NODE_PATH=app/src node app/index.js"
   },
-  "keywords": ["dataset", "koa2", "rw", "nodejs"],
+  "keywords": [
+    "dataset",
+    "koa2",
+    "rw",
+    "nodejs"
+  ],
   "author": "https://github.com/archelogos",
   "license": "MIT",
   "devDependencies": {
@@ -46,12 +51,14 @@
     "koa-convert": "^1.2.0",
     "koa-logger": "^2.0.0",
     "koa-mount": "^2.0.0",
+    "koa-multer": "^1.0.1",
     "koa-router": "^7.0.1",
     "koa-validate": "^1.0.7",
     "mongoose": "^4.8.5",
     "mongoose-paginate": "^5.0.3",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
+    "s3": "^4.4.0",
     "slug": "^0.9.1",
     "uuid": "^3.0.1"
   }
