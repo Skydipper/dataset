@@ -55,7 +55,7 @@ class FileDataService {
         }
     }
 
-    static deferRemoveFromTempDirectory() {
+    static cleanTempDirectory() {
         // read tmp dir
         fs.readdir('/tmp/', (_, files) => {
             // iterate over them
@@ -65,7 +65,7 @@ class FileDataService {
                     // stats
                     fs.stat(`/tmp/${file}`, (__, stats) => {
                         // modified time + 24 > Date now
-                        if (Date.now() - 3600 * 24 > Date.parse(stats.mtime)) {
+                        if (Date.now() - 24 * 3600 > Date.parse(stats.mtime)) {
                             fs.unlink(`/tmp/${file}`);
                         }
                     });

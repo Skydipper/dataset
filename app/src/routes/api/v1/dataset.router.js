@@ -201,7 +201,6 @@ class DatasetRouter {
         try {
             const dataset = `${ctx.request.body.files.dataset.path}-${ctx.request.body.files.dataset.name}`;
             fs.rename(ctx.request.body.files.dataset.path, dataset);
-            FileDataService.deferRemoveFromTempDirectory(dataset);
             ctx.body = {
                 connectorUrl: `rw.dataset.raw${dataset}`
             };
