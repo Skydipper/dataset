@@ -48,27 +48,30 @@ class FileDataService {
     static removeFromTempDirectory(filePath) {
         try {
             fs.unlink(filePath);
+            FileDataService.cleanTempDirectory();
             return true;
         } catch (err) {
             return false;
         }
     }
 
-    static deferRemoveFromTempDirectory(filePath) {
-        // @ TODO defer removal
-        try {
-            setTimeout(() => {
-                try {
-                    fs.unlink(filePath);
-                    return true;
-                } catch (e) {
-                    return false;
+    static deferRemoveFromTempDirectory() {
+        // read tmp dir
+        fs.readdir('/tmp/', (_, files) => {
+            // iterate over them
+            files.forEach(file => {
+                // upload_* (raw dataset)
+                if (file.indexOf('upload_') >= 0) {
+                    // stats
+                    fs.stat(`/tmp/${file}`, (__, stats) => {
+                        // modified time + 24 > Date now
+                        if (Date.now() - 3600 * 24 > Date.parse(stats.mtime)) {
+                            fs.unlink(`/tmp/${file}`);
+                        }
+                    });
                 }
-            }, 30 * 1000);
-            return true;
-        } catch (err) {
-            return false;
-        }
+            });
+        });
     }
 
 }

@@ -175,6 +175,9 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
+        if (dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
+            dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
+        }
         // let tempSlug;
         // if (dataset.name) {
         //     tempSlug = DatasetService.getSlug(dataset.name);

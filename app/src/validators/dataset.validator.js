@@ -234,9 +234,10 @@ class DatasetValidator {
 
     static async validateUpload(koaObj) {
         logger.info('Validating Dataset Raw Upload');
-        koaObj.checkFile('dataset')
-            .notEmpty()
-            .suffixIn(CONNECTOR_TYPES.document.provider);
+        koaObj.checkFile('dataset').notEmpty();
+        if (koaObj.request.body.files) {
+            koaObj.checkFile('dataset').suffixIn(CONNECTOR_TYPES.document.provider);
+        }
         if (koaObj.errors) {
             koaObj.errors = [{
                 dataset: 'it has to be a valid file'
