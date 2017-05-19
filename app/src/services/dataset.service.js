@@ -118,7 +118,7 @@ class DatasetService {
             throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
         }
         // Check if raw dataset
-        if (dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
+        if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
             dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
         }
         logger.info(`[DBACCESS-SAVE]: dataset.name: ${dataset.name}`);
@@ -175,7 +175,7 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
-        if (dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
+        if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
             dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
         }
         // let tempSlug;
