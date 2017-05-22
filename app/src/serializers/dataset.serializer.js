@@ -28,7 +28,9 @@ class DatasetSerializer {
                 metadata: el.metadata,
                 widget: el.widget,
                 layer: el.layer,
-                vocabulary: el.vocabulary
+                vocabulary: el.vocabulary,
+                widgetRelevantProps: el.widgetRelevantProps,
+                layerRelevantProps: el.layerRelevantProps
             }
         };
     }

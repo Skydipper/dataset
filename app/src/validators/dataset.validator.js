@@ -85,7 +85,7 @@ class DatasetValidator {
                 validation = true;
             // if data is not provided, check if url is valid
             } else {
-                if (DatasetValidator.validUrl(connectorUrl)) {
+                if (DatasetValidator.validUrl(connectorUrl) || connectorUrl.indexOf('rw.dataset.raw') >= 0) {
                     validation = true;
                 } else {
                     validation = false;
@@ -102,7 +102,7 @@ class DatasetValidator {
             }
         // in other cases just validate url
         } else {
-            if (DatasetValidator.validUrl(connectorUrl)) {
+            if (DatasetValidator.validUrl(connectorUrl) || connectorUrl.indexOf('rw.dataset.raw') >= 0) {
                 validation = true;
             }
         }
@@ -179,7 +179,8 @@ class DatasetValidator {
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend), 'must be an object');
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies), 'must be an object');
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
-        logger.debug(koaObj.errors);
+        koaObj.checkBody('widgetRelevantProps').optional().check(widgetRelevantProps => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
+        koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
@@ -211,6 +212,8 @@ class DatasetValidator {
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies));
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
+        koaObj.checkBody('widgetRelevantProps').optional().check(widgetRelevantProps => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
+        koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
@@ -223,6 +226,22 @@ class DatasetValidator {
         koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('datasetUrl').notEmpty().isAscii();
         if (koaObj.errors) {
+            logger.error('Error validating dataset creation');
+            throw new DatasetNotValid(koaObj.errors);
+        }
+        return true;
+    }
+
+    static async validateUpload(koaObj) {
+        logger.info('Validating Dataset Raw Upload');
+        koaObj.checkFile('dataset').notEmpty();
+        if (koaObj.request.body.files) {
+            koaObj.checkFile('dataset').suffixIn(CONNECTOR_TYPES.document.provider);
+        }
+        if (koaObj.errors) {
+            koaObj.errors = [{
+                dataset: 'it has to be a valid file'
+            }];
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
         }

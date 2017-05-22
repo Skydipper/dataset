@@ -4,6 +4,7 @@ const Dataset = require('models/dataset.model');
 const RelationshipsService = require('services/relationships.service');
 const SyncService = require('services/sync.service');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
+const FileDataService = require('services/fileDataService.service');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const SyncError = require('errors/sync.error');
@@ -116,6 +117,10 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
             throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
         }
+        // Check if raw dataset
+        if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
+            dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
+        }
         logger.info(`[DBACCESS-SAVE]: dataset.name: ${dataset.name}`);
         let newDataset = await new Dataset({
             name: dataset.name,
@@ -132,7 +137,9 @@ class DatasetService {
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
             legend: dataset.legend,
-            clonedHost: dataset.clonedHost
+            clonedHost: dataset.clonedHost,
+            widgetRelevantProps: dataset.widgetRelevantProps,
+            layerRelevantProps: dataset.layerRelevantProps
         }).save();
         // if vocabularies
         if (dataset.vocabularies) {
@@ -167,6 +174,9 @@ class DatasetService {
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
+        }
+        if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
+            dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
         }
         // let tempSlug;
         // if (dataset.name) {
