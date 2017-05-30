@@ -91,8 +91,8 @@ class DatasetValidator {
                     validation = false;
                 }
             }
-        // is it a gee dataset?
-        } else if (connectorType === 'rest' && provider === 'gee') {
+        // is it a gee or bigquery dataset?
+        } else if (connectorType === 'rest' && (provider === 'gee' || provider === 'bigquery')) {
             // is it tableName valid?
             if (DatasetValidator.notEmptyString(tableName)) {
                 validation = true;
