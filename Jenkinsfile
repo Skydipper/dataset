@@ -22,8 +22,10 @@ node {
         echo "entra3"
         IMAGE_NAME_NEW=$(eval echo $IMAGE_NAME) \
         echo "entra4"
-        IFS=':' read -ra ADDR <<< "$IMAGE_NAME_NEW" 
+        ADDR=(${IMAGE_NAME_NEW//:/ })
+
         echo "entra5"
+        echo $ADDR
 
         echo "entra"
         if curl --silent -f -lSL https://hub.docker.com/v2/repositories/${ADDR[0]}/tags/${ADDR[1]} > /dev/null; then    \
