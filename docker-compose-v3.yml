@@ -1,0 +1,14 @@
+version: '3'
+services:
+  prod:
+    image: vizzuality/dataset:1.1.5${STAGING}
+    ports:
+      - "3000"
+    env_file:
+      - prod.env
+    command: start
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: ${SYSLOG_ADDRESS}
+        tag: dataset${STAGING}
