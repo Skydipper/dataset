@@ -15,8 +15,9 @@ node {
       print "Publishing container"
 
       sh '''  \
-        
+        echo "entra1"
         STAGING="" \
+        echo "entra2"
         IMAGE_NAME=$(cat docker-compose-v3.yml | shyaml get-value services.prod.image) \
         IMAGE_NAME_NEW=$(eval echo $IMAGE_NAME) \
          \
