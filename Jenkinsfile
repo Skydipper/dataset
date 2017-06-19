@@ -22,7 +22,7 @@ node {
         echo "entra3"
         IMAGE_NAME_NEW=$(eval echo $IMAGE_NAME) \
         echo "entra4"
-        ADDR=(${IMAGE_NAME_NEW//:/ })
+        ADDR=${IMAGE_NAME_NEW//:/ }
 
         echo "entra5"
         echo $ADDR
