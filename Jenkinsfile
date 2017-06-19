@@ -22,7 +22,7 @@ node {
          \
         IFS=':' read -ra ADDR <<< "$IMAGE_NAME_NEW" \
          \
-         \
+        echo "entra"
         if curl --silent -f -lSL https://hub.docker.com/v2/repositories/${ADDR[0]}/tags/${ADDR[1]} > /dev/null; then    \
             echo "Error! Image with name ${IMAGE_NAME_NEW} exists!!!! " 1>&2 \
             exit 1 \
