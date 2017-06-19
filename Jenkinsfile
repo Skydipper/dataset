@@ -19,10 +19,12 @@ node {
         STAGING="" \
         echo "entra2"
         IMAGE_NAME=$(cat docker-compose-v3.yml | shyaml get-value services.prod.image) \
+        echo "entra3"
         IMAGE_NAME_NEW=$(eval echo $IMAGE_NAME) \
-         \
-        IFS=':' read -ra ADDR <<< "$IMAGE_NAME_NEW" \
-         \
+        echo "entra4"
+        IFS=':' read -ra ADDR <<< "$IMAGE_NAME_NEW" 
+        echo "entra5"
+
         echo "entra"
         if curl --silent -f -lSL https://hub.docker.com/v2/repositories/${ADDR[0]}/tags/${ADDR[1]} > /dev/null; then    \
             echo "Error! Image with name ${IMAGE_NAME_NEW} exists!!!! " 1>&2 \
