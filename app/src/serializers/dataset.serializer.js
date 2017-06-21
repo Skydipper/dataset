@@ -19,6 +19,7 @@ class DatasetSerializer {
                 connectorUrl: el.connectorUrl,
                 tableName: el.tableName,
                 status: el.status,
+                published: el.published,
                 overwrite: el.overwrite,
                 legend: el.legend,
                 clonedHost: el.clonedHost,

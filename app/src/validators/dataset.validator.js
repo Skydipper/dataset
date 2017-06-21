@@ -169,6 +169,7 @@ class DatasetValidator {
         koaObj.checkBody('connectorUrl').check(connectorUrl => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
         koaObj.checkBody('tableName').optional().check(tableName => DatasetValidator.isString(tableName), 'must be a string');
         koaObj.checkBody('overwrite').optional().toBoolean();
+        koaObj.checkBody('published').optional().toBoolean();
         koaObj.checkBody('dataOverwrite').optional().toBoolean();
         koaObj.checkBody('data').optional().check(data => {
             if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
@@ -200,6 +201,7 @@ class DatasetValidator {
         koaObj.checkBody('provider').optional().check(provider => DatasetValidator.isString(provider), 'must be a string');
         koaObj.checkBody('connectorUrl').optional().check(connectorUrl => DatasetValidator.notEmptyString(connectorUrl), 'can not be empty');
         koaObj.checkBody('tableName').optional().check(tableName => DatasetValidator.isString(tableName), 'must be a string');
+        koaObj.checkBody('published').optional().toBoolean();
         koaObj.checkBody('overwrite').optional().toBoolean();
         koaObj.checkBody('dataOverwrite').optional().toBoolean();
         koaObj.checkBody('errorMessage').optional().check(errorMessage => DatasetValidator.isString(errorMessage), 'must be a string');

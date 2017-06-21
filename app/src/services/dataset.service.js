@@ -136,6 +136,7 @@ class DatasetService {
             connectorUrl: dataset.connectorUrl,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
+            published: user.role === 'ADMIN' ? dataset.published : false,
             legend: dataset.legend,
             clonedHost: dataset.clonedHost,
             widgetRelevantProps: dataset.widgetRelevantProps,
@@ -208,6 +209,9 @@ class DatasetService {
             currentDataset.overwrite = dataset.overwrite;
         } else if (dataset.dataOverwrite === false || dataset.dataOverwrite === true) {
             currentDataset.overwrite = dataset.dataOverwrite;
+        }
+        if ((dataset.published === false || dataset.published === true) && user.role === 'ADMIN') {
+            currentDataset.published = dataset.published;
         }
         currentDataset.legend = dataset.legend || currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
@@ -303,6 +307,7 @@ class DatasetService {
         newDataset.connectorUrl = dataset.datasetUrl;
         newDataset.tableName = currentDataset.tableName;
         newDataset.overwrite = currentDataset.overwrite || currentDataset.dataOverwrite;
+        newDataset.published = user.role === 'ADMIN' ? dataset.published || currentDataset.published : false;
         newDataset.legend = dataset.legend;
         newDataset.clonedHost = {
             hostProvider: currentDataset.provider,
