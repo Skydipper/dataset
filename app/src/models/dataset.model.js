@@ -23,6 +23,7 @@ const Dataset = new Schema({
     status: { type: String, enum: STATUS, default: 'pending' },
     overwrite: { type: Boolean, required: false, default: false },
     errorMessage: { type: String, required: false, trim: true, default: null },
+    published: { type: Boolean, required: true, default: true },
     legend: {
         _id: false,
         lat: { type: String, required: false, trim: true },

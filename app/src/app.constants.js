@@ -1,4 +1,4 @@
-const USER_ROLES = ['USER', 'MANGAER', 'ADMIN', 'SUPERADMIN'];
+const USER_ROLES = ['USER', 'MANAGER', 'ADMIN', 'SUPERADMIN'];
 const STATUS = ['pending', 'saved', 'failed'];
 const INCLUDES = ['widget', 'layer', 'vocabulary', 'metadata'];
 const CONNECTOR_TYPES = {
