@@ -242,6 +242,8 @@ const validationMiddleware = async (ctx, next) => {
 const authorizationMiddleware = async (ctx, next) => {
     logger.info(`[DatasetRouter] Checking authorization`);
     // Get user from query (delete) or body (post-patch)
+    const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
+    const uploadDataset = ctx.request.path.indexOf('upload') >= 0 && ctx.request.method === 'POST';
     const user = DatasetRouter.getUser(ctx);
     if (user.id === 'microservice') {
         await next();
@@ -252,8 +254,10 @@ const authorizationMiddleware = async (ctx, next) => {
         return;
     }
     if (user.role === 'USER') {
-        ctx.throw(403, 'Forbidden'); // if user is USER -> out
-        return;
+        if (!newDatasetCreation) {
+            ctx.throw(403, 'Forbidden'); // if user is USER -> out
+            return;
+        }
     }
     const application = ctx.request.query.application ? ctx.request.query.application : ctx.request.body.application;
     if (application) {
@@ -265,8 +269,6 @@ const authorizationMiddleware = async (ctx, next) => {
             return;
         }
     }
-    const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
-    const uploadDataset = ctx.request.path.indexOf('upload') >= 0 && ctx.request.method === 'POST';
     const allowedOperations = newDatasetCreation || uploadDataset;
     if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !allowedOperations) {
         try {
