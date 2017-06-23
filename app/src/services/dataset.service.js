@@ -137,6 +137,7 @@ class DatasetService {
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
             published: user.role === 'ADMIN' ? dataset.published : false,
+            subscribable: dataset.subscribable,
             legend: dataset.legend,
             clonedHost: dataset.clonedHost,
             widgetRelevantProps: dataset.widgetRelevantProps,
@@ -213,6 +214,7 @@ class DatasetService {
         if ((dataset.published === false || dataset.published === true) && user.role === 'ADMIN') {
             currentDataset.published = dataset.published;
         }
+        currentDataset.subscribable = dataset.subscribable || currentDataset.subscribable;
         currentDataset.legend = dataset.legend || currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
         currentDataset.updatedAt = new Date();
