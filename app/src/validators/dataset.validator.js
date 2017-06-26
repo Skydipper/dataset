@@ -177,6 +177,7 @@ class DatasetValidator {
             }
             return false;
         }, 'must be a valid JSON');
+        koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.isObject(subscribable), 'must be an object');
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend), 'must be an object');
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies), 'must be an object');
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
@@ -210,7 +211,8 @@ class DatasetValidator {
                 return true;
             }
             return false;
-        });
+        }, 'must be a valid JSON');
+        koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.isObject(subscribable), 'must be an object');
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies));
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');

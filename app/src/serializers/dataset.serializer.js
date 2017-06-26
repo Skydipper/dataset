@@ -21,6 +21,7 @@ class DatasetSerializer {
                 status: el.status,
                 published: el.published,
                 overwrite: el.overwrite,
+                subscribable: el.subscribable,
                 legend: el.legend,
                 clonedHost: el.clonedHost,
                 errorMessage: el.errorMessage,

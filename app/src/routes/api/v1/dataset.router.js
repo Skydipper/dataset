@@ -295,12 +295,25 @@ const authorizationBigQuery = async (ctx, next) => {
     await next();
 };
 
+const authorizationSubscribable = async (ctx, next) => {
+    logger.info(`[DatasetRouter] Checking if it can update the subscribable prop`);
+    if (ctx.request.body.subscribable) {
+        logger.error('asdakjdnasjdjasjdasjkd');
+        const user = DatasetRouter.getUser(ctx);
+        if (user.email !== 'sergio.gordillo@vizzuality.com' && user.email !== 'raul.requero@vizzuality.com' && user.email !== 'alicia.arenzana@vizzuality.com') {
+            ctx.throw(401, 'Unauthorized'); // if not logged or invalid ROLE -> out
+            return;
+        }
+    }
+    await next();
+};
+
 router.get('/', DatasetRouter.getAll);
-router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, DatasetRouter.create);
+router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, authorizationSubscribable, DatasetRouter.create);
 router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRouter.upload);
 
 router.get('/:dataset', DatasetRouter.get);
-router.patch('/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.update);
+router.patch('/:dataset', validationMiddleware, authorizationMiddleware, authorizationSubscribable, DatasetRouter.update);
 router.delete('/:dataset', authorizationMiddleware, DatasetRouter.delete);
 router.post('/:dataset/clone', validationMiddleware, authorizationMiddleware, DatasetRouter.clone);
 

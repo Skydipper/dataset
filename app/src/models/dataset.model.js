@@ -24,6 +24,7 @@ const Dataset = new Schema({
     overwrite: { type: Boolean, required: false, default: false },
     errorMessage: { type: String, required: false, trim: true, default: null },
     published: { type: Boolean, required: true, default: true },
+    subscribable: { type: Schema.Types.Mixed },
     legend: {
         _id: false,
         lat: { type: String, required: false, trim: true },
