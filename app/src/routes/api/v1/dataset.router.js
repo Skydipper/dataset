@@ -288,7 +288,7 @@ const authorizationBigQuery = async (ctx, next) => {
     logger.info(`[DatasetRouter] Checking if bigquery dataset`);
     // Get user from query (delete) or body (post-patch)
     const user = DatasetRouter.getUser(ctx);
-    if (ctx.request.body.provider === 'bigquery' && (user.email !== 'sergio.gordillo@vizzuality.com' && user.email !== 'raul.requero@vizzuality.com')) {
+    if (ctx.request.body.provider === 'bigquery' && (user.email !== 'sergio.gordillo@vizzuality.com' && user.email !== 'raul.requero@vizzuality.com' && user.email !== 'alicia.arenzana@vizzuality.com')) {
         ctx.throw(401, 'Unauthorized'); // if not logged or invalid ROLE -> out
         return;
     }
