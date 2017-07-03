@@ -3,8 +3,8 @@ const Router = require('koa-router');
 const koaMulter = require('koa-multer');
 const logger = require('logger');
 const DatasetService = require('services/dataset.service');
-const RelationshipsService = require('services/relationships.service');
 const FileDataService = require('services/fileDataService.service');
+const RelationshipsService = require('services/relationships.service');
 const DatasetValidator = require('validators/dataset.validator');
 const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
@@ -18,7 +18,7 @@ const router = new Router({
     prefix: '/dataset',
 });
 
-const upload = koaMulter({ dest: 'uploads/' });
+koaMulter({ dest: 'uploads/' });
 
 const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
@@ -298,7 +298,6 @@ const authorizationBigQuery = async (ctx, next) => {
 const authorizationSubscribable = async (ctx, next) => {
     logger.info(`[DatasetRouter] Checking if it can update the subscribable prop`);
     if (ctx.request.body.subscribable) {
-        logger.error('asdakjdnasjdjasjdasjkd');
         const user = DatasetRouter.getUser(ctx);
         if (user.email !== 'sergio.gordillo@vizzuality.com' && user.email !== 'raul.requero@vizzuality.com' && user.email !== 'alicia.arenzana@vizzuality.com') {
             ctx.throw(401, 'Unauthorized'); // if not logged or invalid ROLE -> out
