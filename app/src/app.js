@@ -22,7 +22,7 @@ const onDbReady = (err) => {
 
     if (err) {
         logger.error(err);
-        throw new Error(err);
+        //throw new Error(err);
     }
 
     const app = new Koa();
