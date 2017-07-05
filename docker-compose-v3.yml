@@ -1,7 +1,7 @@
 version: '3'
 services:
   prod:
-    image: vizzuality/dataset:1.1.7${STAGING}-sdg
+    image: vizzuality/dataset:1.1.8${STAGING}-sdg
     ports:
       - "3000"
     env_file:
@@ -11,4 +11,4 @@ services:
       driver: "syslog"
       options:
         syslog-address: ${SYSLOG_ADDRESS}
-        tag: dataset${STAGING}
+        tag: dataset-sdg${STAGING}
