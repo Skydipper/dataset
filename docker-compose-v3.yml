@@ -1,7 +1,7 @@
 version: '3'
 services:
   prod:
-    image: vizzuality/dataset:1.1.8${STAGING}-sdg
+    image: vizzuality/dataset:1.1.9${STAGING}-sdg
     ports:
       - "3000"
     env_file:
