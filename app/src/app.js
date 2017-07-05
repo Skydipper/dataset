@@ -21,8 +21,9 @@ const koaBody = require('koa-body')({
 const onDbReady = (err) => {
 
     if (err) {
+        logger.error('MongoURI', mongoUri);
         logger.error(err);
-        //throw new Error(err);
+        throw new Error(err);
     }
 
     const app = new Koa();
