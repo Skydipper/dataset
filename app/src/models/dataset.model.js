@@ -22,9 +22,15 @@ const Dataset = new Schema({
     tableName: { type: String, required: false, trim: true, default: null },
     status: { type: String, enum: STATUS, default: 'pending' },
     overwrite: { type: Boolean, required: false, default: false },
+    verified: { type: Boolean, required: false, default: false },
     errorMessage: { type: String, required: false, trim: true, default: null },
     published: { type: Boolean, required: true, default: true },
     subscribable: { type: Schema.Types.Mixed },
+    blockchain: {
+        _id: false,
+        sha256: { type: String, required: false, trim: true },
+        token: { type: String, required: false, trim: true }
+    },
     legend: {
         _id: false,
         lat: { type: String, required: false, trim: true },

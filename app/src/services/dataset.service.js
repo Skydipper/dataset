@@ -138,6 +138,7 @@ class DatasetService {
             overwrite: dataset.overwrite || dataset.dataOverwrite,
             published: user.role === 'ADMIN' ? dataset.published : false,
             subscribable: dataset.subscribable,
+            verified: dataset.verified,
             legend: dataset.legend,
             clonedHost: dataset.clonedHost,
             widgetRelevantProps: dataset.widgetRelevantProps,
@@ -214,6 +215,9 @@ class DatasetService {
         if ((dataset.published === false || dataset.published === true) && user.role === 'ADMIN') {
             currentDataset.published = dataset.published;
         }
+        if ((dataset.verified === false || dataset.verified === true)) {
+            currentDataset.verified = dataset.verified;
+        }
         currentDataset.subscribable = dataset.subscribable || currentDataset.subscribable;
         currentDataset.legend = dataset.legend || currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
@@ -229,6 +233,9 @@ class DatasetService {
                 currentDataset.status = 'failed';
                 currentDataset.errorMessage = dataset.errorMessage;
             }
+        }
+        if (user.id === 'microservice' && dataset.blockchain && dataset.blockchain.sha256 && dataset.blockchain.token) {
+            currentDataset.blockchain = dataset.blockchain;
         }
         logger.info(`[DBACCESS-SAVE]: dataset`);
         let newDataset = await currentDataset.save();
