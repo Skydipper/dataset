@@ -234,7 +234,7 @@ class DatasetService {
                 currentDataset.errorMessage = dataset.errorMessage;
             }
         }
-        if (user.id === 'microservice' && dataset.blockchain && dataset.blockchain.sha256 && dataset.blockchain.token) {
+        if (user.id === 'microservice' && dataset.blockchain && dataset.blockchain.id && dataset.blockchain.hash) {
             currentDataset.blockchain = dataset.blockchain;
         }
         logger.info(`[DBACCESS-SAVE]: dataset`);

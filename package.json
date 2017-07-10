@@ -1,6 +1,6 @@
 {
   "name": "rw-dataset-microservice",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "description": "Dataset Microservice",
   "repository": "https://github.com/resource-watch/dataset",
   "main": "index.js",
@@ -59,6 +59,7 @@
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "s3": "^4.4.0",
+    "stampery": "^6.0.2",
     "slug": "^0.9.1",
     "uuid": "^3.0.1"
   }

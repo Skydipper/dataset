@@ -28,8 +28,10 @@ const Dataset = new Schema({
     subscribable: { type: Schema.Types.Mixed },
     blockchain: {
         _id: false,
-        sha256: { type: String, required: false, trim: true },
-        token: { type: String, required: false, trim: true }
+        id: { type: String, required: false, trim: true },
+        hash: { type: String, required: false, trim: true },
+        time: { type: String, required: false, trim: true },
+        backupUrl: { type: String, required: false, trim: true },
     },
     legend: {
         _id: false,
