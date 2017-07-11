@@ -7,6 +7,7 @@ test:
     NODE_ENV: test
     CT_URL: http://mymachine:9000
     API_VERSION: v1
+    STAMPERY_TOKEN: token
   command: test
   links:
     - mongo

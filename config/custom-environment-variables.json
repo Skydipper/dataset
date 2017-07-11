@@ -5,5 +5,6 @@
     },
     "service": {
         "port": "PORT"
-    }
+    },
+    "stampery": "STAMPERY_TOKEN"
 }

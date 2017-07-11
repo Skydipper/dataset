@@ -102,7 +102,7 @@ class DatasetValidator {
             }
         // in other cases just validate url
         } else {
-            if (DatasetValidator.validUrl(connectorUrl) || connectorUrl.indexOf('rw.dataset.raw') >= 0) {
+            if (connectorUrl && (DatasetValidator.validUrl(connectorUrl) || connectorUrl.indexOf('rw.dataset.raw') >= 0)) {
                 validation = true;
             }
         }
@@ -168,8 +168,9 @@ class DatasetValidator {
         // connectorUrl
         koaObj.checkBody('connectorUrl').check(connectorUrl => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
         koaObj.checkBody('tableName').optional().check(tableName => DatasetValidator.isString(tableName), 'must be a string');
-        koaObj.checkBody('overwrite').optional().toBoolean();
         koaObj.checkBody('published').optional().toBoolean();
+        koaObj.checkBody('overwrite').optional().toBoolean();
+        koaObj.checkBody('verified').optional().toBoolean();
         koaObj.checkBody('dataOverwrite').optional().toBoolean();
         koaObj.checkBody('data').optional().check(data => {
             if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
@@ -204,6 +205,7 @@ class DatasetValidator {
         koaObj.checkBody('tableName').optional().check(tableName => DatasetValidator.isString(tableName), 'must be a string');
         koaObj.checkBody('published').optional().toBoolean();
         koaObj.checkBody('overwrite').optional().toBoolean();
+        koaObj.checkBody('verified').optional().toBoolean();
         koaObj.checkBody('dataOverwrite').optional().toBoolean();
         koaObj.checkBody('errorMessage').optional().check(errorMessage => DatasetValidator.isString(errorMessage), 'must be a string');
         koaObj.checkBody('data').optional().check(data => {
@@ -214,6 +216,7 @@ class DatasetValidator {
         }, 'must be a valid JSON');
         koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.isObject(subscribable), 'must be an object');
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
+        koaObj.checkBody('blockchain').optional().check(blockchain => DatasetValidator.isObject(blockchain));
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies));
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
         koaObj.checkBody('widgetRelevantProps').optional().check(widgetRelevantProps => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
