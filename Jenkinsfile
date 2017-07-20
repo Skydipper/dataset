@@ -44,7 +44,7 @@ node {
 
       // Default behavior?
       default:
-          // Do nothing
+          sh("echo default")
     }
 
   } catch (err) {
