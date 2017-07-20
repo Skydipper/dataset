@@ -41,7 +41,7 @@ node {
             sh("kubectl apply -f k8s/services/")
             sh("kubectl apply -f k8s/production/")
           }
-          sh("kubectl rolling-update ${appName} --image=${imageTag}")
+          sh("kubectl set image deployment ${appName} container=${imageTag} --record")
           break
 
       // Default behavior?
