@@ -12,15 +12,15 @@ node {
   try {
 
     stage 'Build docker'
-    sh("docker build -t ${imageTag} .")
+    sh("docker -H :2375 build -t ${imageTag} .")
 
     // stage 'Run Go tests'
     // sh("docker run ${imageTag} --rm test")
 
     stage('Push Docker') {
       withCredentials([usernamePassword(credentialsId: 'amazon', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
-        sh 'docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}'
-        sh 'docker push -t ${imageTag}'
+        sh 'docker -H :2375 login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}'
+        sh 'docker -H :2375 push -t ${imageTag}'
       }
     }
 
