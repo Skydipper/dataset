@@ -12,8 +12,10 @@ node {
 
   try {
 
-    stage 'Build docker'
-    sh("docker -H :2375 build -t ${imageTag} .")
+    stage ('Build docker') {
+      sh("docker -H :2375 build -t ${imageTag} .")
+      sh("docker -H :2375 build -t ${dockerUsername}/${appName}:latest .")
+    }
 
     // stage 'Run Go tests'
     // sh("docker run ${imageTag} --rm test")
@@ -26,27 +28,28 @@ node {
       }
     }
 
-    stage "Deploy Application"
-    switch (env.BRANCH_NAME) {
+    stage ("Deploy Application") {
+      switch (env.BRANCH_NAME) {
 
-      // Roll out to staging
-      case "develop":
-          // Change to staging cluster kubectl set-context
+        // Roll out to staging
+        case "develop":
+            // Change to staging cluster kubectl set-context
 
-      // Roll out to production
-      case "master":
-          // Change deployed image in canary to the one we just built
-          def service = sh("kubectl get svc dataset")
-          if (service && service.indexOf("NotFound")){
-            sh("kubectl apply -f k8s/services/")
-            sh("kubectl apply -f k8s/production/")
-          }
-          sh("kubectl set image deployment ${appName} ${appName}=${imageTag} --record")
-          break
+        // Roll out to production
+        case "master":
+            // Change deployed image in canary to the one we just built
+            def service = sh("kubectl get svc dataset")
+            if (service && service.indexOf("NotFound")){
+              sh("kubectl apply -f k8s/services/")
+              sh("kubectl apply -f k8s/production/")
+            }
+            sh("kubectl set image deployment ${appName} ${appName}=${imageTag} --record")
+            break
 
-      // Default behavior?
-      default:
-          sh("echo default")
+        // Default behavior?
+        default:
+            sh("echo default")
+      }
     }
 
   } catch (err) {

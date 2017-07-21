@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: dataset
-        image: vizzuality/dataset:1.1.5
+        image: vizzuality/dataset
         imagePullPolicy: Always
         resources:
           requests:
@@ -22,12 +22,12 @@ spec:
           limits:
             memory: "512Mi"
         args:
-          - develop
+          - start
         env:
           - name: PORT
             value: "3000"
           - name: NODE_ENV
-            value: dev
+            value: prod
           - name: NODE_PATH
             value: app/src
           - name: S3_ACCESS_KEY_ID
