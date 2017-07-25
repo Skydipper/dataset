@@ -47,6 +47,11 @@ spec:
                 secretKeyRef:
                   name: mssecrets
                   key: CT_TOKEN
+          - name: CT_REGISTER_MODE
+            valueFrom:
+                secretKeyRef:
+                  name: mssecrets
+                  key: CT_REGISTER_MODE
           - name: API_VERSION
             valueFrom:
                 secretKeyRef:
