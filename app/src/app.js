@@ -16,28 +16,28 @@ const koaBody = require('koa-body')({
     textLimit: '50mb'
 });
 
-// let dbOptions = {};
-// // KUBE CLUSTER
-// if (mongoUri.indexOf('replicaSet') > - 1) {
-//     dbOptions = {
-//         db: { native_parser: true },
-//         replset: {
-//             auto_reconnect: false,
-//             poolSize: 10,
-//             socketOptions: {
-//                 keepAlive: 1000,
-//                 connectTimeoutMS: 30000
-//             }
-//         },
-//         server: {
-//             poolSize: 5,
-//             socketOptions: {
-//                 keepAlive: 1000,
-//                 connectTimeoutMS: 30000
-//             }
-//         }
-//     };
-// }
+let dbOptions = {};
+// KUBE CLUSTER
+if (mongoUri.indexOf('replicaSet') > - 1) {
+    dbOptions = {
+        db: { native_parser: true },
+        replset: {
+            auto_reconnect: false,
+            poolSize: 10,
+            socketOptions: {
+                keepAlive: 1000,
+                connectTimeoutMS: 30000
+            }
+        },
+        server: {
+            poolSize: 5,
+            socketOptions: {
+                keepAlive: 1000,
+                connectTimeoutMS: 30000
+            }
+        }
+    };
+}
 
 const onDbReady = (err) => {
 
@@ -99,4 +99,4 @@ const onDbReady = (err) => {
     logger.info('Server started in ', process.env.PORT);
 };
 
-mongoose.connect(mongoUri, onDbReady);
+mongoose.connect(mongoUri, dbOptions, onDbReady);
