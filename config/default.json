@@ -13,5 +13,6 @@
         "database": "dataset_db",
         "host": "mymachine",
         "port": 27017
-    }
+    },
+    "stampery": "STAMPERY_TOKEN"
 }
