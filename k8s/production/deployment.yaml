@@ -31,7 +31,7 @@ spec:
           - name: NODE_PATH
             value: app/src
           - name: LOCAL_URL
-            value: http://dataset.default.svc.cluster.local:3000
+            value: dataset.default.svc.cluster.local:3000
           - name: MONGO_URI
             valueFrom:
                 secretKeyRef:

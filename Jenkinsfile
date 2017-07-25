@@ -3,7 +3,7 @@
 node {
 
   // Variables
-  def appName = 'dataset'
+  def appName = "${env.JOB_NAME}"
   def dockerUsername = 'vizzuality'
   def imageTag = "${dockerUsername}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
 
@@ -39,7 +39,7 @@ node {
         // Roll out to production
         case "master":
           // Change deployed image in canary to the one we just built
-          def service = sh([returnStdout: true, script: "kubectl get svc ${appName} || echo NotFound"]).trim()
+          def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
           if (service && service.indexOf("NotFound") > -1){
             sh("kubectl apply -f k8s/services/")
             sh("kubectl apply -f k8s/production/")
