@@ -35,6 +35,8 @@ node {
 
         // Roll out to staging
         case "develop":
+          sh("echo develop")
+          break
           // Change to staging cluster kubectl set-context
 
         // Roll out to production
