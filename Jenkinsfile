@@ -39,7 +39,7 @@ node {
         // Roll out to production
         case "master":
           // Change deployed image in canary to the one we just built
-          def service = sh([returnStdout: true, script: "kubectl get svc ${appName}"]).trim()
+          def service = sh([returnStdout: true, script: "kubectl get svc ${appName} || echo NotFound"]).trim()
           if (service && service.indexOf("NotFound")){
             sh("kubectl apply -f k8s/services/")
             sh("kubectl apply -f k8s/production/")
