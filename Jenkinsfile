@@ -40,7 +40,7 @@ node {
         case "master":
           // Change deployed image in canary to the one we just built
           def service = sh([returnStdout: true, script: "kubectl get svc ${appName} || echo NotFound"]).trim()
-          if (service && service.indexOf("NotFound")){
+          if (service && service.indexOf("NotFound") > -1){
             sh("kubectl apply -f k8s/services/")
             sh("kubectl apply -f k8s/production/")
           }
