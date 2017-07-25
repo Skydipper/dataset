@@ -3,7 +3,7 @@
 node {
 
   // Variables
-  def appName = "${env.JOB_NAME}"
+  def (appName, branch) = "${env.JOB_NAME}".tokenize( '/' )
   def dockerUsername = 'vizzuality'
   def imageTag = "${dockerUsername}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
 
