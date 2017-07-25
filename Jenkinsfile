@@ -41,7 +41,10 @@ node {
           // Change deployed image in canary to the one we just built
           def service;
           try {
-            sh("kubectl get svc ${appName}")
+            sh(
+              script: "kubectl get svc ${appName}",
+              returnStdout: true
+            ).trim()
           } catch (err) {
             service = err;
           }
