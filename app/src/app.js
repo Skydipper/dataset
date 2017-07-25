@@ -4,12 +4,10 @@ const koaLogger = require('koa-logger');
 const mongoose = require('mongoose');
 const config = require('config');
 const loader = require('loader');
-const convert = require('koa-convert');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const ErrorSerializer = require('serializers/error.serializer');
 const mongoUri = process.env.MONGO_URI || `mongodb://${config.get('mongodb.host')}:${config.get('mongodb.port')}/${config.get('mongodb.database')}`;
 const koaValidate = require('koa-validate');
-
 
 const koaBody = require('koa-body')({
     multipart: true,
@@ -17,6 +15,29 @@ const koaBody = require('koa-body')({
     formLimit: '50mb',
     textLimit: '50mb'
 });
+
+let dbOptions = {};
+// KUBE CLUSTER
+if (mongoUri.db.indexOf('replicaSet') > - 1) {
+    dbOptions = {
+        db: { native_parser: true },
+        replset: {
+            auto_reconnect: false,
+            poolSize: 10,
+            socketOptions: {
+                keepAlive: 1000,
+                connectTimeoutMS: 30000
+            }
+        },
+        server: {
+            poolSize: 5,
+            socketOptions: {
+                keepAlive: 1000,
+                connectTimeoutMS: 30000
+            }
+        }
+    };
+}
 
 const onDbReady = (err) => {
 
@@ -27,7 +48,7 @@ const onDbReady = (err) => {
     }
 
     const app = new Koa();
-    
+
     app.use(koaBody);
 
     app.use(async (ctx, next) => {
@@ -57,7 +78,6 @@ const onDbReady = (err) => {
 
     loader.loadRoutes(app);
 
-
     app.listen(process.env.PORT, () => {
         ctRegisterMicroservice.register({
             info: require('../microservice/register.json'),
@@ -79,4 +99,4 @@ const onDbReady = (err) => {
     logger.info('Server started in ', process.env.PORT);
 };
 
-mongoose.connect(mongoUri, onDbReady);
+mongoose.connect(mongoUri, dbOptions, onDbReady);
