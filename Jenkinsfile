@@ -31,7 +31,7 @@ node {
     }
 
     stage ("Deploy Application") {
-      switch (env.BRANCH_NAME) {
+      switch ("${env.BRANCH_NAME}") {
 
         // Roll out to staging
         case "develop":
