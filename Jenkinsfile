@@ -2,10 +2,13 @@
 
 node {
 
+  // Actions
+  def forceCompleteDeploy = false;
+
   // Variables
   def tokens = "${env.JOB_NAME}".tokenize('/')
   def appName = tokens[0]
-  def dockerUsername = 'vizzuality'
+  def dockerUsername = "${DOCKER_USERNAME}"
   def imageTag = "${dockerUsername}/${appName}:${env.BRANCH_NAME}.${env.BUILD_NUMBER}"
 
   currentBuild.result = "SUCCESS"
@@ -35,15 +38,22 @@ node {
 
         // Roll out to staging
         case "develop":
-          sh("echo develop")
+          sh("Deploying to STAGING cluster")
+          sh("gcloud container clusters get-credentials ${KUBE_STAGING_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
+          def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
+          if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
+            sh("kubectl apply -f k8s/services/")
+            sh("kubectl apply -f k8s/staging/")
+          }
+          sh("kubectl set image deployment ${appName} ${appName}=${imageTag} --record")
           break
-          // Change to staging cluster kubectl set-context
 
         // Roll out to production
         case "master":
-          // Change deployed image in canary to the one we just built
+          sh("Deploying to PROD cluster")
+          sh("gcloud container clusters get-credentials ${KUBE_PROD_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
           def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
-          if (service && service.indexOf("NotFound") > -1){
+          if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
             sh("kubectl apply -f k8s/services/")
             sh("kubectl apply -f k8s/production/")
           }
@@ -52,7 +62,7 @@ node {
 
         // Default behavior?
         default:
-          sh("echo default")
+          sh("Default -> do nothing")
       }
     }
 
