@@ -2,19 +2,19 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    name: dataset
-  name: dataset
+    name: {name}
+  name: {name}
 spec:
   template:
     metadata:
       annotations:
         chaos.alpha.kubernetes.io/enabled: "true"
       labels:
-        name: dataset
+        name: {name}
     spec:
       containers:
-      - name: dataset
-        image: vizzuality/dataset
+      - name: {name}
+        image: vizzuality/{name}
         imagePullPolicy: Always
         resources:
           requests:
@@ -31,7 +31,7 @@ spec:
           - name: NODE_PATH
             value: app/src
           - name: LOCAL_URL
-            value: http://dataset.default.svc.cluster.local:3000
+            value: http://{name}.default.svc.cluster.local:3000
           - name: MONGO_URI
             valueFrom:
                 secretKeyRef:
