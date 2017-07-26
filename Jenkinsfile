@@ -45,8 +45,8 @@ node {
           sh("gcloud container clusters get-credentials ${KUBE_STAGING_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
           def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
           if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
-            sh("sed 's/{name}/${appName}/g' k8s/services/*.yaml")
-            sh("sed 's/{name}/${appName}/g' k8s/staging/*.yaml")
+            sh("sed -i -e 's/{name}/${appName}/g' k8s/services/*.yaml")
+            sh("sed -i -e 's/{name}/${appName}/g' k8s/staging/*.yaml")
             sh("kubectl apply -f k8s/services/")
             sh("kubectl apply -f k8s/staging/")
           }
@@ -59,8 +59,8 @@ node {
           sh("gcloud container clusters get-credentials ${KUBE_PROD_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
           def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
           if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
-            sh("sed 's/{name}/${appName}/g' k8s/services/*.yaml")
-            sh("sed 's/{name}/${appName}/g' k8s/production/*.yaml")
+            sh("sed -i -e 's/{name}/${appName}/g' k8s/services/*.yaml")
+            sh("sed -i -e 's/{name}/${appName}/g' k8s/production/*.yaml")
             sh("kubectl apply -f k8s/services/")
             sh("kubectl apply -f k8s/production/")
           }
