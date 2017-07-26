@@ -17,7 +17,7 @@ spec:
         image: vizzuality/{name}
         imagePullPolicy: Always
         args:
-          - develop
+          - start
         env:
           - name: PORT
             value: "3000"
