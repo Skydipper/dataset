@@ -38,7 +38,7 @@ node {
 
         // Roll out to staging
         case "develop":
-          sh("Deploying to STAGING cluster")
+          sh("echo Deploying to STAGING cluster")
           sh("gcloud container clusters get-credentials ${KUBE_STAGING_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
           def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
           if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
@@ -50,7 +50,7 @@ node {
 
         // Roll out to production
         case "master":
-          sh("Deploying to PROD cluster")
+          sh("echo Deploying to PROD cluster")
           sh("gcloud container clusters get-credentials ${KUBE_PROD_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
           def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
           if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
