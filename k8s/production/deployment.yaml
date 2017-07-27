@@ -5,6 +5,7 @@ metadata:
     name: {name}
   name: {name}
 spec:
+  revisionHistoryLimit: 2
   template:
     metadata:
       annotations:

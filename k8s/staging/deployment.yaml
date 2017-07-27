@@ -5,6 +5,7 @@ metadata:
     name: {name}
   name: {name}
 spec:
+  revisionHistoryLimit: 0
   template:
     metadata:
       annotations:
@@ -16,6 +17,10 @@ spec:
       - name: {name}
         image: vizzuality/{name}
         imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "0Mi"
+            cpu: "0m"
         args:
           - start
         env:
