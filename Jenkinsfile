@@ -8,7 +8,7 @@ node {
     timeout(time: 15, unit: 'SECONDS') {
       forceCompleteDeploy = input(
         id: 'Proceed0', message: 'Force COMPLETE Deployment', parameters: [
-        [$class: 'BooleanParameterDefinition', defaultValue: false, description: '', name: 'Please confirm you want to recreate services and deployments']
+        [$class: 'BooleanParameterDefinition', defaultValue: true, description: '', name: 'Please confirm you want to recreate services and deployments']
       ])
     }
   }
