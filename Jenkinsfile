@@ -3,7 +3,18 @@
 node {
 
   // Actions
-  def forceCompleteDeploy = false;
+  def forceCompleteDeploy = false
+  try {
+    timeout(time: 15, unit: 'SECONDS') {
+      forceCompleteDeploy = input(
+        id: 'Proceed0', message: 'Force COMPLETE Deployment', parameters: [
+        [$class: 'BooleanParameterDefinition', defaultValue: false, description: '', name: 'Please confirm you want to recreate services and deployments']
+      ])
+    }
+  }
+  catch(err) { // timeout reached or input false
+      // nothing
+  }
 
   // Variables
   def tokens = "${env.JOB_NAME}".tokenize('/')
@@ -55,16 +66,41 @@ node {
 
         // Roll out to production
         case "master":
-          sh("echo Deploying to PROD cluster")
-          sh("gcloud container clusters get-credentials ${KUBE_PROD_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
-          def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
-          if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
-            sh("sed -i -e 's/{name}/${appName}/g' k8s/services/*.yaml")
-            sh("sed -i -e 's/{name}/${appName}/g' k8s/production/*.yaml")
-            sh("kubectl apply -f k8s/services/")
-            sh("kubectl apply -f k8s/production/")
+          def userInput = true
+          def didTimeout = false
+          try {
+            timeout(time: 60, unit: 'SECONDS') {
+              userInput = input(
+                id: 'Proceed1', message: 'Confirm deployment', parameters: [
+                [$class: 'BooleanParameterDefinition', defaultValue: true, description: '', name: 'Please confirm you agree with this deployment']
+              ])
+            }
           }
-          sh("kubectl set image deployment ${appName} ${appName}=${imageTag} --record")
+          catch(err) { // timeout reached or input false
+              def user = err.getCauses()[0].getUser()
+              if('SYSTEM' == user.toString()) { // SYSTEM means timeout.
+                  didTimeout = true
+              } else {
+                  userInput = false
+                  echo "Aborted by: [${user}]"
+              }
+          }
+
+          if (userInput == true && !didTimeout){
+            sh("echo Deploying to PROD cluster")
+            sh("gcloud container clusters get-credentials ${KUBE_PROD_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
+            def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
+            if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
+              sh("sed -i -e 's/{name}/${appName}/g' k8s/services/*.yaml")
+              sh("sed -i -e 's/{name}/${appName}/g' k8s/production/*.yaml")
+              sh("kubectl apply -f k8s/services/")
+              sh("kubectl apply -f k8s/production/")
+            }
+            sh("kubectl set image deployment ${appName} ${appName}=${imageTag} --record")
+          } else {
+            echo "this was not successful"
+            currentBuild.result = 'FAILURE'
+          }
           break
 
         // Default behavior?
