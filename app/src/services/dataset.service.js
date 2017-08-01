@@ -309,7 +309,7 @@ class DatasetService {
                 logger.error(err.message);
             }
         }
-        logger.debug('[DatasetService]: Creating in graph');
+        logger.debug('[DatasetService]: Deleting in graph');
         try {
             await GraphService.deleteDataset(id);
         } catch (err) {
@@ -373,6 +373,14 @@ class DatasetService {
             hostPath: currentDataset.tableName
         };
         const createdDataset = await DatasetService.create(newDataset, user);
+        logger.debug('[DatasetService]: Creating in graph');
+        try {
+            await GraphService.createDataset(newDataset._id);
+        } catch (err) {
+            logger.error('Error creating widget in graph. Removing widget');
+            await createdDataset.remove();
+            throw new Error(err);
+        }
         if (fullCloning) {
             RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);
             RelationshipsService.cloneMetadatas(id, createdDataset.toObject()._id);
