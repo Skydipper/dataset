@@ -3,7 +3,18 @@
 node {
 
   // Actions
-  def forceCompleteDeploy = false;
+  def forceCompleteDeploy = false
+  try {
+    timeout(time: 15, unit: 'SECONDS') {
+      forceCompleteDeploy = input(
+        id: 'Proceed0', message: 'Force COMPLETE Deployment', parameters: [
+        [$class: 'BooleanParameterDefinition', defaultValue: true, description: '', name: 'Please confirm you want to recreate services and deployments']
+      ])
+    }
+  }
+  catch(err) { // timeout reached or input false
+      // nothing
+  }
 
   // Variables
   def tokens = "${env.JOB_NAME}".tokenize('/')
@@ -22,13 +33,17 @@ node {
       sh("docker -H :2375 build -t ${dockerUsername}/${appName}:latest .")
     }
 
-    // stage 'Run Go tests'
-    // sh("docker run ${imageTag} --rm test")
+    stage ('Run Tests') {
+      sh('docker-compose -H :2375 -f docker-compose-test.yml build')
+      sh('docker-compose -H :2375 -f docker-compose-test.yml run --rm test')
+      sh('docker-compose -H :2375 -f docker-compose-test.yml stop')
+    }
 
     stage('Push Docker') {
       withCredentials([usernamePassword(credentialsId: 'Vizzuality Docker Hub', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
         sh("docker -H :2375 login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}")
         sh("docker -H :2375 push ${imageTag}")
+        sh("docker -H :2375 push ${dockerUsername}/${appName}:latest")
         sh("docker -H :2375 rmi ${imageTag}")
       }
     }
@@ -39,9 +54,11 @@ node {
         // Roll out to staging
         case "develop":
           sh("echo Deploying to STAGING cluster")
-          sh("gcloud container clusters get-credentials ${KUBE_STAGING_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
+          sh("kubectl config use-context gke_${GCLOUD_PROJECT}_${GCLOUD_GCE_ZONE}_${KUBE_STAGING_CLUSTER}")
           def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
           if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
+            sh("sed -i -e 's/{name}/${appName}/g' k8s/services/*.yaml")
+            sh("sed -i -e 's/{name}/${appName}/g' k8s/staging/*.yaml")
             sh("kubectl apply -f k8s/services/")
             sh("kubectl apply -f k8s/staging/")
           }
@@ -50,19 +67,46 @@ node {
 
         // Roll out to production
         case "master":
-          sh("echo Deploying to PROD cluster")
-          sh("gcloud container clusters get-credentials ${KUBE_PROD_CLUSTER} --zone ${GCLOUD_GCE_ZONE} --project ${GCLOUD_PROJECT}")
-          def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
-          if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
-            sh("kubectl apply -f k8s/services/")
-            sh("kubectl apply -f k8s/production/")
+          def userInput = true
+          def didTimeout = false
+          try {
+            timeout(time: 60, unit: 'SECONDS') {
+              userInput = input(
+                id: 'Proceed1', message: 'Confirm deployment', parameters: [
+                [$class: 'BooleanParameterDefinition', defaultValue: true, description: '', name: 'Please confirm you agree with this deployment']
+              ])
+            }
           }
-          sh("kubectl set image deployment ${appName} ${appName}=${imageTag} --record")
+          catch(err) { // timeout reached or input false
+              def user = err.getCauses()[0].getUser()
+              if('SYSTEM' == user.toString()) { // SYSTEM means timeout.
+                  didTimeout = true
+              } else {
+                  userInput = false
+                  echo "Aborted by: [${user}]"
+              }
+          }
+
+          if (userInput == true && !didTimeout){
+            sh("echo Deploying to PROD cluster")
+            sh("kubectl config use-context gke_${GCLOUD_PROJECT}_${GCLOUD_GCE_ZONE}_${KUBE_PROD_CLUSTER}")
+            def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
+            if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
+              sh("sed -i -e 's/{name}/${appName}/g' k8s/services/*.yaml")
+              sh("sed -i -e 's/{name}/${appName}/g' k8s/production/*.yaml")
+              sh("kubectl apply -f k8s/services/")
+              sh("kubectl apply -f k8s/production/")
+            }
+            sh("kubectl set image deployment ${appName} ${appName}=${imageTag} --record")
+          } else {
+            echo "this was not successful"
+            currentBuild.result = 'FAILURE'
+          }
           break
 
         // Default behavior?
         default:
-          sh("Default -> do nothing")
+          sh("echo \"Default -> do nothing\"")
       }
     }
 
