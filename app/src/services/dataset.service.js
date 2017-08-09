@@ -38,7 +38,7 @@ class DatasetService {
         if (!query.application && query.app) {
             query.application = query.app;
         }
-        const datasetAttributes = Object.keys(Dataset.schema.obj);
+        const datasetAttributes = Object.keys(Dataset.schema.paths);
         Object.keys(query).forEach((param) => {
             if (datasetAttributes.indexOf(param) < 0) {
                 delete query[param];
@@ -55,8 +55,8 @@ class DatasetService {
                         query[param] = { $in: query[param].split(',').map(elem => elem.trim()) };
                     }
                     break;
-                case 'Object':
-                    query[param] = query[param];
+                case 'Mixed':
+                    query[param] = { $ne: null };
                     break;
                 case 'Date':
                     query[param] = query[param];
@@ -70,6 +70,7 @@ class DatasetService {
                 query._id = { $in: ids };
             }
         });
+        logger.info(query);
         return query;
     }
 
