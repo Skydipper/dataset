@@ -207,6 +207,7 @@ class DatasetService {
         currentDataset.provider = dataset.provider || currentDataset.provider;
         currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
         currentDataset.tableName = tableName || currentDataset.tableName;
+        currentDataset.type = dataset.type || currentDataset.type;
         if (dataset.overwrite === false || dataset.overwrite === true) {
             currentDataset.overwrite = dataset.overwrite;
         } else if (dataset.dataOverwrite === false || dataset.dataOverwrite === true) {
