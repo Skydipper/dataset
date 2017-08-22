@@ -81,6 +81,7 @@ describe('E2E test', () => {
             application: ['rw'],
             connectorType: 'rest',
             provider: 'cartodb',
+            env: 'production',
             connectorUrl: 'https://wri-01.carto.com/tables/wdpa_protected_areas/table',
             overwrite: true
         };
@@ -119,6 +120,7 @@ describe('E2E test', () => {
             application: ['gfw', 'rw'],
             connectorType: 'rest',
             provider: 'featureservice',
+            env: 'production',
             connectorUrl: 'http://services6.arcgis.com/bIipaUHHcz1GaAsv/arcgis/rest/services/Mineral_Development_Agreements/FeatureServer/0?f=pjson',
             overwrite: true
         };
@@ -155,6 +157,7 @@ describe('E2E test', () => {
             name: `JSON Dataset - ${timestamp}`,
             application: ['forest-atlas', 'rw'],
             connectorType: 'document',
+            env: 'production',
             provider: 'json',
             dataPath: 'data',
             data: {
