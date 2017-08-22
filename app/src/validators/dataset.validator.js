@@ -157,6 +157,7 @@ class DatasetValidator {
         koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('dataPath').optional().check(dataPath => DatasetValidator.isString(dataPath), 'must be a string');
         koaObj.checkBody('attributesPath').optional().check(attributesPath => DatasetValidator.isString(attributesPath), 'must be a string');
+        koaObj.checkBody('env').in(['production', 'preproduction']);
         // connectorType
         koaObj.checkBody('connectorType').notEmpty()
         .toLow()
