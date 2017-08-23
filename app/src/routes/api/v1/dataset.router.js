@@ -5,6 +5,7 @@ const logger = require('logger');
 const DatasetService = require('services/dataset.service');
 const VerificationService = require('services/verification.service');
 const RelationshipsService = require('services/relationships.service');
+const FileDataService = require('services/fileDataService.service');
 const DatasetValidator = require('validators/dataset.validator');
 const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
@@ -199,10 +200,10 @@ class DatasetRouter {
     static async upload(ctx) {
         logger.info(`[DatasetRouter] Uploading new file`);
         try {
-            const dataset = `${ctx.request.body.files.dataset.path}-${ctx.request.body.files.dataset.name}`;
-            fs.rename(ctx.request.body.files.dataset.path, dataset);
+            const filename = `${Date.now()}_${ctx.request.body.files.dataset.name}`;
+            await FileDataService.uploadFileToS3(ctx.request.body.files.dataset.path, filename, true);
             ctx.body = {
-                connectorUrl: `rw.dataset.raw${dataset}`
+                connectorUrl: `rw.dataset.raw/${filename}`
             };
         } catch (err) {
             ctx.throw(500, 'Error uploading file');

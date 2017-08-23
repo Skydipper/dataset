@@ -124,7 +124,7 @@ class DatasetService {
         }
         // Check if raw dataset
         if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
-            dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
+            dataset.connectorUrl = await FileDataService.copyFile(dataset.connectorUrl);
         }
         logger.info(`[DBACCESS-SAVE]: dataset.name: ${dataset.name}`);
         let newDataset = await new Dataset({
