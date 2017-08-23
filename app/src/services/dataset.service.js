@@ -138,7 +138,7 @@ class DatasetService {
             connectorType: dataset.connectorType,
             provider: dataset.provider,
             userId: user.id,
-            env: dataset.env,
+            env: dataset.env || 'production',
             connectorUrl: dataset.connectorUrl,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
