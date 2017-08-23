@@ -24,6 +24,7 @@ class DatasetSerializer {
                 verified: el.verified,
                 blockchain: el.blockchain,
                 subscribable: el.subscribable,
+                env: el.env,
                 legend: el.legend,
                 clonedHost: el.clonedHost,
                 errorMessage: el.errorMessage,
