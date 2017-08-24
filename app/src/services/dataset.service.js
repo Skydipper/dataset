@@ -9,6 +9,7 @@ const FileDataService = require('services/fileDataService.service');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const SyncError = require('errors/sync.error');
+const GraphService = require('services/graph.service');
 const slug = require('slug');
 
 class DatasetService {
@@ -50,13 +51,20 @@ class DatasetService {
                 switch (Dataset.schema.paths[param].instance) {
 
                 case 'String':
-                    query[param] = { $regex: query[param], $options: 'i' };
+                    query[param] = {
+                        $regex: query[param],
+                        $options: 'i'
+                    };
                     break;
                 case 'Array':
                     if (query[param].indexOf('@') >= 0) {
-                        query[param] = { $all: query[param].split('@').map(elem => elem.trim()) };
+                        query[param] = {
+                            $all: query[param].split('@').map(elem => elem.trim())
+                        };
                     } else {
-                        query[param] = { $in: query[param].split(',').map(elem => elem.trim()) };
+                        query[param] = {
+                            $in: query[param].split(',').map(elem => elem.trim())
+                        };
                     }
                     break;
                 case 'Mixed':
@@ -71,7 +79,9 @@ class DatasetService {
                 }
             }
             if (ids.length > 0) {
-                query._id = { $in: ids };
+                query._id = {
+                    $in: ids
+                };
             }
         });
         logger.info(query);
@@ -99,7 +109,9 @@ class DatasetService {
     static async get(id, query = {}) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
+        let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({
+            slug: id
+        }).exec();
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         if (!dataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
@@ -150,14 +162,34 @@ class DatasetService {
             widgetRelevantProps: dataset.widgetRelevantProps,
             layerRelevantProps: dataset.layerRelevantProps
         }).save();
+        logger.debug('[DatasetService]: Creating in graph');
+        try {
+            await GraphService.createDataset(newDataset._id);
+        } catch (err) {
+            newDataset.errorMessage = err.message;
+            newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                id: 'microservice'
+            });
+        }
         // if vocabularies
         if (dataset.vocabularies) {
+            try {
+                logger.debug('[DatasetService]: Creating relations in graph');
+                await GraphService.associateTags(newDataset._id, dataset.vocabularies);
+            } catch (err) {
+                newDataset.errorMessage = err.message;
+                newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                    id: 'microservice'
+                });
+            }
             try {
                 await RelationshipsService.createVocabularies(newDataset._id, dataset.vocabularies);
             } catch (err) {
                 newDataset.errorMessage = err.message;
-                newDataset = await DatasetService.update(newDataset._id, newDataset, { id: 'microservice' });
-            }
+                newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                    id: 'microservice'
+                });
+            }            
         }
         if (dataset.sync && dataset.connectorType === 'document') {
             try {
@@ -203,7 +235,9 @@ class DatasetService {
     static async update(id, dataset, user) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
+        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
+            slug: id
+        }).exec();
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
@@ -299,7 +333,9 @@ class DatasetService {
     static async delete(id) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
+        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
+            slug: id
+        }).exec();
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
@@ -313,6 +349,13 @@ class DatasetService {
                 logger.error(err.message);
             }
         }
+        logger.debug('[DatasetService]: Deleting in graph');
+        try {
+            await GraphService.deleteDataset(id);
+        } catch (err) {
+            logger.error('Error removing dataset of the graph', err);
+        }
+        
         return deletedDataset;
     }
 
@@ -342,7 +385,9 @@ class DatasetService {
     static async clone(id, dataset, user, fullCloning = false) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({ slug: id }).exec();
+        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
+            slug: id
+        }).exec();
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
@@ -368,6 +413,14 @@ class DatasetService {
             hostPath: currentDataset.tableName
         };
         const createdDataset = await DatasetService.create(newDataset, user);
+        logger.debug('[DatasetService]: Creating in graph');
+        try {
+            await GraphService.createDataset(newDataset._id);
+        } catch (err) {
+            logger.error('Error creating widget in graph. Removing widget');
+            await createdDataset.remove();
+            throw new Error(err);
+        }
         if (fullCloning) {
             RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);
             RelationshipsService.cloneMetadatas(id, createdDataset.toObject()._id);
