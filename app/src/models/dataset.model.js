@@ -25,6 +25,7 @@ const Dataset = new Schema({
     verified: { type: Boolean, required: false, default: false },
     errorMessage: { type: String, required: false, trim: true, default: null },
     published: { type: Boolean, required: true, default: true },
+    env: { type: String, required: true, default: 'production', trim: true },
     subscribable: { type: Schema.Types.Mixed },
     blockchain: {
         _id: false,

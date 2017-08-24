@@ -19,26 +19,53 @@ const S3Client = s3.createClient({
 
 class FileDataService {
 
-    static async uploadFileToS3(localConnectorUrl) {
-        const fileName = localConnectorUrl.split('rw.dataset.raw/tmp/')[1]
-        const filePath = `/tmp/${fileName}`;
+    static async uploadFileToS3(filePath, fileName) {
         try {
             logger.info('[SERVICE] Uploading to S3');
+            const key = `temp/${fileName}`;
             const params = {
                 localFile: filePath,
                 s3Params: {
                     Bucket: 'wri-api-backups',
-                    Key: `raw/${fileName}`,
+                    Key: key,
                     ACL: 'public-read'
                 }
             };
             const uploader = S3Client.uploadFile(params);
-            await new Promise((resolve) => {
+            await new Promise((resolve, reject) => {
                 uploader.on('end', data => resolve(data));
+                uploader.on('error', err => reject(err));
             });
             const s3file = s3.getPublicUrlHttp(params.s3Params.Bucket, params.s3Params.Key);
             // do not wait for it
             FileDataService.removeFromTempDirectory(filePath);
+            return s3file;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    static async copyFile(fileName) {
+        try {
+            logger.info('[SERVICE] Copying to S3');
+            const name = fileName.split('/')[1];
+
+            const params = {
+                Bucket: 'wri-api-backups',
+                CopySource: `wri-api-backups/temp/${name}`,
+                Key: `raw/${name}`,
+                ACL: 'public-read'
+            };
+            const stream = S3Client.moveObject(params);
+            await new Promise((resolve, reject) => {
+                stream.on('error', (err) => {
+                    reject(err);
+                });
+                stream.on('end', (data) => {
+                    resolve(data);
+                });
+            });
+            const s3file = s3.getPublicUrlHttp(params.Bucket, params.Key);
             return s3file;
         } catch (err) {
             throw err;

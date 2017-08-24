@@ -2,6 +2,7 @@ const URL = require('url').URL;
 const logger = require('logger');
 const Dataset = require('models/dataset.model');
 const RelationshipsService = require('services/relationships.service');
+const ctRegisterMicroservice = require('ct-register-microservice-node');
 const SyncService = require('services/sync.service');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const FileDataService = require('services/fileDataService.service');
@@ -39,11 +40,14 @@ class DatasetService {
         if (!query.application && query.app) {
             query.application = query.app;
         }
-        const datasetAttributes = Object.keys(Dataset.schema.obj);
+        if (!query.env) {
+            query.env = 'production';
+        }
+        const datasetAttributes = Object.keys(Dataset.schema.paths);
         Object.keys(query).forEach((param) => {
             if (datasetAttributes.indexOf(param) < 0) {
                 delete query[param];
-            } else {
+            } else if (param !== 'env') {
                 switch (Dataset.schema.paths[param].instance) {
 
                 case 'String':
@@ -63,8 +67,8 @@ class DatasetService {
                         };
                     }
                     break;
-                case 'Object':
-                    query[param] = query[param];
+                case 'Mixed':
+                    query[param] = { $ne: null };
                     break;
                 case 'Date':
                     query[param] = query[param];
@@ -80,6 +84,7 @@ class DatasetService {
                 };
             }
         });
+        logger.info(query);
         return query;
     }
 
@@ -131,7 +136,7 @@ class DatasetService {
         }
         // Check if raw dataset
         if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
-            dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
+            dataset.connectorUrl = await FileDataService.copyFile(dataset.connectorUrl);
         }
         logger.info(`[DBACCESS-SAVE]: dataset.name: ${dataset.name}`);
         let newDataset = await new Dataset({
@@ -145,6 +150,7 @@ class DatasetService {
             connectorType: dataset.connectorType,
             provider: dataset.provider,
             userId: user.id,
+            env: dataset.env || 'production',
             connectorUrl: dataset.connectorUrl,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
@@ -202,6 +208,30 @@ class DatasetService {
         return newDataset;
     }
 
+    static async updateEnv(datasetId, env) {
+        logger.debug('Updating env of all resources of dataset', datasetId, 'with env ', env);
+        try {
+            logger.debug('Updating widgets');
+            await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/widget/change-environment/${datasetId}/${env}`,
+                method: 'PATCH',
+                json: true
+            });
+        } catch (err) {
+            logger.error('Error updating widgets', err);
+        }
+        try {
+            logger.debug('Updating layers');
+            await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/layer/change-environment/${datasetId}/${env}`,
+                method: 'PATCH',
+                json: true
+            });
+        } catch (err) {
+            logger.error('Error updating layers', err);
+        }
+    }
+
     static async update(id, dataset, user) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
@@ -231,6 +261,10 @@ class DatasetService {
         //     }
         // }
         // currentDataset.slug = tempSlug || currentDataset.slug;
+        let updateEnv = false;
+        if (dataset.env && currentDataset.env !== dataset.env) {
+            updateEnv = true;
+        }
         const tableName = DatasetService.getTableName(dataset);
         currentDataset.name = dataset.name || currentDataset.name;
         currentDataset.subtitle = dataset.subtitle || currentDataset.subtitle;
@@ -241,6 +275,8 @@ class DatasetService {
         currentDataset.provider = dataset.provider || currentDataset.provider;
         currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
         currentDataset.tableName = tableName || currentDataset.tableName;
+        currentDataset.type = dataset.type || currentDataset.type;
+        currentDataset.env = dataset.env || currentDataset.env;
         if (dataset.overwrite === false || dataset.overwrite === true) {
             currentDataset.overwrite = dataset.overwrite;
         } else if (dataset.dataOverwrite === false || dataset.dataOverwrite === true) {
@@ -273,6 +309,10 @@ class DatasetService {
         }
         logger.info(`[DBACCESS-SAVE]: dataset`);
         let newDataset = await currentDataset.save();
+        if (updateEnv) {
+            logger.debug('Updating env in all resources');
+            await DatasetService.updateEnv(currentDataset._id, currentDataset.env);
+        }
         if (dataset.sync && newDataset.connectorType === 'document') {
             try {
                 await SyncService.update(Object.assign(newDataset, dataset));
