@@ -40,7 +40,7 @@ class DatasetService {
         if (!query.application && query.app) {
             query.application = query.app;
         }
-        if (!query.env) {
+        if (!query.env) { // default value
             query.env = 'production';
         }
         const datasetAttributes = Object.keys(Dataset.schema.paths);
@@ -77,6 +77,10 @@ class DatasetService {
                     query[param] = query[param];
 
                 }
+            } else if (param === 'env') {
+                query.env = {
+                    $in: query[param].split(',')
+                };
             }
             if (ids.length > 0) {
                 query._id = {
