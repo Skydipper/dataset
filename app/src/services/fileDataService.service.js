@@ -1,12 +1,13 @@
 const logger = require('logger');
 const fs = require('fs');
 const s3 = require('s3');
+const firstline = require('firstline');
 const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID;
 const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY;
 
 const S3Client = s3.createClient({
-    maxAsyncS3: 20,     // this is the default
-    s3RetryCount: 3,    // this is the default
+    maxAsyncS3: 20, // this is the default
+    s3RetryCount: 3, // this is the default
     s3RetryDelay: 1000, // this is the default
     multipartUploadThreshold: 20971520, // this is the default (20 MB)
     multipartUploadSize: 15728640, // this is the default (15 MB)
@@ -37,8 +38,7 @@ class FileDataService {
                 uploader.on('error', err => reject(err));
             });
             const s3file = s3.getPublicUrlHttp(params.s3Params.Bucket, params.s3Params.Key);
-            // do not wait for it
-            FileDataService.removeFromTempDirectory(filePath);
+            
             return s3file;
         } catch (err) {
             throw err;
@@ -99,6 +99,42 @@ class FileDataService {
                 }
             });
         });
+    }
+
+    static async getFields(filePath, provider) {
+        logger.debug('Obtaining fields');
+        let fields = null;
+        try {
+            switch (provider) {
+
+            case 'csv': {
+                const line = await firstline(filePath);
+                if (line) {
+                    fields = line.split(',');
+                }
+                break;
+            }
+            case 'tsv': {
+                const line = await firstline(filePath);
+                if (line) {
+                    fields = line.split('\t');
+                }
+                break;
+            }
+
+            default:
+                break;
+
+            }
+            
+        } catch (err) {
+            logger.error(err);
+        } finally {
+            // do not wait for it
+            FileDataService.removeFromTempDirectory(filePath);
+        }
+        return fields;
+
     }
 
 }

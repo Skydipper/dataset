@@ -202,12 +202,13 @@ class DatasetRouter {
         try {
             const filename = `${Date.now()}_${ctx.request.body.files.dataset.name}`;
             await FileDataService.uploadFileToS3(ctx.request.body.files.dataset.path, filename, true);
+            const fields = await FileDataService.getFields(ctx.request.body.files.dataset.path, ctx.request.body.fields.provider);
             ctx.body = {
-                connectorUrl: `rw.dataset.raw/${filename}`
+                connectorUrl: `rw.dataset.raw/${filename}`,
+                fields
             };
         } catch (err) {
             ctx.throw(500, 'Error uploading file');
-            return;
         }
     }
 
@@ -274,7 +275,7 @@ const authorizationMiddleware = async (ctx, next) => {
         return;
     }
     if (user.role === 'USER') {
-        if (!newDatasetCreation) {
+        if (!newDatasetCreation && !uploadDataset) {
             ctx.throw(403, 'Forbidden'); // if user is USER -> out
             return;
         }

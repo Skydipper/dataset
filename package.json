@@ -45,6 +45,7 @@
     "config": "^1.21.0",
     "cron-parser": "^2.3.1",
     "ct-register-microservice-node": "^2.1.2",
+    "firstline": "^1.2.1",
     "kcors": "^2.1.1",
     "koa": "^2.0.0",
     "koa-body": "^2.0.0",
@@ -59,8 +60,8 @@
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "s3": "^4.4.0",
-    "stampery": "^6.0.2",
     "slug": "^0.9.1",
+    "stampery": "^6.0.2",
     "uuid": "^3.0.1"
   }
 }
