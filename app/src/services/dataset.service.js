@@ -155,6 +155,7 @@ class DatasetService {
             provider: dataset.provider,
             userId: user.id,
             env: dataset.env || 'production',
+            geoInfo: dataset.geoInfo || false,
             connectorUrl: dataset.connectorUrl,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
@@ -281,6 +282,9 @@ class DatasetService {
         currentDataset.tableName = tableName || currentDataset.tableName;
         currentDataset.type = dataset.type || currentDataset.type;
         currentDataset.env = dataset.env || currentDataset.env;
+        if (dataset.geoInfo !== undefined) {
+            currentDataset.geoInfo = dataset.geoInfo;
+        }
         if (dataset.overwrite === false || dataset.overwrite === true) {
             currentDataset.overwrite = dataset.overwrite;
         } else if (dataset.dataOverwrite === false || dataset.dataOverwrite === true) {
