@@ -92,7 +92,7 @@ class DatasetValidator {
                 }
             }
         // is it a gee or bigquery dataset?
-        } else if (connectorType === 'rest' && (provider === 'gee' || provider === 'bigquery')) {
+        } else if (connectorType === 'rest' && (provider === 'gee' || provider === 'bigquery' || provider === 'nexgddp')) {
             // is it tableName valid?
             if (DatasetValidator.notEmptyString(tableName)) {
                 validation = true;
@@ -244,7 +244,6 @@ class DatasetValidator {
         logger.info('Validating Dataset Raw Upload');
         koaObj.checkFile('dataset').notEmpty();
         koaObj.checkBody('provider').in(CONNECTOR_TYPES.document.provider);
-        
         if (koaObj.request.body.fields.loggedUser) {
             const loggedUser = JSON.parse(koaObj.request.body.fields.loggedUser);
             if (loggedUser.role === 'USER') {
