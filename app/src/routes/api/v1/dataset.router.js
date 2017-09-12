@@ -51,7 +51,7 @@ class DatasetRouter {
         let uri = '';
         if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
-        } else {
+        } else if (connectorType === 'document') {
             if (ctx.request.path.indexOf('clone') >= 0) {
                 clonedDataset.connector_url = process.env.CT_URL + dataset.connector_url;
                 clonedDataset.connectorUrl = process.env.CT_URL + dataset.connectorUrl;

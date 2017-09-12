@@ -159,6 +159,7 @@ class DatasetService {
             connectorUrl: dataset.connectorUrl,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
+            status: dataset.connectorType === 'wms' ? 'saved' : 'pending',
             published: user.role === 'ADMIN' ? dataset.published : false,
             subscribable: dataset.subscribable,
             verified: dataset.verified,
@@ -194,7 +195,7 @@ class DatasetService {
                 newDataset = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
-            }            
+            }
         }
         if (dataset.sync && dataset.connectorType === 'document') {
             try {
@@ -363,7 +364,7 @@ class DatasetService {
         } catch (err) {
             logger.error('Error removing dataset of the graph', err);
         }
-        
+
         return deletedDataset;
     }
 
