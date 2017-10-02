@@ -9,6 +9,13 @@
 			"path": "/api/v1/dataset"
 		}
 	},{
+		"path": "/v1/dataset/find-by-ids",
+		"method": "POST",
+		"redirect": {
+			"method": "POST",
+			"path": "/api/v1/dataset/find-by-ids"
+		}
+	},{
 		"path": "/v1/dataset",
 		"method": "POST",
 		"authenticated": true,

@@ -154,6 +154,19 @@ class DatasetRouter {
         }
     }
 
+    static async findByIds(ctx) {
+        logger.info(`[DatasetRouter] Getting all datasets with ids`, ctx.request.body);
+        if (ctx.request && ctx.request.body && ctx.request.body && ctx.request.body.ids.length > 0) {
+            ctx.query.ids = ctx.request.body.ids.join(',');
+            await DatasetRouter.getAll(ctx);
+        } else {
+            ctx.body = {
+                data: []
+            };
+        }
+        
+    }
+
     static async getAll(ctx) {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
@@ -329,6 +342,7 @@ const authorizationSubscribable = async (ctx, next) => {
 };
 
 router.get('/', DatasetRouter.getAll);
+router.post('/find-by-ids', DatasetRouter.findByIds);
 router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, DatasetRouter.create);
 // router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, authorizationSubscribable, DatasetRouter.create);
 router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRouter.upload);
