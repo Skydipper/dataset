@@ -11,6 +11,8 @@ const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const SyncError = require('errors/sync.error');
 const GraphService = require('services/graph.service');
 const slug = require('slug');
+const stage = process.env.NODE_ENV;
+
 
 class DatasetService {
 
@@ -159,6 +161,7 @@ class DatasetService {
             connectorUrl: dataset.connectorUrl,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
+            status: dataset.connectorType === 'wms' ? 'saved' : 'pending',
             published: user.role === 'ADMIN' ? dataset.published : false,
             subscribable: dataset.subscribable,
             verified: dataset.verified,
@@ -168,24 +171,28 @@ class DatasetService {
             layerRelevantProps: dataset.layerRelevantProps
         }).save();
         logger.debug('[DatasetService]: Creating in graph');
-        try {
-            await GraphService.createDataset(newDataset._id);
-        } catch (err) {
-            newDataset.errorMessage = err.message;
-            newDataset = await DatasetService.update(newDataset._id, newDataset, {
-                id: 'microservice'
-            });
-        }
-        // if vocabularies
-        if (dataset.vocabularies) {
+        if (stage !== 'staging') {
             try {
-                logger.debug('[DatasetService]: Creating relations in graph');
-                await GraphService.associateTags(newDataset._id, dataset.vocabularies);
+                await GraphService.createDataset(newDataset._id);
             } catch (err) {
                 newDataset.errorMessage = err.message;
                 newDataset = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
+            }
+        }
+        // if vocabularies
+        if (dataset.vocabularies) {
+            if (stage !== 'staging') {
+                try {
+                    logger.debug('[DatasetService]: Creating relations in graph');
+                    await GraphService.associateTags(newDataset._id, dataset.vocabularies);
+                } catch (err) {
+                    newDataset.errorMessage = err.message;
+                    newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                        id: 'microservice'
+                    });
+                }
             }
             try {
                 await RelationshipsService.createVocabularies(newDataset._id, dataset.vocabularies);
@@ -194,7 +201,7 @@ class DatasetService {
                 newDataset = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
-            }            
+            }
         }
         if (dataset.sync && dataset.connectorType === 'document') {
             try {
@@ -363,7 +370,7 @@ class DatasetService {
         } catch (err) {
             logger.error('Error removing dataset of the graph', err);
         }
-        
+
         return deletedDataset;
     }
 
@@ -422,12 +429,14 @@ class DatasetService {
         };
         const createdDataset = await DatasetService.create(newDataset, user);
         logger.debug('[DatasetService]: Creating in graph');
-        try {
-            await GraphService.createDataset(newDataset._id);
-        } catch (err) {
-            logger.error('Error creating widget in graph. Removing widget');
-            await createdDataset.remove();
-            throw new Error(err);
+        if (stage !== 'staging') {
+            try {
+                await GraphService.createDataset(newDataset._id);
+            } catch (err) {
+                logger.error('Error creating widget in graph. Removing widget');
+                await createdDataset.remove();
+                throw new Error(err);
+            }
         }
         if (fullCloning) {
             RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);

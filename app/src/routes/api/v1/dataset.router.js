@@ -51,7 +51,7 @@ class DatasetRouter {
         let uri = '';
         if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
-        } else {
+        } else if (connectorType === 'document') {
             if (ctx.request.path.indexOf('clone') >= 0) {
                 clonedDataset.connector_url = process.env.CT_URL + dataset.connector_url;
                 clonedDataset.connectorUrl = process.env.CT_URL + dataset.connectorUrl;
@@ -152,6 +152,19 @@ class DatasetRouter {
             }
             throw err;
         }
+    }
+
+    static async findByIds(ctx) {
+        logger.info(`[DatasetRouter] Getting all datasets with ids`, ctx.request.body);
+        if (ctx.request && ctx.request.body && ctx.request.body && ctx.request.body.ids.length > 0) {
+            ctx.query.ids = ctx.request.body.ids.join(',');
+            await DatasetRouter.getAll(ctx);
+        } else {
+            ctx.body = {
+                data: []
+            };
+        }
+        
     }
 
     static async getAll(ctx) {
@@ -329,6 +342,7 @@ const authorizationSubscribable = async (ctx, next) => {
 };
 
 router.get('/', DatasetRouter.getAll);
+router.post('/find-by-ids', DatasetRouter.findByIds);
 router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, DatasetRouter.create);
 // router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, authorizationSubscribable, DatasetRouter.create);
 router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRouter.upload);
