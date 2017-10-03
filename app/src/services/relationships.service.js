@@ -23,21 +23,17 @@ class RelationshipsService {
             const obj = {};
             if (INCLUDES.indexOf(include) >= 0) {
                 let uri = '';
-                let payload = {};
-                payload[include] = {
+                const payload = {
                     ids
                 };
                 if (include === 'layer' || include === 'widget') {
                     const apps = query.application || query.app;
                     if (apps) {
-                        payload[include].app = apps.split(',');
+                        payload.app = apps;
                     }
                 }
                 if (include === 'vocabulary' || include === 'metadata') {
                     uri = '/dataset';
-                    payload = {
-                        ids
-                    };
                 }
                 try {
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
