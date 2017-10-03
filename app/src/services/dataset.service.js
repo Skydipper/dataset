@@ -345,6 +345,30 @@ class DatasetService {
         return newDataset;
     }
 
+    static async deleteWidgets(datasetId) {
+        logger.info('Deleting widgets of dataset', datasetId);
+        await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/dataset/${datasetId}/widget`,
+            method: 'DELETE'
+        });
+    }
+
+    static async deleteLayers(datasetId) {
+        logger.info('Deleting layers of dataset', datasetId);
+        await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/dataset/${datasetId}/layer`,
+            method: 'DELETE'
+        });
+    }
+
+    static async deleteMetadata(datasetId) {
+        logger.info('Deleting layers of dataset', datasetId);
+        await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/dataset/${datasetId}/metadata`,
+            method: 'DELETE'
+        });
+    }
+
     static async delete(id) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
@@ -369,6 +393,27 @@ class DatasetService {
             await GraphService.deleteDataset(id);
         } catch (err) {
             logger.error('Error removing dataset of the graph', err);
+        }
+
+        logger.debug('[DatasetService]: Deleting layers');
+        try {
+            await DatasetService.deleteLayers(id);
+        } catch (err) {
+            logger.error('Error removing layers of the dataset', err);
+        }
+
+        logger.debug('[DatasetService]: Deleting widgets');
+        try {
+            await DatasetService.deleteWidgets(id);
+        } catch (err) {
+            logger.error('Error removing widgets', err);
+        }
+
+        logger.debug('[DatasetService]: Deleting metadata');
+        try {
+            await DatasetService.deleteMetadata(id);
+        } catch (err) {
+            logger.error('Error removing metadata', err);
         }
 
         return deletedDataset;
