@@ -38,7 +38,6 @@ class FileDataService {
                 uploader.on('error', err => reject(err));
             });
             const s3file = s3.getPublicUrlHttp(params.s3Params.Bucket, params.s3Params.Key);
-            
             return s3file;
         } catch (err) {
             throw err;
@@ -126,7 +125,6 @@ class FileDataService {
                 break;
 
             }
-            
         } catch (err) {
             logger.error(err);
         } finally {
