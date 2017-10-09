@@ -82,7 +82,9 @@ module.exports = function (options) {
     const flushCache = async () => {
         try {
             const keys = await client.keysAsync(`${options.prefix}:*`);
-            client.del(keys);
+            if (keys && keys.length > 0) {
+                client.del(keys);
+            }
         } catch(err) {
 
         }        
