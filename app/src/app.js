@@ -51,7 +51,7 @@ const onDbReady = (err) => {
 
     app.use(koaBody);
 
-    app.use(require('cache')({
+    app.use(require('microservice-cache-middleware')({
         prefix: 'dataset',
         redisUrl: process.env.REDIS_URL
     }));

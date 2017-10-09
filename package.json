@@ -40,24 +40,21 @@
     "supertest": "^3.0.0"
   },
   "dependencies": {
-    "bluebird": "^3.5.1",
     "bunyan": "^1.8.5",
-    "bytes": "^3.0.0",
     "config": "^1.21.0",
     "cron-parser": "^2.3.1",
     "ct-register-microservice-node": "^2.1.2",
-    "etag": "^1.8.1",
     "firstline": "^1.2.1",
     "kcors": "^2.1.1",
     "koa": "^2.0.0",
     "koa-body": "^2.0.0",
     "koa-convert": "^1.2.0",
-    "koa-is-json": "^1.0.0",
     "koa-logger": "^2.0.0",
     "koa-mount": "^2.0.0",
     "koa-multer": "^1.0.1",
     "koa-router": "^7.0.1",
     "koa-validate": "^1.0.7",
+    "microservice-cache-middleware": "^1.0.0",
     "mongoose": "^4.8.5",
     "mongoose-paginate": "^5.0.3",
     "redis": "^2.8.0",
@@ -66,7 +63,6 @@
     "s3": "^4.4.0",
     "slug": "^0.9.1",
     "stampery": "^6.0.2",
-    "stream-to-array": "^2.3.0",
     "uuid": "^3.0.1"
   }
 }
