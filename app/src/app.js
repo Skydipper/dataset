@@ -51,6 +51,12 @@ const onDbReady = (err) => {
 
     app.use(koaBody);
 
+    app.use(require('cache')({
+        prefix: 'dataset',
+        redisUrl: process.env.REDIS_URL
+    }));
+
+
     app.use(async (ctx, next) => {
         try {
             await next();
