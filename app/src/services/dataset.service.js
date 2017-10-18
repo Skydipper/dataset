@@ -173,7 +173,7 @@ class DatasetService {
         logger.debug('[DatasetService]: Creating in graph');
         if (stage !== 'staging') {
             try {
-                await GraphService.createDataset(newDataset._id);
+                // await GraphService.createDataset(newDataset._id);
             } catch (err) {
                 newDataset.errorMessage = err.message;
                 newDataset = await DatasetService.update(newDataset._id, newDataset, {

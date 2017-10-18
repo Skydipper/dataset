@@ -40,7 +40,6 @@
     "supertest": "^3.0.0"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
     "bunyan": "^1.8.5",
     "config": "^1.21.0",
     "cron-parser": "^2.3.1",
@@ -55,8 +54,10 @@
     "koa-multer": "^1.0.1",
     "koa-router": "^7.0.1",
     "koa-validate": "^1.0.7",
+    "microservice-cache-middleware": "^1.0.0",
     "mongoose": "^4.8.5",
     "mongoose-paginate": "^5.0.3",
+    "redis": "^2.8.0",
     "request": "^2.79.0",
     "request-promise": "^4.1.1",
     "s3": "^4.4.0",
