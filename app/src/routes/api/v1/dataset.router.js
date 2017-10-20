@@ -137,7 +137,8 @@ class DatasetRouter {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Deleting dataset with id: ${id}`);
         try {
-            const dataset = await DatasetService.delete(id);
+            const user = DatasetRouter.getUser(ctx);
+            const dataset = await DatasetService.delete(id, user);
             try {
                 DatasetRouter.notifyAdapter(ctx, dataset);
             } catch (error) {
@@ -164,7 +165,7 @@ class DatasetRouter {
                 data: []
             };
         }
-        
+
     }
 
     static async getAll(ctx) {
