@@ -8,22 +8,13 @@ test:
     CT_URL: http://mymachine:9000
     API_VERSION: v1
     STAMPERY_TOKEN: token
-    REDIS_URL: redis://redis:6379
   command: test
   links:
     - mongo
-    - redis
 
 mongo:
   image: mongo:3.4
   command: --smallfiles
   ports:
     - "27017"
-  restart: always
-
-redis:
-  image: redis
-  container_name: dataset-redis-develop
-  ports:
-    - "6379"
   restart: always
