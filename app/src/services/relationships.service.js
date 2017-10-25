@@ -105,7 +105,7 @@ class RelationshipsService {
                         map[id][include] = [];
                     }
                 } else {
-                    const datasetUserId = datasets[id].userId;
+                    const datasetUserId = map[id].userId;
                     map[id][include] = resources[include].data[datasetUserId];
                 }
             });
