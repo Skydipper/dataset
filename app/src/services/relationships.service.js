@@ -106,10 +106,14 @@ class RelationshipsService {
                     }
                 } else {
                     const datasetUserId = map[id].userId;
-                    map[id][include] = {
-                        name: resources[include].data[datasetUserId].name,
-                        email: resources[include].data[datasetUserId].email
-                    };
+                    if (resources[include].data[datasetUserId]) {
+                        map[id][include] = {
+                            name: resources[include].data[datasetUserId].name,
+                            email: resources[include].data[datasetUserId].email
+                        };
+                    } else {
+                        map[id][include] = {};
+                    }
                 }
             });
         });
