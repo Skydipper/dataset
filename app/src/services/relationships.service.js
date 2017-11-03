@@ -17,15 +17,16 @@ class RelationshipsService {
         return query;
     }
 
-    static async getResources(ids, includes, query = '') {
+    static async getResources(ids, includes, query = '', users = []) {
         logger.info(`Getting resources of ids: ${ids}`);
         let resources = includes.map(async (include) => {
             const obj = {};
             if (INCLUDES.indexOf(include) >= 0) {
                 let uri = '';
-                const payload = {
+                let payload = {
                     ids
                 };
+                let version = true;
                 if (include === 'layer' || include === 'widget') {
                     const apps = query.application || query.app;
                     if (apps) {
@@ -35,12 +36,20 @@ class RelationshipsService {
                 if (include === 'vocabulary' || include === 'metadata') {
                     uri = '/dataset';
                 }
+                if (include === 'user') {
+                    payload = {
+                        ids: users
+                    };
+                    version = false;
+                    uri = '/auth';
+                }
                 try {
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
                         uri: `${uri}/${include}/find-by-ids?${serializeObjToQuery(RelationshipsService.treatQuery(query))}`,
                         method: 'POST',
                         json: true,
-                        body: payload
+                        body: payload,
+                        version
                     });
                 } catch (e) {
                     throw new Error(e);
@@ -63,6 +72,8 @@ class RelationshipsService {
                             } else {
                                 result[el.attributes.resource.id].push(el);
                             }
+                        } else if (include === 'user') {
+                            result[el._id] = el;
                         } else {
                             if (Object.keys(result).indexOf(el.attributes.dataset) < 0) {
                                 result[el.attributes.dataset] = [el];
@@ -82,14 +93,27 @@ class RelationshipsService {
         logger.info(`Getting relationships of datasets: ${datasets}`);
         datasets.unshift({});
         const map = datasets.reduce((acc, val) => { acc[val._id] = val; return acc; });
+        const users = datasets.map(el => el.userId);
         const ids = Object.keys(map);
-        const resources = await RelationshipsService.getResources(ids, includes, query);
+        const resources = await RelationshipsService.getResources(ids, includes, query, users);
         ids.forEach((id) => {
             includes.forEach((include) => {
-                if (resources[include] && resources[include].data[id]) {
-                    map[id][include] = resources[include].data[id];
+                if (include !== 'user') {
+                    if (resources[include] && resources[include].data[id]) {
+                        map[id][include] = resources[include].data[id];
+                    } else {
+                        map[id][include] = [];
+                    }
                 } else {
-                    map[id][include] = [];
+                    const datasetUserId = map[id].userId;
+                    if (resources[include].data[datasetUserId]) {
+                        map[id][include] = {
+                            name: resources[include].data[datasetUserId].name,
+                            email: resources[include].data[datasetUserId].email
+                        };
+                    } else {
+                        map[id][include] = {};
+                    }
                 }
             });
         });

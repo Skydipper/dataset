@@ -35,6 +35,7 @@ class DatasetSerializer {
                 widget: el.widget,
                 layer: el.layer,
                 vocabulary: el.vocabulary,
+                user: el.user,
                 widgetRelevantProps: el.widgetRelevantProps,
                 layerRelevantProps: el.layerRelevantProps
             }

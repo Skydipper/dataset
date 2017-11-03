@@ -90,7 +90,7 @@ class DatasetService {
                 };
             }
         });
-        logger.info(query);
+        logger.debug(query);
         return query;
     }
 
@@ -257,22 +257,6 @@ class DatasetService {
         if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
             dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
         }
-        // let tempSlug;
-        // if (dataset.name) {
-        //     tempSlug = DatasetService.getSlug(dataset.name);
-        //     if (tempSlug !== currentDataset.slug) {
-        //         const query = {
-        //             slug: tempSlug
-        //         };
-        //         logger.info(`[DBACCESS-FIND]: dataset.name - ${dataset.name}`);
-        //         const otherDataset = await Dataset.findOne(query).exec();
-        //         if (otherDataset) {
-        //             logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
-        //             throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
-        //         }
-        //     }
-        // }
-        // currentDataset.slug = tempSlug || currentDataset.slug;
         let updateEnv = false;
         if (dataset.env && currentDataset.env !== dataset.env) {
             updateEnv = true;
@@ -369,7 +353,7 @@ class DatasetService {
         });
     }
 
-    static async delete(id) {
+    static async delete(id, user) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
@@ -379,43 +363,56 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
-        logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
-        const deletedDataset = await currentDataset.remove();
-        if (deletedDataset.connectorType === 'document') {
-            try {
-                SyncService.delete(deletedDataset._id);
-            } catch (err) {
-                logger.error(err.message);
+        logger.info('Checking user apps');
+        user.extraUserData.apps.forEach(app => {
+            const idx = currentDataset.application.indexOf(app);
+            if (idx > -1) {
+                currentDataset.application.splice(idx, 1);
             }
-        }
-        logger.debug('[DatasetService]: Deleting in graph');
-        try {
-            await GraphService.deleteDataset(id);
-        } catch (err) {
-            logger.error('Error removing dataset of the graph', err);
-        }
+        });
+        let deletedDataset;
+        if (currentDataset.application.length > 0) {
+            logger.info(`[DBACCESS-SAVE]: dataset.id: ${id}`);
+            deletedDataset = await currentDataset.save();
+        } else {
+            logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
+            deletedDataset = await currentDataset.remove();
+            if (deletedDataset.connectorType === 'document') {
+                try {
+                    SyncService.delete(deletedDataset._id);
+                } catch (err) {
+                    logger.error(err.message);
+                }
+            }
+            logger.debug('[DatasetService]: Deleting in graph');
+            try {
+                await GraphService.deleteDataset(id);
+            } catch (err) {
+                logger.error('Error removing dataset of the graph', err);
+            }
 
-        logger.debug('[DatasetService]: Deleting layers');
-        try {
-            await DatasetService.deleteLayers(id);
-        } catch (err) {
-            logger.error('Error removing layers of the dataset', err);
-        }
+            logger.debug('[DatasetService]: Deleting layers');
+            try {
+                await DatasetService.deleteLayers(id);
+            } catch (err) {
+                logger.error('Error removing layers of the dataset', err);
+            }
 
-        logger.debug('[DatasetService]: Deleting widgets');
-        try {
-            await DatasetService.deleteWidgets(id);
-        } catch (err) {
-            logger.error('Error removing widgets', err);
-        }
+            logger.debug('[DatasetService]: Deleting widgets');
+            try {
+                await DatasetService.deleteWidgets(id);
+            } catch (err) {
+                logger.error('Error removing widgets', err);
+            }
 
-        logger.debug('[DatasetService]: Deleting metadata');
-        try {
-            await DatasetService.deleteMetadata(id);
-        } catch (err) {
-            logger.error('Error removing metadata', err);
-        }
+            logger.debug('[DatasetService]: Deleting metadata');
+            try {
+                await DatasetService.deleteMetadata(id);
+            } catch (err) {
+                logger.error('Error removing metadata', err);
+            }
 
+        }
         return deletedDataset;
     }
 

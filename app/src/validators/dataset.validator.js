@@ -1,6 +1,7 @@
 const logger = require('logger');
 const DatasetNotValid = require('errors/datasetNotValid.error');
 const CONNECTOR_TYPES = require('app.constants').CONNECTOR_TYPES;
+const RASDAMAN_TYPES = require('app.constants').RASDAMAN_TYPES;
 const URL = require('url').URL;
 const cronParser = require('cron-parser');
 
@@ -243,7 +244,7 @@ class DatasetValidator {
     static async validateUpload(koaObj) {
         logger.info('Validating Dataset Raw Upload');
         koaObj.checkFile('dataset').notEmpty();
-        koaObj.checkBody('provider').in(CONNECTOR_TYPES.document.provider);
+        koaObj.checkBody('provider').in(CONNECTOR_TYPES.document.provider.concat(RASDAMAN_TYPES));
         if (koaObj.request.body.fields.loggedUser) {
             const loggedUser = JSON.parse(koaObj.request.body.fields.loggedUser);
             if (loggedUser.role === 'USER') {
