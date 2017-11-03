@@ -90,7 +90,7 @@ class DatasetService {
                 };
             }
         });
-        logger.info(query);
+        logger.debug(query);
         return query;
     }
 
