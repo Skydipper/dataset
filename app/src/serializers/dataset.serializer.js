@@ -26,6 +26,7 @@ class DatasetSerializer {
                 subscribable: el.subscribable,
                 env: el.env,
                 geoInfo: el.geoInfo,
+                protected: el.protected,
                 legend: el.legend,
                 clonedHost: el.clonedHost,
                 errorMessage: el.errorMessage,

@@ -7,6 +7,7 @@ const SyncService = require('services/sync.service');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const FileDataService = require('services/fileDataService.service');
 const DatasetNotFound = require('errors/datasetNotFound.error');
+const DatasetProtected = require('errors/datasetProtected.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const SyncError = require('errors/sync.error');
 const GraphService = require('services/graph.service');
@@ -164,6 +165,7 @@ class DatasetService {
             status: dataset.connectorType === 'wms' ? 'saved' : 'pending',
             published: user.role === 'ADMIN' ? dataset.published : false,
             subscribable: dataset.subscribable,
+            protected: dataset.protected,
             verified: dataset.verified,
             legend: dataset.legend,
             clonedHost: dataset.clonedHost,
@@ -287,6 +289,9 @@ class DatasetService {
         if ((dataset.verified === false || dataset.verified === true)) {
             currentDataset.verified = dataset.verified;
         }
+        if ((dataset.protected === false || dataset.protected === true)) {
+            currentDataset.protected = dataset.protected;
+        }
         currentDataset.subscribable = dataset.subscribable || currentDataset.subscribable;
         currentDataset.legend = dataset.legend || currentDataset.legend;
         currentDataset.clonedHost = dataset.clonedHost || currentDataset.clonedHost;
@@ -353,6 +358,37 @@ class DatasetService {
         });
     }
 
+    static async checkSecureDeleteResources(id) {
+        logger.info('Checking if it is secure delete the resources(layer, widget) of the dataset');
+        try {
+            const layers = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/dataset/${id}/layer?protected=true`,
+                method: 'GET',
+                json: true
+            });
+            logger.debug(layers);
+            if (layers && layers.data.length > 0) {
+                throw new DatasetProtected('Exist protected layers associated to the dataset');
+            }
+        } catch (err) {
+            logger.error('Error obtaining protected layers of the dataset');
+            throw err;
+        }
+        try {
+            const widgets = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/dataset/${id}/widget?protected=true`,
+                method: 'GET',
+                json: true
+            });
+            if (widgets && widgets.data.length > 0) {
+                throw new DatasetProtected('Exist protected widgets associated to the dataset');
+            }
+        } catch (err) {
+            logger.error('Error obtaining protected widgets of the dataset');
+            throw err;
+        }
+    }
+
     static async delete(id, user) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
@@ -363,6 +399,12 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
+        if (currentDataset.protected) {
+            logger.error(`[DatasetService]: Dataset with id ${id} is protected`);
+            throw new DatasetProtected(`Dataset is protected`);
+        }
+        await DatasetService.checkSecureDeleteResources(id);
+        
         logger.info('Checking user apps');
         user.extraUserData.apps.forEach(app => {
             const idx = currentDataset.application.indexOf(app);

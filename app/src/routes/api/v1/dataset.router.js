@@ -10,6 +10,7 @@ const DatasetValidator = require('validators/dataset.validator');
 const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
+const DatasetProtected = require('errors/datasetProtected.error');
 const DatasetNotValid = require('errors/datasetNotValid.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
@@ -149,6 +150,10 @@ class DatasetRouter {
         } catch (err) {
             if (err instanceof DatasetNotFound) {
                 ctx.throw(404, err.message);
+                return;
+            }
+            if (err instanceof DatasetProtected) {
+                ctx.throw(400, err.message);
                 return;
             }
             throw err;
