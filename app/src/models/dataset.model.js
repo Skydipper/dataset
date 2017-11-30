@@ -27,6 +27,7 @@ const Dataset = new Schema({
     published: { type: Boolean, required: true, default: true },
     env: { type: String, required: true, default: 'production', trim: true },
     geoInfo: { type: Boolean, required: true, default: false },
+    protected: { type: Boolean, required: true, default: false },
     subscribable: { type: Schema.Types.Mixed },
     blockchain: {
         _id: false,
