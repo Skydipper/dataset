@@ -301,8 +301,10 @@ class DatasetService {
         if (user.id === 'microservice' && (dataset.status === 0 || dataset.status === 1 || dataset.status === 2)) {
             if (dataset.status === 0) {
                 currentDataset.status = 'pending';
+                currentDataset.errorMessage = '';
             } else if (dataset.status === 1) {
                 currentDataset.status = 'saved';
+                currentDataset.errorMessage = '';
             } else {
                 currentDataset.status = 'failed';
                 currentDataset.errorMessage = dataset.errorMessage;
@@ -404,7 +406,7 @@ class DatasetService {
             throw new DatasetProtected(`Dataset is protected`);
         }
         await DatasetService.checkSecureDeleteResources(id);
-        
+
         logger.info('Checking user apps');
         user.extraUserData.apps.forEach(app => {
             const idx = currentDataset.application.indexOf(app);
