@@ -210,6 +210,7 @@ class DatasetValidator {
         koaObj.checkBody('verified').optional().toBoolean();
         koaObj.checkBody('dataOverwrite').optional().toBoolean();
         koaObj.checkBody('errorMessage').optional().check(errorMessage => DatasetValidator.isString(errorMessage), 'must be a string');
+        koaObj.checkBody('taskId').optional().check(taskId => DatasetValidator.isString(taskId), 'must be a string');
         koaObj.checkBody('data').optional().check(data => {
             if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
                 return true;

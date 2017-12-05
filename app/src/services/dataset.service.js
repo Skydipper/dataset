@@ -313,6 +313,9 @@ class DatasetService {
         if (user.id === 'microservice' && dataset.blockchain && dataset.blockchain.id && dataset.blockchain.hash) {
             currentDataset.blockchain = dataset.blockchain;
         }
+        if (user.id === 'microservice' && dataset.taskId) {
+            currentDataset.taskId = dataset.taskId;
+        }
         logger.info(`[DBACCESS-SAVE]: dataset`);
         let newDataset = await currentDataset.save();
         if (updateEnv) {

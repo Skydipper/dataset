@@ -30,6 +30,7 @@ class DatasetSerializer {
                 legend: el.legend,
                 clonedHost: el.clonedHost,
                 errorMessage: el.errorMessage,
+                taskId: el.taskId,
                 createdAt: el.createdAt,
                 updatedAt: el.updatedAt,
                 metadata: el.metadata,
