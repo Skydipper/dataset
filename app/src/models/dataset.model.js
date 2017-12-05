@@ -42,7 +42,8 @@ const Dataset = new Schema({
         long: { type: String, required: false, trim: true },
         date: [{ type: String, required: false, trim: true }],
         region: [{ type: String, required: false, trim: true }],
-        country: [{ type: String, required: false, trim: true }]
+        country: [{ type: String, required: false, trim: true }],
+        nested: [{ type: String, required: false, trim: true }]
     },
     clonedHost: {
         _id: false,
