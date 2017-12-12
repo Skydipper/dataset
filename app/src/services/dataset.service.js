@@ -423,10 +423,14 @@ class DatasetService {
             deletedDataset = await currentDataset.save();
         } else {
             logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
-            deletedDataset = await currentDataset.remove();
-            if (deletedDataset.connectorType === 'document') {
+            if (currentDataset.connectorType === 'document') {
                 try {
-                    SyncService.delete(deletedDataset._id);
+                    await ctRegisterMicroservice.requestToMicroservice({
+                        uri: `/document/${currentDataset._id}`,
+                        method: 'DELETE',
+                        json: true
+                    });
+                    SyncService.delete(currentDataset._id);
                 } catch (err) {
                     logger.error(err.message);
                 }
@@ -458,7 +462,8 @@ class DatasetService {
             } catch (err) {
                 logger.error('Error removing metadata', err);
             }
-
+            // remove the dataset at the end
+            deletedDataset = await currentDataset.remove();
         }
         return deletedDataset;
     }
