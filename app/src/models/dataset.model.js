@@ -28,6 +28,7 @@ const Dataset = new Schema({
     env: { type: String, required: true, default: 'production', trim: true },
     geoInfo: { type: Boolean, required: true, default: false },
     protected: { type: Boolean, required: true, default: false },
+    taskId: { type: String, required: false, trim: true, default: null },
     subscribable: { type: Schema.Types.Mixed },
     blockchain: {
         _id: false,
@@ -42,7 +43,8 @@ const Dataset = new Schema({
         long: { type: String, required: false, trim: true },
         date: [{ type: String, required: false, trim: true }],
         region: [{ type: String, required: false, trim: true }],
-        country: [{ type: String, required: false, trim: true }]
+        country: [{ type: String, required: false, trim: true }],
+        nested: [{ type: String, required: false, trim: true }]
     },
     clonedHost: {
         _id: false,

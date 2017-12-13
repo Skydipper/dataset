@@ -17,8 +17,23 @@ const stage = process.env.NODE_ENV;
 
 class DatasetService {
 
-    static getSlug(name) {
-        return slug(name);
+    static async getSlug(name) {
+        let valid = false;
+        let slugTemp = null;
+        let i = 0;
+        while (!valid) {
+            slugTemp = slug(name);
+            if (i > 0) {
+                slugTemp += `_${i}`;
+            }
+            const currentDataset = await Dataset.findOne({
+                slug: slugTemp
+            }).exec();
+            if (!currentDataset) {
+                return slugTemp;
+            }
+            i++;
+        }
     }
 
     static getTableName(dataset) {
@@ -133,14 +148,7 @@ class DatasetService {
     static async create(dataset, user) {
         logger.debug(`[DatasetService]: Getting dataset with name:  ${dataset.name}`);
         logger.info(`[DBACCES-FIND]: dataset.name: ${dataset.name}`);
-        const tempSlug = DatasetService.getSlug(dataset.name);
-        const currentDataset = await Dataset.findOne({
-            slug: tempSlug
-        }).exec();
-        if (currentDataset) {
-            logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
-            throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
-        }
+        const tempSlug = await DatasetService.getSlug(dataset.name);
         // Check if raw dataset
         if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
             dataset.connectorUrl = await FileDataService.copyFile(dataset.connectorUrl);
@@ -301,8 +309,10 @@ class DatasetService {
         if (user.id === 'microservice' && (dataset.status === 0 || dataset.status === 1 || dataset.status === 2)) {
             if (dataset.status === 0) {
                 currentDataset.status = 'pending';
+                currentDataset.errorMessage = '';
             } else if (dataset.status === 1) {
                 currentDataset.status = 'saved';
+                currentDataset.errorMessage = '';
             } else {
                 currentDataset.status = 'failed';
                 currentDataset.errorMessage = dataset.errorMessage;
@@ -310,6 +320,9 @@ class DatasetService {
         }
         if (user.id === 'microservice' && dataset.blockchain && dataset.blockchain.id && dataset.blockchain.hash) {
             currentDataset.blockchain = dataset.blockchain;
+        }
+        if (user.id === 'microservice' && dataset.taskId) {
+            currentDataset.taskId = dataset.taskId;
         }
         logger.info(`[DBACCESS-SAVE]: dataset`);
         let newDataset = await currentDataset.save();
@@ -404,7 +417,7 @@ class DatasetService {
             throw new DatasetProtected(`Dataset is protected`);
         }
         await DatasetService.checkSecureDeleteResources(id);
-        
+
         logger.info('Checking user apps');
         user.extraUserData.apps.forEach(app => {
             const idx = currentDataset.application.indexOf(app);
@@ -418,10 +431,14 @@ class DatasetService {
             deletedDataset = await currentDataset.save();
         } else {
             logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
-            deletedDataset = await currentDataset.remove();
-            if (deletedDataset.connectorType === 'document') {
+            if (currentDataset.connectorType === 'document') {
                 try {
-                    SyncService.delete(deletedDataset._id);
+                    await ctRegisterMicroservice.requestToMicroservice({
+                        uri: `/document/${currentDataset._id}`,
+                        method: 'DELETE',
+                        json: true
+                    });
+                    SyncService.delete(currentDataset._id);
                 } catch (err) {
                     logger.error(err.message);
                 }
@@ -453,7 +470,8 @@ class DatasetService {
             } catch (err) {
                 logger.error('Error removing metadata', err);
             }
-
+            // remove the dataset at the end
+            deletedDataset = await currentDataset.remove();
         }
         return deletedDataset;
     }
