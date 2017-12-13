@@ -17,8 +17,23 @@ const stage = process.env.NODE_ENV;
 
 class DatasetService {
 
-    static getSlug(name) {
-        return slug(name);
+    static async getSlug(name) {
+        let valid = false;
+        let slugTemp = null;
+        let i = 0;
+        while (!valid) {
+            slugTemp = slug(name);
+            if (i > 0) {
+                slugTemp += `_${i}`;
+            }
+            const currentDataset = await Dataset.findOne({
+                slug: slugTemp
+            }).exec();
+            if (!currentDataset) {
+                return slugTemp;
+            }
+            i++;
+        }
     }
 
     static getTableName(dataset) {
@@ -133,14 +148,7 @@ class DatasetService {
     static async create(dataset, user) {
         logger.debug(`[DatasetService]: Getting dataset with name:  ${dataset.name}`);
         logger.info(`[DBACCES-FIND]: dataset.name: ${dataset.name}`);
-        const tempSlug = DatasetService.getSlug(dataset.name);
-        const currentDataset = await Dataset.findOne({
-            slug: tempSlug
-        }).exec();
-        if (currentDataset) {
-            logger.error(`[DatasetService]: Dataset with name ${dataset.name} generates an existing dataset slug ${tempSlug}`);
-            throw new DatasetDuplicated(`Dataset with name '${dataset.name}' generates an existing dataset slug '${tempSlug}'`);
-        }
+        const tempSlug = await DatasetService.getSlug(dataset.name);
         // Check if raw dataset
         if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
             dataset.connectorUrl = await FileDataService.copyFile(dataset.connectorUrl);
