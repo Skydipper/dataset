@@ -355,7 +355,7 @@ router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRou
 
 router.get('/:dataset', DatasetRouter.get);
 router.get('/:dataset/verification', DatasetRouter.verification);
-router.patch('/:dataset', validationMiddleware, authorizationMiddleware, authorizationSubscribable, DatasetRouter.update);
+router.patch('/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.update);
 router.delete('/:dataset', authorizationMiddleware, DatasetRouter.delete);
 router.post('/:dataset/clone', validationMiddleware, authorizationMiddleware, DatasetRouter.clone);
 
