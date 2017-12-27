@@ -109,7 +109,8 @@ class RelationshipsService {
                     if (resources[include].data[datasetUserId]) {
                         map[id][include] = {
                             name: resources[include].data[datasetUserId].name,
-                            email: resources[include].data[datasetUserId].email
+                            email: resources[include].data[datasetUserId].email,
+                            role: resources[include].data[datasetUserId].role
                         };
                     } else {
                         map[id][include] = {};
