@@ -5,6 +5,7 @@ const logger = require('logger');
 const DatasetService = require('services/dataset.service');
 const VerificationService = require('services/verification.service');
 const RelationshipsService = require('services/relationships.service');
+const UserService = require('services/user.service');
 const FileDataService = require('services/fileDataService.service');
 const DatasetValidator = require('validators/dataset.validator');
 const DatasetSerializer = require('serializers/dataset.serializer');
@@ -180,6 +181,11 @@ class DatasetRouter {
         if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
             ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
             logger.debug('Ids from vocabulary-tag', ctx.query.ids);
+        }
+        if (Object.keys(query).find(el => el.indexOf('user.role') >= 0)) {
+            logger.debug('Obtaining users with role');
+            ctx.query.usersRole = await UserService.getUsersWithRole(ctx.query['user.role']);
+            logger.debug('Ids from users with role', ctx.query.usersRole);
         }
         // Links creation
         const clonedQuery = Object.assign({}, query);
