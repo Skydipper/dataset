@@ -13,7 +13,7 @@ const SyncError = require('errors/sync.error');
 const GraphService = require('services/graph.service');
 const slug = require('slug');
 const stage = process.env.NODE_ENV;
-
+const ObjectId = require('mongoose').Types.ObjectId;
 
 class DatasetService {
 
@@ -61,11 +61,17 @@ class DatasetService {
         if (!query.env) { // default value
             query.env = 'production';
         }
+        if (query.userId) {
+            query.userId = {
+                $eq: query.userId
+            };
+        }
         const datasetAttributes = Object.keys(Dataset.schema.paths);
+        logger.debug('Object.keys(query)', Object.keys(query));
         Object.keys(query).forEach((param) => {
-            if (datasetAttributes.indexOf(param) < 0) {
+            if (datasetAttributes.indexOf(param) < 0 && param !== 'usersRole') {
                 delete query[param];
-            } else if (param !== 'env') {
+            } else if (param !== 'env' && param !== 'userId' && param !== 'usersRole') {
                 switch (Dataset.schema.paths[param].instance) {
 
                 case 'String':
@@ -99,6 +105,16 @@ class DatasetService {
                 query.env = {
                     $in: query[param].split(',')
                 };
+            } else if (param === 'usersRole'){
+                logger.debug('Params users roles');
+                
+                query.userId = Object.assign({}, query.userId || {}, {
+                    $in: query[param]
+                });
+                delete query.usersRole;
+            } else if (param === 'userId') {
+                logger.debug('params userid', query[param]);
+                query.userId = Object.assign({}, query.userId || {}, query[param]);
             }
             if (ids.length > 0) {
                 query._id = {
