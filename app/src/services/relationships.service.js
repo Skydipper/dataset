@@ -188,6 +188,27 @@ class RelationshipsService {
         }
     }
 
+    static async getCollections(ids, userId) {
+        try {
+            const result = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/collection/find-by-ids`,
+                method: 'POST',
+                json: true,
+                body: {
+                    ids,
+                    userId
+                }
+            });
+            return result.data.map(col => {
+                return col.attributes.resources.filter(res => res.type === 'dataset');
+            }).reduce((pre, cur) => {
+                return pre.concat(cur);
+            }).map(el => el.id);
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
 }
 
 module.exports = RelationshipsService;
