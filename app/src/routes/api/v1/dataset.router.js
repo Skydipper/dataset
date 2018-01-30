@@ -49,7 +49,6 @@ class DatasetRouter {
         clonedDataset.data_path = dataset.dataPath;
         clonedDataset.table_name = dataset.tableName;
         clonedDataset.data = ctx.request.body.data;
-
         let uri = '';
         if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
@@ -193,13 +192,8 @@ class DatasetRouter {
                 ctx.throw(403, 'Collection filter not authorized');
                 return;
             }
-            logger.debug('Obtaining collections', userId);
-            if (userId) {
-                ctx.query.ids = await RelationshipsService.getCollections(ctx.query.collection, userId);
-                ctx.query.ids = ctx.query.ids.join(',');
-            } else {
-                ctx.query.ids = '';
-            }
+            ctx.query.ids = await RelationshipsService.getCollections(ctx.query.collection, userId);
+            ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : null;
             logger.debug('Ids from collections', ctx.query.ids);
         }
         // Links creation
