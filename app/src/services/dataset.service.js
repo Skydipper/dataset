@@ -55,6 +55,7 @@ class DatasetService {
     }
 
     static getFilteredQuery(query, ids = []) {
+        const collection = query.collection;
         if (!query.application && query.app) {
             query.application = query.app;
         }
@@ -115,12 +116,12 @@ class DatasetService {
                 logger.debug('params userid', query[param]);
                 query.userId = Object.assign({}, query.userId || {}, query[param]);
             }
-            if (ids) {
-                query._id = {
-                    $in: ids
-                };
-            }
         });
+        if (ids.length > 0 || collection) {
+            query._id = {
+                $in: ids
+            };
+        }
         logger.debug(query);
         return query;
     }
