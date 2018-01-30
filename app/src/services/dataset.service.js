@@ -105,9 +105,8 @@ class DatasetService {
                 query.env = {
                     $in: query[param].split(',')
                 };
-            } else if (param === 'usersRole'){
+            } else if (param === 'usersRole') {
                 logger.debug('Params users roles');
-                
                 query.userId = Object.assign({}, query.userId || {}, {
                     $in: query[param]
                 });
@@ -116,7 +115,7 @@ class DatasetService {
                 logger.debug('params userid', query[param]);
                 query.userId = Object.assign({}, query.userId || {}, query[param]);
             }
-            if (ids.length > 0) {
+            if (ids) {
                 query._id = {
                     $in: ids
                 };
