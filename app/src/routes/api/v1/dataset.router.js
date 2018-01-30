@@ -193,7 +193,7 @@ class DatasetRouter {
                 return;
             }
             ctx.query.ids = await RelationshipsService.getCollections(ctx.query.collection, userId);
-            ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : null;
+            ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
         // Links creation
