@@ -177,6 +177,7 @@ class DatasetRouter {
     static async getAll(ctx) {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
+        const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
         delete query.loggedUser;
         if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
             ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
@@ -186,6 +187,20 @@ class DatasetRouter {
             logger.debug('Obtaining users with role');
             ctx.query.usersRole = await UserService.getUsersWithRole(ctx.query['user.role']);
             logger.debug('Ids from users with role', ctx.query.usersRole);
+        }
+        if (Object.keys(query).find(el => el.indexOf('collection') >= 0)) {
+            if (!userId) {
+                ctx.throw(403, 'Collection filter not authorized');
+                return;
+            }
+            logger.debug('Obtaining collections', userId);
+            if (userId) {
+                ctx.query.ids = await RelationshipsService.getCollections(ctx.query.collection, userId);
+                ctx.query.ids = ctx.query.ids.join(',');
+            } else {
+                ctx.query.ids = '';
+            }
+            logger.debug('Ids from collections', ctx.query.ids);
         }
         // Links creation
         const clonedQuery = Object.assign({}, query);
