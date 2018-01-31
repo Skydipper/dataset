@@ -209,6 +209,24 @@ class RelationshipsService {
         }
     }
 
+    static async getFavorites(app, userId) {
+        try {
+            const result = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/favourite/find-by-user`,
+                method: 'POST',
+                json: true,
+                body: {
+                    app,
+                    userId
+                }
+            });
+            logger.debug(result);
+            return result.data.filter(fav => fav.attributes.resourceType === 'dataset').map(el => el.attributes.resourceId);
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
 }
 
 module.exports = RelationshipsService;

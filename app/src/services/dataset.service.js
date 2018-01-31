@@ -56,8 +56,12 @@ class DatasetService {
 
     static getFilteredQuery(query, ids = []) {
         const collection = query.collection;
+        const favorite = query.favorite;
         if (!query.application && query.app) {
             query.application = query.app;
+            if (favorite) {
+                delete query.application;
+            }
         }
         if (!query.env) { // default value
             query.env = 'production';
@@ -117,7 +121,7 @@ class DatasetService {
                 query.userId = Object.assign({}, query.userId || {}, query[param]);
             }
         });
-        if (ids.length > 0 || collection) {
+        if (ids.length > 0 || collection || favorite) {
             query._id = {
                 $in: ids
             };
