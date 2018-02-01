@@ -196,13 +196,13 @@ class DatasetRouter {
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
-        if (Object.keys(query).find(el => el.indexOf('favorite') >= 0)) {
+        if (Object.keys(query).find(el => el.indexOf('favourite') >= 0)) {
             if (!userId) {
                 ctx.throw(403, 'Fav filter not authorized');
                 return;
             }
             const app = ctx.query.app || ctx.query.application || 'rw';
-            ctx.query.ids = await RelationshipsService.getFavorites(ctx.query.app , userId);
+            ctx.query.ids = await RelationshipsService.getFavorites(ctx.query.app, userId);
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
