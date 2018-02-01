@@ -202,7 +202,7 @@ class DatasetRouter {
                 return;
             }
             const app = ctx.query.app || ctx.query.application || 'rw';
-            ctx.query.ids = await RelationshipsService.getFavorites(ctx.query.app, userId);
+            ctx.query.ids = await RelationshipsService.getFavorites(app, userId);
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
