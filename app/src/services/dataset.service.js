@@ -56,10 +56,10 @@ class DatasetService {
 
     static getFilteredQuery(query, ids = []) {
         const collection = query.collection;
-        const favorite = query.favorite;
+        const favourite = query.favourite;
         if (!query.application && query.app) {
             query.application = query.app;
-            if (favorite) {
+            if (favourite) {
                 delete query.application;
             }
         }
@@ -121,7 +121,7 @@ class DatasetService {
                 query.userId = Object.assign({}, query.userId || {}, query[param]);
             }
         });
-        if (ids.length > 0 || collection || favorite) {
+        if (ids.length > 0 || collection || favourite) {
             query._id = {
                 $in: ids
             };
