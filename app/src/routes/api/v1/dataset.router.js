@@ -176,6 +176,7 @@ class DatasetRouter {
     static async getAll(ctx) {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
+        const search = ctx.query.search;
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
         delete query.loggedUser;
         if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
@@ -205,6 +206,10 @@ class DatasetRouter {
             ctx.query.ids = await RelationshipsService.getFavorites(app, userId);
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
+        }
+        if (search) {
+            ctx.query.ids = await RelationshipsService.filterMetadata(search);
+            logger.debug('Ids from metadata', ctx.query.ids);
         }
         // Links creation
         const clonedQuery = Object.assign({}, query);

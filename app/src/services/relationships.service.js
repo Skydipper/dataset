@@ -227,6 +227,20 @@ class RelationshipsService {
         }
     }
 
+    static async filterMetadata(search) {
+        try {
+            const result = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/metadata?search=${search}`,
+                method: 'GET',
+                json: true
+            });
+            logger.debug(result);
+            return result.data.map(m => m.attributes.dataset).join();
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
 }
 
 module.exports = RelationshipsService;
