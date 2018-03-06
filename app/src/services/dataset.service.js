@@ -132,7 +132,7 @@ class DatasetService {
                 { subtitle: new RegExp(search.join('|'), 'i') }
             ];
             const tempQuery = {
-                $or: [
+                $and: [
                     { $and: Object.keys(query).map((key) => {
                         const q = {};
                         q[key] = query[key];

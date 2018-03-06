@@ -227,7 +227,7 @@ class RelationshipsService {
         }
     }
 
-    static async filterMetadata(search) {
+    static async filterByMetadata(search) {
         try {
             const result = await ctRegisterMicroservice.requestToMicroservice({
                 uri: `/metadata?search=${search}`,
@@ -236,6 +236,19 @@ class RelationshipsService {
             });
             logger.debug(result);
             return result.data.map(m => m.attributes.dataset).join();
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
+    static async filterByConcepts(query) {
+        try {
+            const result = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/graph/query/search-datasets-ids?${query}`,
+                method: 'GET',
+                json: true
+            });
+            return result.data;
         } catch (e) {
             throw new Error(e);
         }
