@@ -207,7 +207,7 @@ class DatasetRouter {
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
-        if (search || serializeObjToQuery(query).indexOf(/^concepts/ >= 0)) {
+        if (search || serializeObjToQuery(query).indexOf(/^concepts/) >= 0) {
             let metadataIds = [];
             let conceptIds = [];
             if (search) {
@@ -223,7 +223,6 @@ class DatasetRouter {
                 delete ctx.query.ids;
             }
         }
-        logger.debug('AAAAA', ctx.query);
         // Links creation
         const clonedQuery = Object.assign({}, query);
         delete clonedQuery['page[size]'];
