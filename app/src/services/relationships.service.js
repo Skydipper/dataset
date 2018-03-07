@@ -235,7 +235,7 @@ class RelationshipsService {
                 json: true
             });
             logger.debug(result);
-            return result.data.map(m => m.attributes.dataset).join();
+            return result.data.map(m => m.attributes.dataset);
         } catch (e) {
             throw new Error(e);
         }
