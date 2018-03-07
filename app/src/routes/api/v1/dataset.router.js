@@ -207,14 +207,14 @@ class DatasetRouter {
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
-        if (search || serializeObjToQuery(query).indexOf(/^concepts/) >= 0) {
+        if (search || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0) {
             let metadataIds = [];
             let conceptIds = [];
             if (search) {
                 metadataIds = new Set(await RelationshipsService.filterByMetadata(search)); // unique from metadata
                 logger.debug('Ids from metadata', metadataIds);
             }
-            if (serializeObjToQuery(query).indexOf(/^concepts/) >= 0) {
+            if (serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0) {
                 conceptIds = new Set(await RelationshipsService.filterByConcepts(serializeObjToQuery(query))); // unique from concepts
             }
             const uniqueIds = new Set([...metadataIds, ...conceptIds]);
