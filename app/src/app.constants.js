@@ -3,7 +3,7 @@ const STATUS = ['pending', 'saved', 'failed'];
 const INCLUDES = ['widget', 'layer', 'vocabulary', 'metadata', 'user'];
 const CONNECTOR_TYPES = {
     rest: {
-        provider: ['cartodb', 'featureservice', 'gee', 'bigquery', 'rasdaman', 'nexgddp']
+        provider: ['cartodb', 'featureservice', 'gee', 'bigquery', 'rasdaman', 'nexgddp', 'loca']
     },
     document: {
         provider: ['csv', 'json', 'tsv', 'xml']
