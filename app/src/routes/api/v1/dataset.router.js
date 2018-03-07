@@ -176,6 +176,7 @@ class DatasetRouter {
     static async getAll(ctx) {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
+        const search = ctx.query.search;
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
         delete query.loggedUser;
         if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
@@ -206,6 +207,23 @@ class DatasetRouter {
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
+        if (search || serializeObjToQuery(query).indexOf(/^concepts/ >= 0)) {
+            let metadataIds = [];
+            let conceptIds = [];
+            if (search) {
+                metadataIds = new Set(await RelationshipsService.filterByMetadata(search)); // unique from metadata
+                logger.debug('Ids from metadata', ctx.query.ids);
+            }
+            if (serializeObjToQuery(query).indexOf(/^concepts/ >= 0)) {
+                conceptIds = new Set(await RelationshipsService.filterByConcepts(serializeObjToQuery(query))); // unique from concepts
+            }
+            const uniqueIds = new Set([...metadataIds, ...conceptIds]);
+            ctx.query.ids = [...uniqueIds].join(); // it has to be string
+            if (ctx.query.ids.size === 0) {
+                delete ctx.query.ids;
+            }
+        }
+        logger.debug('AAAAA', ctx.query);
         // Links creation
         const clonedQuery = Object.assign({}, query);
         delete clonedQuery['page[size]'];

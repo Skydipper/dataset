@@ -12,8 +12,8 @@ const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const SyncError = require('errors/sync.error');
 const GraphService = require('services/graph.service');
 const slug = require('slug');
+
 const stage = process.env.NODE_ENV;
-const ObjectId = require('mongoose').Types.ObjectId;
 
 class DatasetService {
 
@@ -54,7 +54,7 @@ class DatasetService {
         }
     }
 
-    static getFilteredQuery(query, ids = []) {
+    static getFilteredQuery(query, ids = [], search = []) {
         const collection = query.collection;
         const favourite = query.favourite;
         if (!query.application && query.app) {
@@ -125,6 +125,23 @@ class DatasetService {
             query._id = {
                 $in: ids
             };
+        }
+        if (search.length > 0) {
+            const searchQuery = [
+                { name: new RegExp(search.join('|'), 'i') },
+                { subtitle: new RegExp(search.join('|'), 'i') }
+            ];
+            const tempQuery = {
+                $and: [
+                    { $and: Object.keys(query).map((key) => {
+                        const q = {};
+                        q[key] = query[key];
+                        return q;
+                    }) },
+                    { $or: searchQuery }
+                ]
+            };
+            query = tempQuery;
         }
         logger.debug(query);
         return query;
@@ -501,9 +518,10 @@ class DatasetService {
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
+        const search = query.search ? query.search.split(',').map(elem => elem.trim()) : [];
         const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
-        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids);
+        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids, search);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
             page,
