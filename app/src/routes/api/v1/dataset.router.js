@@ -212,7 +212,7 @@ class DatasetRouter {
             let conceptIds = [];
             if (search) {
                 metadataIds = new Set(await RelationshipsService.filterByMetadata(search)); // unique from metadata
-                logger.debug('Ids from metadata', ctx.query.ids);
+                logger.debug('Ids from metadata', metadataIds);
             }
             if (serializeObjToQuery(query).indexOf(/^concepts/) >= 0) {
                 conceptIds = new Set(await RelationshipsService.filterByConcepts(serializeObjToQuery(query))); // unique from concepts
