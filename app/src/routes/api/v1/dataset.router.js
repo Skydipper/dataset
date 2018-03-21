@@ -177,7 +177,7 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
         const search = ctx.query.search;
-        const sort = ctx.query.sort;
+        const sort = ctx.query.sort || '';
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
         delete query.loggedUser;
         if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
