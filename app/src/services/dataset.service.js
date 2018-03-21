@@ -550,7 +550,7 @@ class DatasetService {
             sort: filteredSort
         };
         if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
-            options.limit = 0;
+            options.limit = 999999;
             options.page = 1;
         }
         logger.info(`[DBACCESS-FIND]: dataset`);
@@ -561,6 +561,9 @@ class DatasetService {
         }
         if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
             pages.docs = manualSortAndPaginate(pages.docs, ids, limit, page); // array, ids, size, page
+            // original values
+            pages.limit = limit;
+            pages.page = page;
         }
         return pages;
     }
