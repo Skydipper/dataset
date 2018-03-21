@@ -15,6 +15,27 @@ const slug = require('slug');
 
 const stage = process.env.NODE_ENV;
 
+const manualSort = (array, sortedIds) => {
+    const tempArray = [];
+    sortedIds.forEach((id) => {
+        const dataset = array.find((el) => {
+            return el._id === id;
+        });
+        tempArray.push(dataset);
+    });
+    return tempArray;
+};
+
+const manualPaginate = (array, pageSize, pageNumber) => {
+    pageNumber -= 1;
+    return array.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
+};
+
+const manualSortAndPaginate = (array, sortedIds, size, page) => {
+    const sortedArray = manualSort(array, sortedIds);
+    return manualPaginate(sortedArray, size, page);
+};
+
 class DatasetService {
 
     static async getSlug(name) {
@@ -528,11 +549,18 @@ class DatasetService {
             limit,
             sort: filteredSort
         };
+        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+            options.limit = 0;
+            options.page = 1;
+        }
         logger.info(`[DBACCESS-FIND]: dataset`);
         let pages = await Dataset.paginate(filteredQuery, options);
         pages = Object.assign({}, pages);
         if (includes.length > 0) {
             pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query));
+        }
+        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+            pages.docs = manualSortAndPaginate(pages.docs, ids, limit, page); // array, ids, size, page
         }
         return pages;
     }
