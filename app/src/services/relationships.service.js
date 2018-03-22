@@ -248,9 +248,6 @@ class RelationshipsService {
                 method: 'GET',
                 json: true
             });
-            while (result.data.indexOf('undefined') >= 0) {
-                result.data.splice(result.data.indexOf('undefined'), 1);
-            }
             return result.data;
         } catch (e) {
             throw new Error(e);
