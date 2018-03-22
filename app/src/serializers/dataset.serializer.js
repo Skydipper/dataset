@@ -48,6 +48,9 @@ class DatasetSerializer {
         const result = {};
         if (data) {
             if (data.docs) {
+                while (data.docs.indexOf(undefined) >= 0) {
+                    data.docs.splice(data.docs.indexOf(undefined), 1);
+                }
                 result.data = data.docs.map(el => DatasetSerializer.serializeElement(el));
             } else {
                 if (Array.isArray(data)) {
