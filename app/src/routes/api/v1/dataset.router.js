@@ -221,7 +221,7 @@ class DatasetRouter {
             const uniqueIds = new Set([...metadataIds, ...conceptIds]);
             ctx.query.ids = [...uniqueIds].join(); // it has to be string
             if (ctx.query.ids.size === 0) {
-                delete ctx.query.ids;
+                ctx.body = DatasetSerializer.serialize([], null);
             }
         }
         // Links creation
