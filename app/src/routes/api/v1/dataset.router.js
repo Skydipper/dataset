@@ -219,10 +219,10 @@ class DatasetRouter {
                 conceptIds = new Set(await RelationshipsService.filterByConcepts(serializeObjToQuery(query))); // unique from concepts
             }
             const uniqueIds = new Set([...metadataIds, ...conceptIds]);
-            ctx.query.ids = [...uniqueIds].join(); // it has to be string
             if (ctx.query.ids.size === 0) {
                 ctx.body = DatasetSerializer.serialize([], null);
             }
+            ctx.query.ids = [...uniqueIds].join(); // it has to be string
         }
         // Links creation
         const clonedQuery = Object.assign({}, query);
