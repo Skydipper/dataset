@@ -212,16 +212,16 @@ class DatasetRouter {
             let metadataIds = [];
             let conceptIds = [];
             if (search) {
-                metadataIds = new Set(await RelationshipsService.filterByMetadata(search)); // unique from metadata
+                metadataIds = await RelationshipsService.filterByMetadata(search); // unique from metadata
                 logger.debug('Ids from metadata', metadataIds);
             }
             if (serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
-                conceptIds = new Set(await RelationshipsService.filterByConcepts(serializeObjToQuery(query))); // unique from concepts
+                conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query)); // unique from concepts
             }
-            const uniqueIds = new Set([...metadataIds, ...conceptIds]);
-            if (ctx.query.ids.size === 0) {
+            if (metadataIds.length === 0 || conceptIds.length === 0) {
                 ctx.body = DatasetSerializer.serialize([], null);
             }
+            const uniqueIds = new Set([...metadataIds, ...conceptIds]);
             ctx.query.ids = [...uniqueIds].join(); // it has to be string
         }
         // Links creation
