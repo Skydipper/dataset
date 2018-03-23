@@ -4,7 +4,6 @@ const Dataset = require('models/dataset.model');
 const RelationshipsService = require('services/relationships.service');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const SyncService = require('services/sync.service');
-const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const FileDataService = require('services/fileDataService.service');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const DatasetProtected = require('errors/datasetProtected.error');
@@ -21,7 +20,9 @@ const manualSort = (array, sortedIds) => {
         const dataset = array.find((el) => {
             return el._id === id;
         });
-        tempArray.push(dataset);
+        if (dataset) {
+            tempArray.push(dataset);
+        }
     });
     return tempArray;
 };
@@ -33,7 +34,11 @@ const manualPaginate = (array, pageSize, pageNumber) => {
 
 const manualSortAndPaginate = (array, sortedIds, size, page) => {
     const sortedArray = manualSort(array, sortedIds);
-    return manualPaginate(sortedArray, size, page);
+    const totalElements = sortedArray.length;
+    return {
+        total: totalElements,
+        docs: manualPaginate(sortedArray, size, page)
+    };
 };
 
 class DatasetService {
@@ -556,14 +561,17 @@ class DatasetService {
         logger.info(`[DBACCESS-FIND]: dataset`);
         let pages = await Dataset.paginate(filteredQuery, options);
         pages = Object.assign({}, pages);
-        if (includes.length > 0) {
-            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query));
-        }
         if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
-            pages.docs = manualSortAndPaginate(pages.docs, ids, limit, page); // array, ids, size, page
+            const sortedAndPaginated = manualSortAndPaginate(pages.docs, ids, limit, page); // array, ids, size, page
             // original values
+            pages.docs = sortedAndPaginated.docs;
+            pages.total = sortedAndPaginated.total;
             pages.limit = limit;
             pages.page = page;
+            pages.pages = Math.ceil(pages.total / pages.limit);
+        }
+        if (includes.length > 0) {
+            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query));
         }
         return pages;
     }
