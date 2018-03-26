@@ -46,6 +46,9 @@ class DatasetSerializer {
 
     static serialize(data, link = null) {
         const result = {};
+        if (data && Array.isArray(data) && data.length === 0) {
+            return [];
+        }
         if (data) {
             if (data.docs) {
                 while (data.docs.indexOf(undefined) >= 0) {
