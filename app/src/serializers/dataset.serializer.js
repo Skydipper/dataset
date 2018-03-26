@@ -47,7 +47,7 @@ class DatasetSerializer {
     static serialize(data, link = null) {
         const result = {};
         if (data && Array.isArray(data) && data.length === 0) {
-            result.data = [];   
+            return [];
         }
         if (data) {
             if (data.docs) {
