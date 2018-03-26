@@ -177,6 +177,7 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const query = ctx.query;
         const search = ctx.query.search;
+        const sort = ctx.query.sort || '';
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
         delete query.loggedUser;
         if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
@@ -207,21 +208,21 @@ class DatasetRouter {
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
-        if (search || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0) {
+        if (search || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
             let metadataIds = [];
             let conceptIds = [];
             if (search) {
-                metadataIds = new Set(await RelationshipsService.filterByMetadata(search)); // unique from metadata
+                metadataIds = await RelationshipsService.filterByMetadata(search); // unique from metadata
                 logger.debug('Ids from metadata', metadataIds);
             }
-            if (serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0) {
-                conceptIds = new Set(await RelationshipsService.filterByConcepts(serializeObjToQuery(query))); // unique from concepts
+            if (serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+                conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query)); // unique from concepts
+            }
+            if (metadataIds.length === 0 || conceptIds.length === 0) {
+                ctx.body = DatasetSerializer.serialize([], null);
             }
             const uniqueIds = new Set([...metadataIds, ...conceptIds]);
             ctx.query.ids = [...uniqueIds].join(); // it has to be string
-            if (ctx.query.ids.size === 0) {
-                delete ctx.query.ids;
-            }
         }
         // Links creation
         const clonedQuery = Object.assign({}, query);
