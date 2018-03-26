@@ -220,6 +220,7 @@ class DatasetRouter {
             }
             if (metadataIds.length === 0 || conceptIds.length === 0) {
                 ctx.body = DatasetSerializer.serialize([], null);
+                return;
             }
             const uniqueIds = new Set([...metadataIds, ...conceptIds]);
             ctx.query.ids = [...uniqueIds].join(); // it has to be string
