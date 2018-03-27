@@ -209,18 +209,20 @@ class DatasetRouter {
             logger.debug('Ids from collections', ctx.query.ids);
         }
         if (search || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
-            let metadataIds = [];
-            let conceptIds = [];
+            let metadataIds = null;
+            let conceptIds = null;
             if (search) {
-                metadataIds = await RelationshipsService.filterByMetadata(search); // unique from metadata
-                logger.debug('Ids from metadata', metadataIds);
+                metadataIds = await RelationshipsService.filterByMetadata(search);
             }
             if (serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
-                conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query)); // unique from concepts
+                conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query));
             }
-            if (metadataIds.length === 0 || conceptIds.length === 0) {
+            if ((metadataIds && metadataIds.length === 0) || (conceptIds && conceptIds.length === 0)) {
                 ctx.body = DatasetSerializer.serialize([], null);
+                return;
             }
+            metadataIds = metadataIds || [];
+            conceptIds = conceptIds || [];
             const uniqueIds = new Set([...metadataIds, ...conceptIds]);
             ctx.query.ids = [...uniqueIds].join(); // it has to be string
         }
