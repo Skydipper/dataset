@@ -236,6 +236,7 @@ class DatasetService {
             status: dataset.connectorType === 'wms' ? 'saved' : 'pending',
             published: user.role === 'ADMIN' ? dataset.published : false,
             subscribable: dataset.subscribable,
+            mainDateField: dataset.mainDateField,
             protected: dataset.protected,
             verified: dataset.verified,
             legend: dataset.legend,
@@ -344,6 +345,7 @@ class DatasetService {
         currentDataset.provider = dataset.provider || currentDataset.provider;
         currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
         currentDataset.tableName = tableName || currentDataset.tableName;
+        currentDataset.mainDateField = dataset.mainDateField || currentDataset.mainDateField;
         currentDataset.type = dataset.type || currentDataset.type;
         currentDataset.env = dataset.env || currentDataset.env;
         if (dataset.geoInfo !== undefined) {

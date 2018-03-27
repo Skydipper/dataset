@@ -24,6 +24,7 @@ class DatasetSerializer {
                 verified: el.verified,
                 blockchain: el.blockchain,
                 subscribable: el.subscribable,
+                mainDateField: el.mainDateField,
                 env: el.env,
                 geoInfo: el.geoInfo,
                 protected: el.protected,
