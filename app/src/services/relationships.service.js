@@ -254,7 +254,7 @@ class RelationshipsService {
         }
     }
 
-    static async searchByConcepts(query) {
+    static async searchBySynonyms(query) {
         try {
             const result = await ctRegisterMicroservice.requestToMicroservice({
                 uri: `/graph/query/search-by-label-synonyms?${query}`,
