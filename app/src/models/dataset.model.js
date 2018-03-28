@@ -24,6 +24,7 @@ const Dataset = new Schema({
     overwrite: { type: Boolean, required: false, default: false },
     verified: { type: Boolean, required: false, default: false },
     errorMessage: { type: String, required: false, trim: true, default: null },
+    mainDateField: { type: String, required: false, trim: true, default: null },
     published: { type: Boolean, required: true, default: true },
     env: { type: String, required: true, default: 'production', trim: true },
     geoInfo: { type: Boolean, required: true, default: false },

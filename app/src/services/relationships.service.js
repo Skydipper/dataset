@@ -254,6 +254,19 @@ class RelationshipsService {
         }
     }
 
+    static async searchByConcepts(query) {
+        try {
+            const result = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/graph/query/search-by-label-synonyms?${query}`,
+                method: 'GET',
+                json: true
+            });
+            return result.data;
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
 }
 
 module.exports = RelationshipsService;

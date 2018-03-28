@@ -152,23 +152,23 @@ class DatasetService {
                 $in: ids
             };
         }
-        if (search.length > 0) {
-            const searchQuery = [
-                { name: new RegExp(search.join('|'), 'i') },
-                { subtitle: new RegExp(search.join('|'), 'i') }
-            ];
-            const tempQuery = {
-                $and: [
-                    { $and: Object.keys(query).map((key) => {
-                        const q = {};
-                        q[key] = query[key];
-                        return q;
-                    }) },
-                    { $or: searchQuery }
-                ]
-            };
-            query = tempQuery;
-        }
+        // if (search.length > 0) {
+        //     const searchQuery = [
+        //         { name: new RegExp(search.join('|'), 'i') },
+        //         { subtitle: new RegExp(search.join('|'), 'i') }
+        //     ];
+        //     const tempQuery = {
+        //         $and: [
+        //             { $and: Object.keys(query).map((key) => {
+        //                 const q = {};
+        //                 q[key] = query[key];
+        //                 return q;
+        //             }) },
+        //             { $or: searchQuery }
+        //         ]
+        //     };
+        //     query = tempQuery;
+        // }
         logger.debug(query);
         return query;
     }
@@ -236,6 +236,7 @@ class DatasetService {
             status: dataset.connectorType === 'wms' ? 'saved' : 'pending',
             published: user.role === 'ADMIN' ? dataset.published : false,
             subscribable: dataset.subscribable,
+            mainDateField: dataset.mainDateField,
             protected: dataset.protected,
             verified: dataset.verified,
             legend: dataset.legend,
@@ -344,6 +345,7 @@ class DatasetService {
         currentDataset.provider = dataset.provider || currentDataset.provider;
         currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
         currentDataset.tableName = tableName || currentDataset.tableName;
+        currentDataset.mainDateField = dataset.mainDateField || currentDataset.mainDateField;
         currentDataset.type = dataset.type || currentDataset.type;
         currentDataset.env = dataset.env || currentDataset.env;
         if (dataset.geoInfo !== undefined) {
@@ -544,7 +546,7 @@ class DatasetService {
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
-        const search = query.search ? query.search.split(',').map(elem => elem.trim()) : [];
+        const search = query.search ? query.search.split(' ').map(elem => elem.trim()) : [];
         const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids, search);
@@ -637,6 +639,18 @@ class DatasetService {
             permission = false;
         }
         return permission;
+    }
+
+    static async getDatasetIdsBySearch(search) {
+        // are we sure?
+        const searchQuery = [
+            { name: new RegExp(search.join('|'), 'i') },
+            { subtitle: new RegExp(search.join('|'), 'i') }
+        ];
+        const query = { $or: searchQuery };
+        const datasets = await Dataset.find(query);
+        const datasetIds = datasets.map(el => el._id);
+        return datasetIds;
     }
 
 }
