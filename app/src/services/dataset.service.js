@@ -152,23 +152,23 @@ class DatasetService {
                 $in: ids
             };
         }
-        if (search.length > 0) {
-            const searchQuery = [
-                { name: new RegExp(search.join('|'), 'i') },
-                { subtitle: new RegExp(search.join('|'), 'i') }
-            ];
-            const tempQuery = {
-                $and: [
-                    { $and: Object.keys(query).map((key) => {
-                        const q = {};
-                        q[key] = query[key];
-                        return q;
-                    }) },
-                    { $or: searchQuery }
-                ]
-            };
-            query = tempQuery;
-        }
+        // if (search.length > 0) {
+        //     const searchQuery = [
+        //         { name: new RegExp(search.join('|'), 'i') },
+        //         { subtitle: new RegExp(search.join('|'), 'i') }
+        //     ];
+        //     const tempQuery = {
+        //         $and: [
+        //             { $and: Object.keys(query).map((key) => {
+        //                 const q = {};
+        //                 q[key] = query[key];
+        //                 return q;
+        //             }) },
+        //             { $or: searchQuery }
+        //         ]
+        //     };
+        //     query = tempQuery;
+        // }
         logger.debug(query);
         return query;
     }
@@ -546,7 +546,7 @@ class DatasetService {
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
-        const search = query.search ? query.search.split(',').map(elem => elem.trim()) : [];
+        const search = query.search ? query.search.split(' ').map(elem => elem.trim()) : [];
         const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids, search);
@@ -639,6 +639,18 @@ class DatasetService {
             permission = false;
         }
         return permission;
+    }
+
+    static async getDatasetIdsBySearch(search) {
+        // are we sure?
+        const searchQuery = [
+            { name: new RegExp(search.join('|'), 'i') },
+            { subtitle: new RegExp(search.join('|'), 'i') }
+        ];
+        const query = { $or: searchQuery };
+        const datasets = await Dataset.find(query);
+        const datasetIds = datasets.map(el => el._id);
+        return datasetIds;
     }
 
 }

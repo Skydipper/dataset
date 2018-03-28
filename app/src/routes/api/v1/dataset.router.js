@@ -28,6 +28,12 @@ const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
     return a;
 }, []).join('&');
 
+const arrayIntersection = (arr1, arr2) => {
+    return arr1.filter((n) => {
+        return arr2.indexOf(n) !== -1;
+    });
+};
+
 class DatasetRouter {
 
     static getUser(ctx) {
@@ -209,21 +215,25 @@ class DatasetRouter {
             logger.debug('Ids from collections', ctx.query.ids);
         }
         if (search || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
-            let metadataIds = null;
+            let searchIds = null;
             let conceptIds = null;
             if (search) {
-                metadataIds = await RelationshipsService.filterByMetadata(search);
+                const metadataIds = await RelationshipsService.filterByMetadata(search);
+                const searchByConceptsIds = await RelationshipsService.searchByConcepts(search);
+                const datasetBySearchIds = await DatasetService.getDatasetIdsBySearch(search.split(' '));
+                searchIds = metadataIds.concat(searchByConceptsIds).concat(datasetBySearchIds);
             }
             if (serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
                 conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query));
             }
-            if ((metadataIds && metadataIds.length === 0) || (conceptIds && conceptIds.length === 0)) {
+            if ((searchIds && searchIds.length === 0) || (conceptIds && conceptIds.length === 0)) {
                 ctx.body = DatasetSerializer.serialize([], null);
                 return;
             }
-            metadataIds = metadataIds || [];
-            conceptIds = conceptIds || [];
-            const uniqueIds = new Set([...metadataIds, ...conceptIds]);
+            // searchIds = searchIds || [];
+            // conceptIds = conceptIds || [];
+            const finalIds = searchIds && conceptIds ? arrayIntersection(searchIds, conceptIds) : searchIds || conceptIds;
+            const uniqueIds = new Set([...finalIds]); // Intersect and unique
             ctx.query.ids = [...uniqueIds].join(); // it has to be string
         }
         // Links creation
