@@ -644,8 +644,8 @@ class DatasetService {
     static async getDatasetIdsBySearch(search) {
         // are we sure?
         const searchQuery = [
-            { name: new RegExp(search.join('|'), 'i') },
-            { subtitle: new RegExp(search.join('|'), 'i') }
+            { name: new RegExp(search.map(w => `(?=.*${w})`).join(''), 'i') },
+            { subtitle: new RegExp(search.map(w => `(?=.*${w})`).join(''), 'i') }
         ];
         const query = { $or: searchQuery };
         const datasets = await Dataset.find(query);
