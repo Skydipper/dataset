@@ -52,7 +52,8 @@ class RelationshipsService {
                         version
                     });
                 } catch (e) {
-                    throw new Error(e);
+                    logger.error(e);
+                    // throw new Error(e);
                 }
             }
             return obj;
