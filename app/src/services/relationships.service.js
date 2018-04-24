@@ -109,7 +109,7 @@ class RelationshipsService {
                     }
                 } else {
                     const datasetUserId = map[id].userId;
-                    if (resources[include].data[datasetUserId]) {
+                    if (resources[include].data[datasetUserId] && isAdmin) {
                         map[id][include] = {
                             name: resources[include].data[datasetUserId].name,
                             email: resources[include].data[datasetUserId].email,
