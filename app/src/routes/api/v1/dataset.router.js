@@ -86,7 +86,8 @@ class DatasetRouter {
         const query = ctx.query;
         delete query.loggedUser;
         try {
-            const dataset = await DatasetService.get(id, query);
+            const user = DatasetRouter.getUser(ctx);
+            const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -244,7 +245,7 @@ class DatasetRouter {
         const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
         const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
         const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
-        const user = DatasetRouter.getUser();
+        const user = DatasetRouter.getUser(ctx);
         const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN');
         ctx.body = DatasetSerializer.serialize(datasets, link);
     }

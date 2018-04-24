@@ -191,7 +191,7 @@ class DatasetService {
         return filteredSort;
     }
 
-    static async get(id, query = {}) {
+    static async get(id, query = {}, isAdmin=false) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({
@@ -203,7 +203,7 @@ class DatasetService {
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         if (includes.length > 0) {
-            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query));
+            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query), isAdmin);
         }
         return dataset;
     }
