@@ -83,10 +83,10 @@ class DatasetRouter {
     static async get(ctx) {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Getting dataset with id: ${id}`);
+        const user = DatasetRouter.getUser(ctx);
         const query = ctx.query;
         delete query.loggedUser;
-        try {
-            const user = DatasetRouter.getUser(ctx);
+        try {            
             const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
@@ -182,6 +182,7 @@ class DatasetRouter {
 
     static async getAll(ctx) {
         logger.info(`[DatasetRouter] Getting all datasets`);
+        const user = DatasetRouter.getUser(ctx);
         const query = ctx.query;
         const search = ctx.query.search;
         const sort = ctx.query.sort || '';
@@ -245,7 +246,6 @@ class DatasetRouter {
         const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
         const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
         const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
-        const user = DatasetRouter.getUser(ctx);
         const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN');
         ctx.body = DatasetSerializer.serialize(datasets, link);
     }
