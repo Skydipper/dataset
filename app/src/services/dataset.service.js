@@ -541,7 +541,7 @@ class DatasetService {
         return deletedDataset;
     }
 
-    static async getAll(query = {}) {
+    static async getAll(query = {}, isAdmin=false) {
         logger.debug(`[DatasetService]: Getting all datasets`);
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
@@ -573,7 +573,7 @@ class DatasetService {
             pages.pages = Math.ceil(pages.total / pages.limit);
         }
         if (includes.length > 0) {
-            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query));
+            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query), isAdmin);
         }
         return pages;
     }

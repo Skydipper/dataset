@@ -244,7 +244,8 @@ class DatasetRouter {
         const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
         const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
         const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
-        const datasets = await DatasetService.getAll(query);
+        const user = DatasetRouter.getUser();
+        const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN');
         ctx.body = DatasetSerializer.serialize(datasets, link);
     }
 
