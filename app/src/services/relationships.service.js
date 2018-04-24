@@ -93,7 +93,7 @@ class RelationshipsService {
     }
 
     static async getRelationships(datasets, includes, query = '', isAdmin = false) {
-        logger.info(`Getting relationships of datasets: ${datasets}`);
+        logger.info(`Getting relationships of datasets`, isAdmin);
         datasets.unshift({});
         const map = datasets.reduce((acc, val) => { acc[val._id] = val; return acc; });
         const users = datasets.map(el => el.userId);
