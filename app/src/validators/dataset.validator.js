@@ -198,7 +198,7 @@ class DatasetValidator {
             }
             return false;
         }, 'must be a valid JSON');
-        koaObj.checkBody('subscribable').check(subscribable => DatasetValidator.checkSubscribable(subscribable), DatasetValidator.errorMessage('subscribable'));
+        koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.checkSubscribable(subscribable), DatasetValidator.errorMessage('subscribable'));
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend), 'must be an object');
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies), 'must be an object');
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
@@ -236,7 +236,7 @@ class DatasetValidator {
             }
             return false;
         }, 'must be a valid JSON');
-        koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.isObject(subscribable), 'must be an object');
+        koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.checkSubscribable(subscribable), DatasetValidator.errorMessage('subscribable'));
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
         koaObj.checkBody('blockchain').optional().check(blockchain => DatasetValidator.isObject(blockchain));
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies));
