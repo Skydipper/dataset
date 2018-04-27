@@ -16,19 +16,6 @@ class GraphService {
         }
     }
 
-    static async deleteDataset(id) {
-        logger.debug('[GraphService]: Deleting dataset in graph');
-        try {
-            return await ctRegisterMicroservice.requestToMicroservice({
-                uri: `/graph/dataset/${id}`,
-                method: 'DELETE',
-                json: true
-            });
-        } catch (e) {
-            throw new Error(e);
-        }
-    }
-
     static async associateTags(id, vocabularies) {
         logger.debug('[GraphService]: Associating tags in graph');
         try {

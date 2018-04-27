@@ -436,6 +436,22 @@ class DatasetService {
         });
     }
 
+    static async deleteVocabularies(datasetId) {
+        logger.info('Deleting layers of dataset', datasetId);
+        await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/dataset/${datasetId}/vocabulary`,
+            method: 'DELETE'
+        });
+    }
+
+    static async deleteKnowledgeGraphVocabulary(datasetId, application) {
+        logger.info('Deleting knowledge_graph', datasetId);
+        await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/dataset/${datasetId}/vocabulary/knowledge_graph?application=${application}`,
+            method: 'DELETE'
+        });
+    }
+
     static async checkSecureDeleteResources(id) {
         logger.info('Checking if it is secure delete the resources(layer, widget) of the dataset');
         try {
@@ -484,10 +500,15 @@ class DatasetService {
         await DatasetService.checkSecureDeleteResources(id);
 
         logger.info('Checking user apps');
-        user.extraUserData.apps.forEach(app => {
+        user.extraUserData.apps.forEach(async (app) => {
             const idx = currentDataset.application.indexOf(app);
             if (idx > -1) {
                 currentDataset.application.splice(idx, 1);
+                try {
+                    await DatasetService.deleteKnowledgeGraphVocabulary(id, app);
+                } catch (err) {
+                    logger.error(err);
+                }
             }
         });
         let deletedDataset;
@@ -508,13 +529,6 @@ class DatasetService {
                     logger.error(err.message);
                 }
             }
-            logger.debug('[DatasetService]: Deleting in graph');
-            try {
-                await GraphService.deleteDataset(id);
-            } catch (err) {
-                logger.error('Error removing dataset of the graph', err);
-            }
-
             logger.debug('[DatasetService]: Deleting layers');
             try {
                 await DatasetService.deleteLayers(id);
@@ -535,13 +549,20 @@ class DatasetService {
             } catch (err) {
                 logger.error('Error removing metadata', err);
             }
+
+            logger.debug('[DatasetService]: Deleting vocabularies');
+            try {
+                await DatasetService.deleteVocabularies(id);
+            } catch (err) {
+                logger.error('Error removing vocabularies', err);
+            }
             // remove the dataset at the end
             deletedDataset = await currentDataset.remove();
         }
         return deletedDataset;
     }
 
-    static async getAll(query = {}, isAdmin=false) {
+    static async getAll(query = {}, isAdmin = false) {
         logger.debug(`[DatasetService]: Getting all datasets`);
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
