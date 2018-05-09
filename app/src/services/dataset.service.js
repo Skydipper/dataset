@@ -44,7 +44,7 @@ const manualSortAndPaginate = (array, sortedIds, size, page) => {
 class DatasetService {
 
     static async getSlug(name) {
-        let valid = false;
+        const valid = false;
         let slugTemp = null;
         let i = 0;
         while (!valid) {
@@ -91,6 +91,9 @@ class DatasetService {
         }
         if (!query.env) { // default value
             query.env = 'production';
+        }
+        if (!query.published) { // default value
+            query.published = true;
         }
         if (query.userId) {
             query.userId = {
