@@ -86,8 +86,10 @@ class DatasetRouter {
         const user = DatasetRouter.getUser(ctx);
         const query = ctx.query;
         delete query.loggedUser;
-        try {            
+        try {
             const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
+            const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [];
+            ctx.set('cache', `${dataset.id} ${includes.reduce(elem => `${dataset.id}-${elem.trim()} `)} ${dataset.slug} ${includes.reduce(elem => `${dataset.slug}-${elem.trim()} `)}`);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -108,7 +110,7 @@ class DatasetRouter {
             } catch (error) {
                 // do nothing
             }
-            ctx.set('cache-control', 'flush');
+            ctx.set('uncache', 'dataset graph-dataset');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetDuplicated) {
@@ -127,7 +129,7 @@ class DatasetRouter {
         try {
             const user = DatasetRouter.getUser(ctx);
             const dataset = await DatasetService.update(id, ctx.request.body, user);
-            ctx.set('cache-control', 'flush');
+            ctx.set('uncache', `dataset ${dataset.id} ${dataset.slug}`);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -152,7 +154,7 @@ class DatasetRouter {
             } catch (error) {
                 // do nothing
             }
-            ctx.set('cache-control', 'flush');
+            ctx.set('uncache', `dataset ${dataset.id} ${dataset.slug}`);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -247,6 +249,7 @@ class DatasetRouter {
         const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
         const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
         const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN');
+        ctx.set('cache', `dataset ${query.includes ? query.includes.split(',').map(elem => elem.trim()).join(' ') : ''}`);
         ctx.body = DatasetSerializer.serialize(datasets, link);
     }
 
@@ -262,7 +265,7 @@ class DatasetRouter {
             } catch (error) {
                 // do nothing
             }
-            ctx.set('cache-control', 'flush');
+            ctx.set('uncache', 'dataset graph-dataset');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetDuplicated) {

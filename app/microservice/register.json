@@ -1,8 +1,6 @@
 {
 	"name": "#(service.name)",
 	"tags": ["dataset"],
-	"cache": ["dataset"],
-	"uncache": ["dataset"],
 	"endpoints": [{
 		"path": "/v1/dataset",
 		"method": "GET",
