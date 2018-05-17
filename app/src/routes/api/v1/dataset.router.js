@@ -88,7 +88,7 @@ class DatasetRouter {
         delete query.loggedUser;
         try {
             const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
-            const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [];
+            const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [''];
             ctx.set('cache', `${dataset.id} ${includes.reduce(elem => `${dataset.id}-${elem.trim()} `)} ${dataset.slug} ${includes.reduce(elem => `${dataset.slug}-${elem.trim()} `)}`);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
