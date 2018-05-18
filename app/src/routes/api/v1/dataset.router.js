@@ -130,8 +130,16 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Updating dataset with id: ${id}`);
         try {
             const user = DatasetRouter.getUser(ctx);
-            const dataset = await DatasetService.update(id, ctx.request.body, user);
-            ctx.set('uncache', `dataset ${dataset.id} ${dataset.slug}`);
+            const result = await DatasetService.update(id, ctx.request.body, user);
+            const dataset = result[0];
+            const uncache = [`dataset`, `${dataset.id} ${dataset.slug}`];
+            if (result[1]) {
+                uncache.push(`${dataset.id}-fields`);
+                uncache.push(`${dataset.slug}-fields`);
+                uncache.push(`${dataset.id}-query`);
+                uncache.push(`${dataset.slug}-query`);
+            }
+            ctx.set('uncache', uncache.join(' '));
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {

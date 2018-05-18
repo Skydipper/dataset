@@ -253,9 +253,10 @@ class DatasetService {
                 await GraphService.createDataset(newDataset._id);
             } catch (err) {
                 newDataset.errorMessage = err.message;
-                newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                const result = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
+                newDataset = result[0];
             }
         }
         // if vocabularies
@@ -266,18 +267,20 @@ class DatasetService {
                     await GraphService.associateTags(newDataset._id, dataset.vocabularies);
                 } catch (err) {
                     newDataset.errorMessage = err.message;
-                    newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                    const result = await DatasetService.update(newDataset._id, newDataset, {
                         id: 'microservice'
                     });
+                    newDataset = result[0];
                 }
             }
             try {
                 await RelationshipsService.createVocabularies(newDataset._id, dataset.vocabularies);
             } catch (err) {
                 newDataset.errorMessage = err.message;
-                newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                const result = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
+                newDataset = result[0];
             }
         }
         if (dataset.sync && dataset.connectorType === 'document') {
@@ -374,6 +377,7 @@ class DatasetService {
         currentDataset.widgetRelevantProps = dataset.widgetRelevantProps || currentDataset.widgetRelevantProps;
         currentDataset.layerRelevantProps = dataset.layerRelevantProps || currentDataset.layerRelevantProps;
         currentDataset.updatedAt = new Date();
+        const oldStatus = currentDataset.status;
         if (user.id === 'microservice' && (dataset.status === 0 || dataset.status === 1 || dataset.status === 2)) {
             if (dataset.status === 0) {
                 currentDataset.status = 'pending';
@@ -412,7 +416,7 @@ class DatasetService {
                 }
             }
         }
-        return newDataset;
+        return [newDataset, newDataset.status !== oldStatus];
     }
 
     static async deleteWidgets(datasetId) {
