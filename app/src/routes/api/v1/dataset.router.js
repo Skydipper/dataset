@@ -88,8 +88,10 @@ class DatasetRouter {
         delete query.loggedUser;
         try {
             const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
-            const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [''];
-            ctx.set('cache', `${dataset.id} ${includes.reduce(elem => `${dataset.id}-${elem.trim()} `)} ${dataset.slug} ${includes.reduce(elem => `${dataset.slug}-${elem.trim()} `)}`);
+            const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [];
+            const datasetId = dataset.id || dataset[0].id;
+            const datasetSlug = dataset.slug || dataset[0].slug;
+            ctx.set('cache', `${datasetId} ${includes.map(el => `${datasetId}-${el.trim()}`).join(' ')} ${datasetSlug} ${includes.map(el => `${datasetSlug}-${el.trim()}`).join(' ')}`);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -310,6 +312,13 @@ class DatasetRouter {
         }
     }
 
+    static async flushDataset(ctx) {
+        const datasetId = ctx.params.dataset;
+        const dataset = await DatasetService.get(datasetId);
+        ctx.set('uncache', `${dataset._id} ${dataset.slug} query-${dataset._id} query-${dataset.slug} fields-${dataset._id} fields-${dataset.slug}`);
+        ctx.body = 'OK';
+    }
+
 }
 
 const validationMiddleware = async (ctx, next) => {
@@ -345,6 +354,10 @@ const authorizationMiddleware = async (ctx, next) => {
     const newDatasetCreation = ctx.request.path === '/dataset' && ctx.request.method === 'POST';
     const uploadDataset = ctx.request.path.indexOf('upload') >= 0 && ctx.request.method === 'POST';
     const user = DatasetRouter.getUser(ctx);
+    if (ctx.request.path.endsWith('flush') && user.role === 'ADMIN') {
+        await next();
+        return;
+    }
     if (user.id === 'microservice') {
         await next();
         return;
@@ -412,6 +425,7 @@ router.post('/find-by-ids', DatasetRouter.findByIds);
 router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, DatasetRouter.create);
 // router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, authorizationSubscribable, DatasetRouter.create);
 router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRouter.upload);
+router.post('/:dataset/flush', authorizationMiddleware, DatasetRouter.flushDataset);
 
 router.get('/:dataset', DatasetRouter.get);
 router.get('/:dataset/verification', DatasetRouter.verification);

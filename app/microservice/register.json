@@ -74,5 +74,13 @@
 			"method": "GET",
 			"path": "/api/v1/dataset/:dataset/verification"
 		}
+	}, {
+		"path": "/v1/dataset/:dataset/flush",
+		"method": "POST",
+		"authenticated": true,
+		"redirect": {
+			"method": "POST",
+			"path": "/api/v1/dataset/:dataset/flush"
+		}
 	}]
 }
