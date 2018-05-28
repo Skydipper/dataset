@@ -17,7 +17,7 @@ class RelationshipsService {
         return query;
     }
 
-    static async getResources(ids, includes, query = '', users = []) {
+    static async getResources(ids, includes, query = '', users = [], isAdmin = false) {
         logger.info(`Getting resources of ids: ${ids}`);
         let resources = includes.map(async (include) => {
             const obj = {};
@@ -74,7 +74,9 @@ class RelationshipsService {
                                 result[el.attributes.resource.id].push(el);
                             }
                         } else if (include === 'user') {
-                            result[el._id] = el;
+                            if (isAdmin) {
+                                result[el._id] = el;
+                            }
                         } else {
                             if (Object.keys(result).indexOf(el.attributes.dataset) < 0) {
                                 result[el.attributes.dataset] = [el];
@@ -90,13 +92,13 @@ class RelationshipsService {
         return resources;
     }
 
-    static async getRelationships(datasets, includes, query = '') {
-        logger.info(`Getting relationships of datasets: ${datasets}`);
+    static async getRelationships(datasets, includes, query = '', isAdmin = false) {
+        logger.info(`Getting relationships of datasets`, isAdmin);
         datasets.unshift({});
         const map = datasets.reduce((acc, val) => { acc[val._id] = val; return acc; });
         const users = datasets.map(el => el.userId);
         const ids = Object.keys(map);
-        const resources = await RelationshipsService.getResources(ids, includes, query, users);
+        const resources = await RelationshipsService.getResources(ids, includes, query, users, isAdmin);
         ids.forEach((id) => {
             includes.forEach((include) => {
                 if (include !== 'user') {
@@ -107,7 +109,7 @@ class RelationshipsService {
                     }
                 } else {
                     const datasetUserId = map[id].userId;
-                    if (resources[include].data[datasetUserId]) {
+                    if (resources[include].data[datasetUserId] && isAdmin) {
                         map[id][include] = {
                             name: resources[include].data[datasetUserId].name,
                             email: resources[include].data[datasetUserId].email,
