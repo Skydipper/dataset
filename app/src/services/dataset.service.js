@@ -92,9 +92,9 @@ class DatasetService {
         if (!query.env) { // default value
             query.env = 'production';
         }
-        if (!query.published) { // default value
-            query.published = true;
-        }
+        // if (!query.published) { // default value
+        //     query.published = true;
+        // }
         if (query.userId) {
             query.userId = {
                 $eq: query.userId
