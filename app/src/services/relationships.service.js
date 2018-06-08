@@ -27,7 +27,7 @@ class RelationshipsService {
                     ids
                 };
                 let version = true;
-                if (include === 'layer' || include === 'widget') {
+                if (include === 'layer' || include === 'widget' || include === 'graph') {
                     const apps = query.application || query.app;
                     if (apps) {
                         payload.app = apps;
