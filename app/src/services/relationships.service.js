@@ -244,6 +244,20 @@ class RelationshipsService {
         }
     }
 
+    static async sortByMetadata(sign, query) {
+        try {
+            const result = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/metadata?sort=${sign}name&${query}`,
+                method: 'GET',
+                json: true
+            });
+            logger.debug(result);
+            return result.data.map(m => m.attributes.dataset);
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
     static async filterByConcepts(query) {
         try {
             const result = await ctRegisterMicroservice.requestToMicroservice({

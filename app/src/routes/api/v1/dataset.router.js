@@ -228,7 +228,7 @@ class DatasetRouter {
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
-        if (search || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+        if (search || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0 || sort.indexOf('metadata') >= 0) {
             let searchIds = null;
             let conceptIds = null;
             if (search) {
@@ -239,6 +239,12 @@ class DatasetRouter {
             }
             if (serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
                 conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query));
+            }
+            if (sort.indexOf('metadata') >= 0) {
+                const queryCopy = Object.assign({}, query);
+                delete queryCopy.sort;
+                const sign = sort[sort.indexOf('metadata') - 1] === '-' ? '-' : '';
+                conceptIds = await RelationshipsService.sortByMetadata(sign, queryCopy);
             }
             if ((searchIds && searchIds.length === 0) || (conceptIds && conceptIds.length === 0)) {
                 ctx.body = DatasetSerializer.serialize([], null);
