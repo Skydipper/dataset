@@ -247,7 +247,7 @@ class RelationshipsService {
     static async sortByMetadata(sign, query) {
         try {
             const result = await ctRegisterMicroservice.requestToMicroservice({
-                uri: `/metadata?sort=${sign}name&${query}`,
+                uri: `/metadata?sort=${sign}name&type=dataset&${query}`,
                 method: 'GET',
                 json: true
             });
