@@ -27,7 +27,7 @@ class RelationshipsService {
                     ids
                 };
                 let version = true;
-                if (include === 'layer' || include === 'widget') {
+                if (include === 'layer' || include === 'widget' || include === 'graph') {
                     const apps = query.application || query.app;
                     if (apps) {
                         payload.app = apps;
@@ -234,6 +234,20 @@ class RelationshipsService {
         try {
             const result = await ctRegisterMicroservice.requestToMicroservice({
                 uri: `/metadata?search=${search}`,
+                method: 'GET',
+                json: true
+            });
+            logger.debug(result);
+            return result.data.map(m => m.attributes.dataset);
+        } catch (e) {
+            throw new Error(e);
+        }
+    }
+
+    static async sortByMetadata(sign, query) {
+        try {
+            const result = await ctRegisterMicroservice.requestToMicroservice({
+                uri: `/metadata?sort=${sign}name&type=dataset&${query}`,
                 method: 'GET',
                 json: true
             });

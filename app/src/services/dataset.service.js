@@ -194,7 +194,7 @@ class DatasetService {
         return filteredSort;
     }
 
-    static async get(id, query = {}, isAdmin=false) {
+    static async get(id, query = {}, isAdmin = false) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({
@@ -584,14 +584,14 @@ class DatasetService {
             limit,
             sort: filteredSort
         };
-        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0 || sort.indexOf('metadata') >= 0) {
             options.limit = 999999;
             options.page = 1;
         }
         logger.info(`[DBACCESS-FIND]: dataset`);
         let pages = await Dataset.paginate(filteredQuery, options);
         pages = Object.assign({}, pages);
-        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0 || sort.indexOf('metadata') >= 0) {
             const sortedAndPaginated = manualSortAndPaginate(pages.docs, ids, limit, page); // array, ids, size, page
             // original values
             pages.docs = sortedAndPaginated.docs;
