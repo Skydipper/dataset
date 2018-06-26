@@ -307,6 +307,20 @@ class DatasetRouter {
         }
     }
 
+    static async recover(ctx) {
+        logger.info(`[DatasetRouter] Recovering dataset status`);
+        try {
+            await DatasetService.recover(ctx.params.dataset);
+            ctx.body = 'OK';
+        } catch (err) {
+            if (err instanceof DatasetNotFound) {
+                ctx.throw(404, err.message);
+                return;
+            }
+            ctx.throw(500, 'Error recovering dataset status');
+        }
+    }
+
     static async verification(ctx) {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Getting verification with id: ${id}`);
@@ -322,7 +336,6 @@ class DatasetRouter {
             ctx.body = verificationData;
         } catch (err) {
             ctx.throw(500, 'Error getting verification data');
-            return;
         }
     }
 
@@ -422,14 +435,24 @@ const authorizationBigQuery = async (ctx, next) => {
     await next();
 };
 
-const authorizationSubscribable = async (ctx, next) => {
-    logger.info(`[DatasetRouter] Checking if it can update the subscribable prop`);
-    if (ctx.request.body.subscribable) {
-        const user = DatasetRouter.getUser(ctx);
-        if (user.email !== 'sergio.gordillo@vizzuality.com' && user.email !== 'raul.requero@vizzuality.com' && user.email !== 'alicia.arenzana@vizzuality.com') {
-            ctx.throw(401, 'Unauthorized'); // if not logged or invalid ROLE -> out
-            return;
-        }
+// const authorizationSubscribable = async (ctx, next) => {
+//     logger.info(`[DatasetRouter] Checking if it can update the subscribable prop`);
+//     if (ctx.request.body.subscribable) {
+//         const user = DatasetRouter.getUser(ctx);
+//         if (user.email !== 'sergio.gordillo@vizzuality.com' && user.email !== 'raul.requero@vizzuality.com' && user.email !== 'alicia.arenzana@vizzuality.com') {
+//             ctx.throw(401, 'Unauthorized'); // if not logged or invalid ROLE -> out
+//             return;
+//         }
+//     }
+//     await next();
+// };
+
+const authorizationRecover = async (ctx, next) => {
+    logger.info(`[DatasetRouter] Authorization for recovering`);
+    const user = DatasetRouter.getUser(ctx);
+    if (user.role !== 'ADMIN') {
+        ctx.throw(401, 'Unauthorized'); // if not logged or invalid ROLE -> out
+        return;
     }
     await next();
 };
@@ -440,6 +463,7 @@ router.post('/', validationMiddleware, authorizationMiddleware, authorizationBig
 // router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, authorizationSubscribable, DatasetRouter.create);
 router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRouter.upload);
 router.post('/:dataset/flush', authorizationMiddleware, DatasetRouter.flushDataset);
+router.post('/:dataset/recover', authorizationRecover, DatasetRouter.recover);
 
 router.get('/:dataset', DatasetRouter.get);
 router.get('/:dataset/verification', DatasetRouter.verification);
