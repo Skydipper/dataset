@@ -82,5 +82,13 @@
 			"method": "POST",
 			"path": "/api/v1/dataset/:dataset/flush"
 		}
+	}, {
+		"path": "/v1/dataset/:dataset/recover",
+		"method": "POST",
+		"authenticated": true,
+		"redirect": {
+			"method": "POST",
+			"path": "/api/v1/dataset/:dataset/recover"
+		}
 	}]
 }

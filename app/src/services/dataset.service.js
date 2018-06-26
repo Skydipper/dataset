@@ -681,6 +681,19 @@ class DatasetService {
         return datasetIds;
     }
 
+    static async recover(id) {
+        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
+            slug: id
+        }).exec();
+        if (!currentDataset) {
+            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
+            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
+        }
+        currentDataset.status = 'saved';
+        currentDataset.errorMessage = '';
+        return currentDataset.save();
+    }
+
 }
 
 module.exports = DatasetService;
