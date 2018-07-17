@@ -86,7 +86,7 @@ class DatasetRouter {
         const user = DatasetRouter.getUser(ctx);
         const query = ctx.query;
         delete query.loggedUser;
-        try {            
+        try {
             const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
@@ -107,6 +107,7 @@ class DatasetRouter {
                 DatasetRouter.notifyAdapter(ctx, dataset);
             } catch (error) {
                 // do nothing
+                logger.error(error);
             }
             ctx.set('cache-control', 'flush');
             ctx.body = DatasetSerializer.serialize(dataset);
