@@ -111,6 +111,7 @@ class DatasetRouter {
                 DatasetRouter.notifyAdapter(ctx, dataset);
             } catch (error) {
                 // do nothing
+                logger.error(error);
             }
             ctx.set('uncache', 'dataset graph-dataset');
             ctx.body = DatasetSerializer.serialize(dataset);
