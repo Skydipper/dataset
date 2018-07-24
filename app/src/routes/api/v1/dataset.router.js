@@ -236,9 +236,9 @@ class DatasetRouter {
             let conceptIds = null;
             if (search) {
                 const metadataIds = await RelationshipsService.filterByMetadata(search);
-                const searchBySynonmysIds = await RelationshipsService.searchBySynonyms(serializeObjToQuery(query));
+                const searchBySynonymsIds = await RelationshipsService.searchBySynonyms(serializeObjToQuery(query));
                 const datasetBySearchIds = await DatasetService.getDatasetIdsBySearch(search.split(' '));
-                searchIds = metadataIds.concat(searchBySynonmysIds).concat(datasetBySearchIds);
+                searchIds = metadataIds.concat(searchBySynonymsIds).concat(datasetBySearchIds);
             }
             if (
                 serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0
