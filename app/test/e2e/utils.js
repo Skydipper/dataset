@@ -18,7 +18,7 @@ function isObject(property) {
 
 const deserializeDataset = (response) => {
     if (isArray(response.body.data)) {
-        return response.body.data.map(el => el.attributes);
+        return response.body.data;
     }
     if (isObject(response.body.data)) {
         return response.body.data.attributes;

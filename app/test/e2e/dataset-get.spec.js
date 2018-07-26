@@ -68,8 +68,8 @@ describe('Get datasets tests', () => {
 
         const datasetIds = datasets.map(dataset => dataset.id);
 
-        datasetIds.includes(cartoFakeDataset._id);
-        datasetIds.includes(jsonFakeDataset._id);
+        datasetIds.should.contain(cartoFakeDataset._id);
+        datasetIds.should.contain(jsonFakeDataset._id);
     });
 
     it('Get the first page with one dataset using pagination', async () => {
@@ -82,7 +82,7 @@ describe('Get datasets tests', () => {
 
         const datasetIds = datasets.map(dataset => dataset.id);
 
-        datasetIds.includes(cartoFakeDataset._id);
+        datasetIds.should.contain(cartoFakeDataset._id);
     });
 
     it('Get the second page with one dataset using pagination', async () => {
@@ -95,7 +95,7 @@ describe('Get datasets tests', () => {
 
         const datasetIds = datasets.map(dataset => dataset.id);
 
-        datasetIds.includes(jsonFakeDataset._id);
+        datasetIds.should.contain(jsonFakeDataset._id);
     });
 
     afterEach(() => {
