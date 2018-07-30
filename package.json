@@ -5,8 +5,9 @@
   "repository": "https://github.com/resource-watch/dataset",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_PATH=app/src node ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
-    "start": "NODE_PATH=app/src node app/index.js"
+    "test": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
+    "start": "NODE_PATH=app/src node $NODE_DEBUG_OPTION app/index.js",
+    "coverage": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTestCoverage"
   },
   "keywords": [
     "dataset",
@@ -17,7 +18,12 @@
   "author": "https://github.com/archelogos",
   "license": "MIT",
   "devDependencies": {
-    "babel-eslint": "^7.2.0",
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^7.2.3",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
     "eslint": "^3.18.0",
     "eslint-config-airbnb": "^14.1.0",
     "eslint-plugin-import": "^2.2.0",
@@ -30,12 +36,14 @@
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-express-server": "^0.5.1",
+    "grunt-mocha-istanbul": "^5.0.2",
     "grunt-mocha-test": "^0.13.2",
     "grunt-notify": "^0.4.3",
+    "istanbul": "1.0.0-alpha.2",
     "load-grunt-tasks": "^3.4.0",
     "mocha": "^3.2.0",
-    "should": "^11.2.1",
     "nock": "^9.0.2",
+    "should": "^11.2.1",
     "superagent": "^3.3.1",
     "supertest": "^3.0.0"
   },

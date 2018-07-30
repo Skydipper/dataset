@@ -143,7 +143,7 @@ class RelationshipsService {
         let vocabularyQuery = '?';
         Object.keys(query).forEach((key => {
             if (key.indexOf('vocabulary[') >= 0) {
-                vocabularyQuery += `${key.split('vocabulary[')[1].split(']')[0]}=${query[key]}&`;
+                vocabularyQuery += `${key.split('vocabulary[')[1].split(']')[0]}=${encodeURIComponent(query[key])}&`;
             }
         }));
         vocabularyQuery = vocabularyQuery.substring(0, vocabularyQuery.length - 1);
