@@ -1,7 +1,8 @@
-const { createDataset, deserializeDataset } = require('./utils');
+/* eslint-disable no-unused-vars,no-undef */
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
+const { createDataset, deserializeDataset } = require('./utils');
 
 const { getTestServer } = require('./test-server');
 const { getUUID } = require('./utils');

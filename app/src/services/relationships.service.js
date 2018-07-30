@@ -1,8 +1,8 @@
 const logger = require('logger');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
-const INCLUDES = require('app.constants').INCLUDES;
+const { INCLUDES } = require('app.constants');
 
-const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
+const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
     return a;
 }, []).join('&');
@@ -63,10 +63,10 @@ class RelationshipsService {
         resources = resources.reduce((acc, val) => { const key = Object.keys(val)[0]; acc[key] = val[key]; return acc; }); // object with include as keys
         includes.forEach((include) => {
             if (resources[include]) {
-                const data = resources[include].data;
+                const { data } = resources[include];
                 const result = {};
                 if (data.length > 0) {
-                    data.forEach(el => {
+                    data.forEach((el) => {
                         if (include === 'vocabulary') { // particular case of vocabulary. it changes the matching attr
                             if (Object.keys(result).indexOf(el.attributes.resource.id) < 0) {
                                 result[el.attributes.resource.id] = [el];
@@ -77,12 +77,10 @@ class RelationshipsService {
                             if (isAdmin) {
                                 result[el._id] = el;
                             }
+                        } else if (Object.keys(result).indexOf(el.attributes.dataset) < 0) {
+                            result[el.attributes.dataset] = [el];
                         } else {
-                            if (Object.keys(result).indexOf(el.attributes.dataset) < 0) {
-                                result[el.attributes.dataset] = [el];
-                            } else {
-                                result[el.attributes.dataset].push(el);
-                            }
+                            result[el.attributes.dataset].push(el);
                         }
                     });
                 }
@@ -141,7 +139,7 @@ class RelationshipsService {
     static async filterByVocabularyTag(query) {
         logger.info(`Getting resources for vocabulary-tag query`);
         let vocabularyQuery = '?';
-        Object.keys(query).forEach((key => {
+        Object.keys(query).forEach(((key) => {
             if (key.indexOf('vocabulary[') >= 0) {
                 vocabularyQuery += `${key.split('vocabulary[')[1].split(']')[0]}=${encodeURIComponent(query[key])}&`;
             }
@@ -202,11 +200,7 @@ class RelationshipsService {
                     userId
                 }
             });
-            return result.data.map(col => {
-                return col.attributes.resources.filter(res => res.type === 'dataset');
-            }).reduce((pre, cur) => {
-                return pre.concat(cur);
-            }).map(el => el.id);
+            return result.data.map(col => col.attributes.resources.filter(res => res.type === 'dataset')).reduce((pre, cur) => pre.concat(cur)).map(el => el.id);
         } catch (e) {
             throw new Error(e);
         }

@@ -1,4 +1,3 @@
-const fs = require('fs');
 const Router = require('koa-router');
 const koaMulter = require('koa-multer');
 const logger = require('logger');
@@ -15,7 +14,7 @@ const DatasetProtected = require('errors/datasetProtected.error');
 const DatasetNotValid = require('errors/datasetNotValid.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
-const USER_ROLES = require('app.constants').USER_ROLES;
+const { USER_ROLES } = require('app.constants');
 
 const router = new Router({
     prefix: '/dataset',
@@ -23,16 +22,12 @@ const router = new Router({
 
 koaMulter({ dest: 'uploads/' });
 
-const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
+const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
     return a;
 }, []).join('&');
 
-const arrayIntersection = (arr1, arr2) => {
-    return arr1.filter((n) => {
-        return arr2.indexOf(n) !== -1;
-    });
-};
+const arrayIntersection = (arr1, arr2) => arr1.filter(n => arr2.indexOf(n) !== -1);
 
 class DatasetRouter {
 
@@ -45,8 +40,7 @@ class DatasetRouter {
     }
 
     static notifyAdapter(ctx, dataset) {
-        const connectorType = dataset.connectorType;
-        const provider = dataset.provider;
+        const { connectorType, provider } = dataset;
         const clonedDataset = Object.assign({}, dataset.toObject());
         clonedDataset.id = dataset._id;
         clonedDataset.connector_url = dataset.connectorUrl;
@@ -84,7 +78,7 @@ class DatasetRouter {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Getting dataset with id: ${id}`);
         const user = DatasetRouter.getUser(ctx);
-        const query = ctx.query;
+        const { query } = ctx;
         delete query.loggedUser;
         try {
             const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
@@ -119,7 +113,8 @@ class DatasetRouter {
             if (err instanceof DatasetDuplicated) {
                 ctx.throw(400, err.message);
                 return;
-            } else if (err instanceof ConnectorUrlNotValid) {
+            }
+            if (err instanceof ConnectorUrlNotValid) {
                 ctx.throw(400, err.message);
             }
             throw err;
@@ -146,7 +141,8 @@ class DatasetRouter {
             if (err instanceof DatasetNotFound) {
                 ctx.throw(404, err.message);
                 return;
-            } else if (err instanceof DatasetDuplicated) {
+            }
+            if (err instanceof DatasetDuplicated) {
                 ctx.throw(400, err.message);
                 return;
             }
@@ -196,8 +192,8 @@ class DatasetRouter {
     static async getAll(ctx) {
         logger.info(`[DatasetRouter] Getting all datasets`);
         const user = DatasetRouter.getUser(ctx);
-        const query = ctx.query;
-        const search = ctx.query.search;
+        const { query } = ctx;
+        const { search } = query;
         const sort = ctx.query.sort || '';
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
         delete query.loggedUser;
@@ -229,7 +225,13 @@ class DatasetRouter {
             ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
             logger.debug('Ids from collections', ctx.query.ids);
         }
-        if (search || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0 || sort.indexOf('metadata') >= 0) {
+        if (
+            search
+            || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0
+            || sort.indexOf('most-favorited') >= 0
+            || sort.indexOf('most-viewed') >= 0
+            || sort.indexOf('metadata') >= 0
+        ) {
             let searchIds = null;
             let conceptIds = null;
             if (search) {
@@ -238,7 +240,11 @@ class DatasetRouter {
                 const datasetBySearchIds = await DatasetService.getDatasetIdsBySearch(search.split(' '));
                 searchIds = metadataIds.concat(searchBySynonmysIds).concat(datasetBySearchIds);
             }
-            if (serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0 || sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+            if (
+                serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0
+                || sort.indexOf('most-favorited') >= 0
+                || sort.indexOf('most-viewed') >= 0
+            ) {
                 conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query));
             }
             if (sort.indexOf('metadata') >= 0) {
@@ -325,7 +331,7 @@ class DatasetRouter {
     static async verification(ctx) {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Getting verification with id: ${id}`);
-        const query = ctx.query;
+        const { query } = ctx;
         delete query.loggedUser;
         try {
             const dataset = await DatasetService.get(id, query);
@@ -402,9 +408,7 @@ const authorizationMiddleware = async (ctx, next) => {
     }
     const application = ctx.request.query.application ? ctx.request.query.application : ctx.request.body.application;
     if (application) {
-        const appPermission = application.find(app =>
-            user.extraUserData.apps.find(userApp => userApp === app)
-        );
+        const appPermission = application.find(app => user.extraUserData.apps.find(userApp => userApp === app));
         if (!appPermission) {
             ctx.throw(403, 'Forbidden'); // if manager or admin but no application -> out
             return;
@@ -429,7 +433,13 @@ const authorizationBigQuery = async (ctx, next) => {
     logger.info(`[DatasetRouter] Checking if bigquery dataset`);
     // Get user from query (delete) or body (post-patch)
     const user = DatasetRouter.getUser(ctx);
-    if (ctx.request.body.provider === 'bigquery' && (user.email !== 'sergio.gordillo@vizzuality.com' && user.email !== 'raul.requero@vizzuality.com' && user.email !== 'alicia.arenzana@vizzuality.com')) {
+    if (ctx.request.body.provider === 'bigquery'
+        && (
+            user.email !== 'sergio.gordillo@vizzuality.com'
+            && user.email !== 'raul.requero@vizzuality.com'
+            && user.email !== 'alicia.arenzana@vizzuality.com'
+        )
+    ) {
         ctx.throw(401, 'Unauthorized'); // if not logged or invalid ROLE -> out
         return;
     }

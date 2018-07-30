@@ -28,7 +28,7 @@ class ErrorSerializer {
     static serializeValidationBodyErrors(data) {
         const errors = [];
         if (data) {
-            for (let i = 0, length = data.length; i < length; i++) {
+            for (let i = 0, { length } = data; i < length; i++) {
                 errors.push(ErrorSerializer.serializeValidationError(data[i], 'body'));
             }
         }
