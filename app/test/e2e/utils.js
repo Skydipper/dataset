@@ -1,5 +1,5 @@
-const ROLES = require('./test.constants').ROLES;
-const CONNECTOR_TYPES = require('app.constants').CONNECTOR_TYPES;
+const { CONNECTOR_TYPES } = require('app.constants');
+const { ROLES } = require('./test.constants');
 
 
 function isArray(element) {
@@ -19,11 +19,11 @@ function isObject(property) {
 const deserializeDataset = (response) => {
     if (isArray(response.body.data)) {
         return response.body.data.map(el => el.attributes);
-    } else if (isObject(response.body.data)) {
+    } if (isObject(response.body.data)) {
         return response.body.data.attributes;
     }
     return response;
-}
+};
 
 const getUUID = () => Math.random().toString(36).substring(7);
 
@@ -65,7 +65,7 @@ const createDataset = (provider) => {
         sandbox: true,
         published: true
     };
-}
+};
 
 module.exports = {
     createDataset,

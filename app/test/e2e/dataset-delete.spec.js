@@ -1,7 +1,8 @@
-const ROLES = require('./test.constants').ROLES;
+/* eslint-disable no-unused-vars,no-undef */
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
+const { ROLES } = require('./test.constants');
 const { createDataset, getUUID, deserializeDataset } = require('./utils');
 
 const should = chai.should();

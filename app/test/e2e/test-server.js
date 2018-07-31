@@ -6,7 +6,7 @@ let requester;
 
 chai.use(chaiHttp);
 
-exports.getTestServer = function () {
+exports.getTestServer = function getTestServer() {
     if (requester) {
         return requester;
     }
