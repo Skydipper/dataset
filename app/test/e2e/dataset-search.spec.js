@@ -29,7 +29,7 @@ describe('Search datasets tests', () => {
         jsonFakeDataset = await new Dataset(createDataset('json')).save();
     });
 
-    it('Search for common elements in name adn description should return 2 results (no synonyms)', async () => {
+    it('Search for common elements in name and description should return 2 results (no synonyms)', async () => {
         nock(`${process.env.CT_URL}`)
             .get(`/v1/metadata?search=fake%20dataset`)
             .reply(200, {
@@ -156,8 +156,8 @@ describe('Search datasets tests', () => {
 
         const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
 
-        datasetIdsOne[0].should.equal(cartoFakeDataset._id);
-        datasetIdsOne[1].should.equal(jsonFakeDataset._id);
+        datasetIdsOne[0].should.equal(jsonFakeDataset._id);
+        datasetIdsOne[1].should.equal(cartoFakeDataset._id);
 
 
         nock(`${process.env.CT_URL}`)
@@ -171,7 +171,7 @@ describe('Search datasets tests', () => {
             });
 
         const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-viewed`).send();
-        const datasetsTwo = deserializeDataset(responseOne);
+        const datasetsTwo = deserializeDataset(responseTwo);
 
         responseTwo.status.should.equal(200);
         responseTwo.body.should.have.property('data').with.lengthOf(2);
@@ -220,8 +220,8 @@ describe('Search datasets tests', () => {
 
         const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
 
-        datasetIdsOne[0].should.equal(cartoFakeDataset._id);
-        datasetIdsOne[1].should.equal(jsonFakeDataset._id);
+        datasetIdsOne[0].should.equal(jsonFakeDataset._id);
+        datasetIdsOne[1].should.equal(cartoFakeDataset._id);
 
 
         nock(`${process.env.CT_URL}`)
@@ -235,7 +235,7 @@ describe('Search datasets tests', () => {
             });
 
         const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-favorited`).send();
-        const datasetsTwo = deserializeDataset(responseOne);
+        const datasetsTwo = deserializeDataset(responseTwo);
 
         responseTwo.status.should.equal(200);
         responseTwo.body.should.have.property('data').with.lengthOf(2);
@@ -247,10 +247,93 @@ describe('Search datasets tests', () => {
         datasetIdsTwo[1].should.equal(jsonFakeDataset._id);
     });
 
+    it('Search with keyword and sort by relevance non-specified is sorted using metadata', async () => {
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/metadata?search=keyword&sort=relevance`)
+            .once()
+            .reply(200, {
+                data: [
+                    mapDatasetToMetadataSearchResult(cartoFakeDataset),
+                    mapDatasetToMetadataSearchResult(jsonFakeDataset),
+                ]
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/graph/query/search-by-label-synonyms?search=keyword&sort=relevance`)
+            .once()
+            .reply(200, {
+                data: []
+            });
+
+
+        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=relevance`).send();
+        const datasets = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(2);
+        response.body.should.have.property('links').and.be.an('object');
+
+        const datasetIds = datasets.map(dataset => dataset.id);
+
+        datasetIds[0].should.equal(cartoFakeDataset._id);
+        datasetIds[1].should.equal(jsonFakeDataset._id);
+    });
+
+    it('Search with keyword and sort by relevance descending is sorted using metadata', async () => {
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/metadata?search=keyword&sort=-relevance`)
+            .once()
+            .reply(200, {
+                data: [
+                    mapDatasetToMetadataSearchResult(cartoFakeDataset),
+                    mapDatasetToMetadataSearchResult(jsonFakeDataset),
+                ]
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/graph/query/search-by-label-synonyms?search=keyword&sort=-relevance`)
+            .once()
+            .reply(200, {
+                data: []
+            });
+
+
+        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=${encodeURIComponent('-')}relevance`).send();
+        const datasets = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(2);
+        response.body.should.have.property('links').and.be.an('object');
+
+        const datasetIds = datasets.map(dataset => dataset.id);
+
+        datasetIds[0].should.equal(cartoFakeDataset._id);
+        datasetIds[1].should.equal(jsonFakeDataset._id);
+    });
+
+
+    it('Search with keyword and sort by relevance ascending return an error for invalid request', async () => {
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/metadata?search=keyword&sort=+relevance`)
+            .once()
+            .reply(400, {
+                errors: [
+                    {
+                        status: 400,
+                        detail: 'Sort by relevance ascending not supported'
+                    }
+                ]
+            });
+
+        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=${encodeURIComponent('+')}relevance`).send();
+
+        response.status.should.equal(400);
+    });
+
     it('Search with keyword and sort by other keyword is sorted using the metadata', async () => {
         nock(`${process.env.CT_URL}`)
-            .get(`/v1/metadata?search=keyword`)
-            .twice()
+            .get(`/v1/metadata?search=keyword&sort=metadata`)
+            .once()
             .reply(200, {
                 data: [
                     mapDatasetToMetadataSearchResult(cartoFakeDataset),
@@ -263,16 +346,6 @@ describe('Search datasets tests', () => {
             .twice()
             .reply(200, {
                 data: []
-            });
-
-        nock(`${process.env.CT_URL}`)
-            .get(`/v1/metadata?sort=name&type=dataset&search=keyword`)
-            .once()
-            .reply(200, {
-                data: [
-                    mapDatasetToMetadataSearchResult(cartoFakeDataset),
-                    mapDatasetToMetadataSearchResult(jsonFakeDataset),
-                ]
             });
 
         const responseOne = await requester.get(`/api/v1/dataset?search=keyword&sort=metadata`).send();
@@ -288,17 +361,17 @@ describe('Search datasets tests', () => {
         datasetIdsOne[1].should.equal(jsonFakeDataset._id);
 
         nock(`${process.env.CT_URL}`)
-            .get(`/v1/metadata?sort=name&type=dataset&search=keyword`)
+            .get(`/v1/metadata?search=keyword&sort=metadata`)
             .once()
             .reply(200, {
                 data: [
                     mapDatasetToMetadataSearchResult(jsonFakeDataset),
-                    mapDatasetToMetadataSearchResult(cartoFakeDataset),
+                    mapDatasetToMetadataSearchResult(cartoFakeDataset)
                 ]
             });
 
         const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=metadata`).send();
-        const datasetsTwo = deserializeDataset(responseOne);
+        const datasetsTwo = deserializeDataset(responseTwo);
 
         responseTwo.status.should.equal(200);
         responseTwo.body.should.have.property('data').with.lengthOf(2);
@@ -306,8 +379,8 @@ describe('Search datasets tests', () => {
 
         const datasetIdsTwo = datasetsTwo.map(dataset => dataset.id);
 
-        datasetIdsTwo[0].should.equal(cartoFakeDataset._id);
-        datasetIdsTwo[1].should.equal(jsonFakeDataset._id);
+        datasetIdsTwo[0].should.equal(jsonFakeDataset._id);
+        datasetIdsTwo[1].should.equal(cartoFakeDataset._id);
     });
 
     afterEach(() => {

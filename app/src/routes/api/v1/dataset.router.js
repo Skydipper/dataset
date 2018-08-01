@@ -15,6 +15,7 @@ const DatasetNotValid = require('errors/datasetNotValid.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const { USER_ROLES } = require('app.constants');
+const InvalidRequest = require('errors/invalidRequest.error');
 
 const router = new Router({
     prefix: '/dataset',
@@ -231,12 +232,22 @@ class DatasetRouter {
                 || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0
                 || sort.indexOf('most-favorited') >= 0
                 || sort.indexOf('most-viewed') >= 0
+                || sort.indexOf('relevance') >= 0
                 || sort.indexOf('metadata') >= 0
             ) {
                 let searchIds = null;
                 let conceptIds = null;
+
                 if (search) {
-                    const metadataIds = await RelationshipsService.filterByMetadata(search);
+                    let metadataSort = null;
+                    if (
+                        sort.indexOf('metadata') >= 0
+                        || sort.indexOf('relevance') >= 0
+                    ) {
+                        metadataSort = sort;
+                    }
+
+                    const metadataIds = await RelationshipsService.filterByMetadata(search, metadataSort);
                     const searchBySynonymsIds = await RelationshipsService.searchBySynonyms(serializeObjToQuery(query));
                     const datasetBySearchIds = await DatasetService.getDatasetIdsBySearch(search.split(' '));
                     searchIds = metadataIds.concat(searchBySynonymsIds).concat(datasetBySearchIds);
@@ -248,19 +259,11 @@ class DatasetRouter {
                 ) {
                     conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query));
                 }
-                if (sort.indexOf('metadata') >= 0) {
-                    const queryCopy = Object.assign({}, query);
-                    delete queryCopy.sort;
-                    const sign = sort[sort.indexOf('metadata') - 1] === '-' ? '-' : '';
-                    conceptIds = await RelationshipsService.sortByMetadata(sign, serializeObjToQuery(queryCopy));
-                }
                 if ((searchIds && searchIds.length === 0) || (conceptIds && conceptIds.length === 0)) {
                     ctx.body = DatasetSerializer.serialize([], null);
                     return;
                 }
-                // searchIds = searchIds || [];
-                // conceptIds = conceptIds || [];
-                const finalIds = searchIds && conceptIds ? arrayIntersection(searchIds, conceptIds) : searchIds || conceptIds;
+                const finalIds = searchIds && conceptIds ? arrayIntersection(conceptIds, searchIds) : searchIds || conceptIds;
                 const uniqueIds = new Set([...finalIds]); // Intersect and unique
                 ctx.query.ids = [...uniqueIds].join(); // it has to be string
             }
@@ -276,6 +279,9 @@ class DatasetRouter {
             ctx.set('cache', `dataset ${query.includes ? query.includes.split(',').map(elem => elem.trim()).join(' ') : ''}`);
             ctx.body = DatasetSerializer.serialize(datasets, link);
         } catch (err) {
+            if (err instanceof InvalidRequest) {
+                ctx.throw(400, err);
+            }
             ctx.throw(500, err);
         }
     }
