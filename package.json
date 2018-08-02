@@ -7,7 +7,7 @@
   "scripts": {
     "test": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
     "start": "NODE_PATH=app/src node $NODE_DEBUG_OPTION app/index.js",
-    "coverage": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTestCoverage",
+    "coverage": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js nyc",
     "eslint": "eslint 'app/**/*.js' --fix",
     "precommit": "lint-staged"
   },
@@ -44,14 +44,14 @@
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-express-server": "^0.5.1",
-    "grunt-mocha-istanbul": "^5.0.2",
     "grunt-mocha-test": "^0.13.2",
     "grunt-notify": "^0.4.3",
-    "istanbul": "1.0.0-alpha.2",
+    "grunt-simple-nyc": "^1.1.1",
     "lint-staged": "^7.2.0",
     "load-grunt-tasks": "^3.4.0",
     "mocha": "5.2.0",
     "nock": "9.4.4",
+    "nyc": "^12.0.2",
     "should": "13.2.3"
   },
   "dependencies": {
