@@ -58,7 +58,7 @@ describe('Get datasets tests', () => {
     });
 
     /* Pagination */
-    it('Get 2 datasets', async () => {
+    it('Get a page with 2 datasets using pagination', async () => {
         const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=3`).send();
         const datasets = deserializeDataset(response);
 
@@ -68,8 +68,34 @@ describe('Get datasets tests', () => {
 
         const datasetIds = datasets.map(dataset => dataset.id);
 
-        datasetIds.includes(cartoFakeDataset._id);
-        datasetIds.includes(jsonFakeDataset._id);
+        datasetIds.should.contain(cartoFakeDataset._id);
+        datasetIds.should.contain(jsonFakeDataset._id);
+    });
+
+    it('Get the first page with one dataset using pagination', async () => {
+        const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=1`).send();
+        const datasets = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(1);
+        response.body.should.have.property('links').and.be.an('object');
+
+        const datasetIds = datasets.map(dataset => dataset.id);
+
+        datasetIds.should.contain(cartoFakeDataset._id);
+    });
+
+    it('Get the second page with one dataset using pagination', async () => {
+        const response = await requester.get(`/api/v1/dataset?page[number]=2&page[size]=1`).send();
+        const datasets = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(1);
+        response.body.should.have.property('links').and.be.an('object');
+
+        const datasetIds = datasets.map(dataset => dataset.id);
+
+        datasetIds.should.contain(jsonFakeDataset._id);
     });
 
     afterEach(() => {

@@ -18,8 +18,9 @@ function isObject(property) {
 
 const deserializeDataset = (response) => {
     if (isArray(response.body.data)) {
-        return response.body.data.map(el => el.attributes);
-    } if (isObject(response.body.data)) {
+        return response.body.data;
+    }
+    if (isObject(response.body.data)) {
         return response.body.data.attributes;
     }
     return response;
@@ -67,8 +68,31 @@ const createDataset = (provider) => {
     };
 };
 
+const mapDatasetToMetadataSearchResult = (dataset) => {
+    return {
+        id: getUUID(),
+        type: 'metadata',
+        attributes: {
+            dataset: dataset._id,
+            application: dataset.application[0],
+            resource: {},
+            language: 'en',
+            name: dataset.name,
+            description: dataset.description,
+            license: 'Other',
+            info: {
+                foo: 'bar'
+            },
+            createdAt: '2018-07-17T16:32:45.315Z',
+            updatedAt: '2018-07-17T16:32:45.315Z',
+            status: 'published'
+        }
+    };
+}
+
 module.exports = {
     createDataset,
     deserializeDataset,
+    mapDatasetToMetadataSearchResult,
     getUUID
 };

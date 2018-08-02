@@ -581,6 +581,7 @@ class DatasetService {
         if (
             sort.indexOf('most-favorited') >= 0
             || sort.indexOf('most-viewed') >= 0
+            || sort.indexOf('relevance') >= 0
             || sort.indexOf('metadata') >= 0
         ) {
             options.limit = 999999;
@@ -592,6 +593,7 @@ class DatasetService {
         if (
             sort.indexOf('most-favorited') >= 0
             || sort.indexOf('most-viewed') >= 0
+            || sort.indexOf('relevance') >= 0
             || sort.indexOf('metadata') >= 0
         ) {
             const sortedAndPaginated = manualSortAndPaginate(pages.docs, ids, limit, page); // array, ids, size, page

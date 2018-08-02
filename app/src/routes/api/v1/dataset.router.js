@@ -15,6 +15,7 @@ const DatasetNotValid = require('errors/datasetNotValid.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const { USER_ROLES } = require('app.constants');
+const InvalidRequest = require('errors/invalidRequest.error');
 
 const router = new Router({
     prefix: '/dataset',
@@ -197,83 +198,92 @@ class DatasetRouter {
         const sort = ctx.query.sort || '';
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
         delete query.loggedUser;
-        if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
-            ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
-            logger.debug('Ids from vocabulary-tag', ctx.query.ids);
-        }
-        if (Object.keys(query).find(el => el.indexOf('user.role') >= 0)) {
-            logger.debug('Obtaining users with role');
-            ctx.query.usersRole = await UserService.getUsersWithRole(ctx.query['user.role']);
-            logger.debug('Ids from users with role', ctx.query.usersRole);
-        }
-        if (Object.keys(query).find(el => el.indexOf('collection') >= 0)) {
-            if (!userId) {
-                ctx.throw(403, 'Collection filter not authorized');
-                return;
+        try {
+            if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
+                ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
+                logger.debug('Ids from vocabulary-tag', ctx.query.ids);
             }
-            ctx.query.ids = await RelationshipsService.getCollections(ctx.query.collection, userId);
-            ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
-            logger.debug('Ids from collections', ctx.query.ids);
-        }
-        if (Object.keys(query).find(el => el.indexOf('favourite') >= 0)) {
-            if (!userId) {
-                ctx.throw(403, 'Fav filter not authorized');
-                return;
+            if (Object.keys(query).find(el => el.indexOf('user.role') >= 0)) {
+                logger.debug('Obtaining users with role');
+                ctx.query.usersRole = await UserService.getUsersWithRole(ctx.query['user.role']);
+                logger.debug('Ids from users with role', ctx.query.usersRole);
             }
-            const app = ctx.query.app || ctx.query.application || 'rw';
-            ctx.query.ids = await RelationshipsService.getFavorites(app, userId);
-            ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
-            logger.debug('Ids from collections', ctx.query.ids);
-        }
-        if (
-            search
-            || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0
-            || sort.indexOf('most-favorited') >= 0
-            || sort.indexOf('most-viewed') >= 0
-            || sort.indexOf('metadata') >= 0
-        ) {
-            let searchIds = null;
-            let conceptIds = null;
-            if (search) {
-                const metadataIds = await RelationshipsService.filterByMetadata(search);
-                const searchBySynonmysIds = await RelationshipsService.searchBySynonyms(serializeObjToQuery(query));
-                const datasetBySearchIds = await DatasetService.getDatasetIdsBySearch(search.split(' '));
-                searchIds = metadataIds.concat(searchBySynonmysIds).concat(datasetBySearchIds);
+            if (Object.keys(query).find(el => el.indexOf('collection') >= 0)) {
+                if (!userId) {
+                    ctx.throw(403, 'Collection filter not authorized');
+                    return;
+                }
+                ctx.query.ids = await RelationshipsService.getCollections(ctx.query.collection, userId);
+                ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
+                logger.debug('Ids from collections', ctx.query.ids);
+            }
+            if (Object.keys(query).find(el => el.indexOf('favourite') >= 0)) {
+                if (!userId) {
+                    ctx.throw(403, 'Fav filter not authorized');
+                    return;
+                }
+                const app = ctx.query.app || ctx.query.application || 'rw';
+                ctx.query.ids = await RelationshipsService.getFavorites(app, userId);
+                ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
+                logger.debug('Ids from collections', ctx.query.ids);
             }
             if (
-                serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0
+                search
+                || serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0
                 || sort.indexOf('most-favorited') >= 0
                 || sort.indexOf('most-viewed') >= 0
+                || sort.indexOf('relevance') >= 0
+                || sort.indexOf('metadata') >= 0
             ) {
-                conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query));
+                let searchIds = null;
+                let conceptIds = null;
+
+                if (search) {
+                    let metadataSort = null;
+                    if (
+                        sort.indexOf('metadata') >= 0
+                        || sort.indexOf('relevance') >= 0
+                    ) {
+                        metadataSort = sort;
+                    }
+
+                    const metadataIds = await RelationshipsService.filterByMetadata(search, metadataSort);
+                    const searchBySynonymsIds = await RelationshipsService.searchBySynonyms(serializeObjToQuery(query));
+                    const datasetBySearchIds = await DatasetService.getDatasetIdsBySearch(search.split(' '));
+                    searchIds = metadataIds.concat(searchBySynonymsIds).concat(datasetBySearchIds);
+                }
+                if (
+                    serializeObjToQuery(query).indexOf('concepts[0][0]') >= 0
+                    || sort.indexOf('most-favorited') >= 0
+                    || sort.indexOf('most-viewed') >= 0
+                ) {
+                    conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query));
+                }
+                if ((searchIds && searchIds.length === 0) || (conceptIds && conceptIds.length === 0)) {
+                    ctx.body = DatasetSerializer.serialize([], null);
+                    return;
+                }
+                const finalIds = searchIds && conceptIds ? arrayIntersection(conceptIds, searchIds) : searchIds || conceptIds;
+                const uniqueIds = new Set([...finalIds]); // Intersect and unique
+                ctx.query.ids = [...uniqueIds].join(); // it has to be string
             }
-            if (sort.indexOf('metadata') >= 0) {
-                const queryCopy = Object.assign({}, query);
-                delete queryCopy.sort;
-                const sign = sort[sort.indexOf('metadata') - 1] === '-' ? '-' : '';
-                conceptIds = await RelationshipsService.sortByMetadata(sign, queryCopy);
+            // Links creation
+            const clonedQuery = Object.assign({}, query);
+            delete clonedQuery['page[size]'];
+            delete clonedQuery['page[number]'];
+            delete clonedQuery.ids;
+            const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
+            const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
+            const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
+            const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN');
+            ctx.set('cache', `dataset ${query.includes ? query.includes.split(',').map(elem => elem.trim()).join(' ') : ''}`);
+            ctx.body = DatasetSerializer.serialize(datasets, link);
+        } catch (err) {
+            if (err instanceof InvalidRequest) {
+                ctx.throw(400, err);
             }
-            if ((searchIds && searchIds.length === 0) || (conceptIds && conceptIds.length === 0)) {
-                ctx.body = DatasetSerializer.serialize([], null);
-                return;
-            }
-            // searchIds = searchIds || [];
-            // conceptIds = conceptIds || [];
-            const finalIds = searchIds && conceptIds ? arrayIntersection(searchIds, conceptIds) : searchIds || conceptIds;
-            const uniqueIds = new Set([...finalIds]); // Intersect and unique
-            ctx.query.ids = [...uniqueIds].join(); // it has to be string
+            ctx.throw(500, err);
         }
-        // Links creation
-        const clonedQuery = Object.assign({}, query);
-        delete clonedQuery['page[size]'];
-        delete clonedQuery['page[number]'];
-        delete clonedQuery.ids;
-        const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
-        const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
-        const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
-        const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN');
-        ctx.set('cache', `dataset ${query.includes ? query.includes.split(',').map(elem => elem.trim()).join(' ') : ''}`);
-        ctx.body = DatasetSerializer.serialize(datasets, link);
     }
 
     static async clone(ctx) {

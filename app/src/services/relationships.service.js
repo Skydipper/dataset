@@ -1,6 +1,7 @@
 const logger = require('logger');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const { INCLUDES } = require('app.constants');
+const InvalidRequest = require('errors/invalidRequest.error');
 
 const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
@@ -224,16 +225,25 @@ class RelationshipsService {
         }
     }
 
-    static async filterByMetadata(search) {
+    static async filterByMetadata(search, sort) {
+        let uri = `/metadata?search=${search}`;
+
+        if (sort !== null) {
+            uri = `${uri}&sort=${sort}`;
+        }
+
         try {
             const result = await ctRegisterMicroservice.requestToMicroservice({
-                uri: `/metadata?search=${search}`,
+                uri,
                 method: 'GET',
                 json: true
             });
             logger.debug(result);
             return result.data.map(m => m.attributes.dataset);
         } catch (e) {
+            if (e.statusCode === 400) {
+                throw new InvalidRequest(e.message);
+            }
             throw new Error(e);
         }
     }

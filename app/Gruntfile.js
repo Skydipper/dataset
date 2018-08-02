@@ -25,7 +25,7 @@ module.exports = (grunt) => {
                     mask: '**/*.spec.js',
                     root: 'app/src',
                     nodeExec: require.resolve('.bin/babel-node'),
-                    mochaOptions: ['--compilers', 'js:babel-register', '---timeout=10000']
+                    mochaOptions: ['--compilers', 'js:babel-register', '---timeout=30000']
                 }
             }
         },
