@@ -71,7 +71,6 @@ describe('Sort datasets tests', () => {
         datasetIdsOne[1].should.equal(jsonFakeDataset._id);
     });
 
-
     it('Sort datasets by provider (explicit desc order)', async () => {
         const responseOne = await requester.get(`/api/v1/dataset?sort=-provider`).send();
         const datasetsOne = deserializeDataset(responseOne);
@@ -84,6 +83,15 @@ describe('Sort datasets tests', () => {
 
         datasetIdsOne[0].should.equal(jsonFakeDataset._id);
         datasetIdsOne[1].should.equal(cartoFakeDataset._id);
+    });
+
+    it('Sort datasets by relevance with no search criteria should return invalid query error', async () => {
+        const responseOne = await requester.get(`/api/v1/dataset?sort=-relevance`).send();
+        const datasetsOne = deserializeDataset(responseOne);
+
+        responseOne.status.should.equal(400);
+        responseOne.body.should.have.property('errors').and.be.an('array');
+        responseOne.body.errors[0].should.have.property('detail').and.equal(`Cannot sort by relevance without search criteria`);
     });
 
     afterEach(() => {

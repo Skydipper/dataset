@@ -328,6 +328,8 @@ describe('Search datasets tests', () => {
         const response = await requester.get(`/api/v1/dataset?search=keyword&sort=${encodeURIComponent('+')}relevance`).send();
 
         response.status.should.equal(400);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`400 - {"errors":[{"status":400,"detail":"Sort by relevance ascending not supported"}]}`);
     });
 
     it('Search with keyword and sort by other keyword is sorted using the metadata', async () => {

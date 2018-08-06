@@ -198,6 +198,12 @@ class DatasetRouter {
         const sort = ctx.query.sort || '';
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
         delete query.loggedUser;
+
+        if (!search && sort.indexOf('relevance') >= 0) {
+            ctx.throw(400, 'Cannot sort by relevance without search criteria');
+            return;
+        }
+
         try {
             if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
                 ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
