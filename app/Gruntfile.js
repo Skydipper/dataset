@@ -17,19 +17,6 @@ module.exports = (grunt) => {
             }
         },
 
-        mocha_istanbul: {
-            coverage: {
-                src: 'app/test', // the folder, not the files
-                options: {
-                    coverageFolder: 'coverage',
-                    mask: '**/*.spec.js',
-                    root: 'app/src',
-                    nodeExec: require.resolve('.bin/babel-node'),
-                    mochaOptions: ['--compilers', 'js:babel-register', '---timeout=30000']
-                }
-            }
-        },
-
         mochaTest: {
             e2e: {
                 options: {
@@ -65,17 +52,32 @@ module.exports = (grunt) => {
                 }
             },
 
+        },
+        nyc: {
+            cover: {
+                options: {
+                    include: ['app/src/**'],
+                    exclude: '*.test.*',
+                    reporter: ['lcov', 'text-summary'],
+                    reportDir: 'coverage',
+                    all: true
+                },
+                cmd: false,
+                args: ['grunt', '--gruntfile', 'app/Gruntfile.js', 'mochaTest:e2e']
+            }
         }
     });
 
     grunt.registerTask('e2eTest', ['mochaTest:e2e']);
 
-    grunt.registerTask('e2eTestCoverage', ['mocha_istanbul:coverage']);
+    grunt.registerTask('e2eTestCoverage', ['mocha_nyc:coverage']);
 
     grunt.registerTask('e2eTest-watch', ['watch:e2eTest']);
 
     grunt.registerTask('serve', ['express:dev', 'watch']);
 
     grunt.registerTask('default', 'serve');
+
+    grunt.loadNpmTasks('grunt-simple-nyc');
 
 };
