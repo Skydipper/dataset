@@ -53,6 +53,7 @@ const createDataset = (provider) => {
         application: 'rw',
         attributesPath: `Fake dataset ${uuid} attributes path`,
         connectorType,
+        dataLastUpdated: (new Date().toISOString()),
         sourceApplication: `Fake dataset ${uuid} source application`,
         sourceLanguage: 'en',
         provider,

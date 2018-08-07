@@ -39,7 +39,6 @@ describe('Dataset update tests', () => {
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('object');
         dataset.should.have.property('name').and.equal('other name');
-        // dataset.application.should.be.an.instanceOf(Array).and.have.lengthOf(2);
         dataset.should.have.property('connectorType').and.equal('rest');
         dataset.should.have.property('provider').and.equal('cartodb');
         dataset.should.have.property('connectorUrl').and.equal(cartoFakeDataset.connectorUrl);
@@ -49,6 +48,38 @@ describe('Dataset update tests', () => {
         dataset.should.have.property('overwrite').and.equal(true);
         dataset.legend.should.be.an.instanceOf(Object);
         dataset.clonedHost.should.be.an.instanceOf(Object);
+    });
+
+
+    it('Update a dataset with a valid dataLastUpdated value should work correctly', async () => {
+        const timestamp = new Date().toISOString();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
+            .send({
+                dataLastUpdated: timestamp,
+                loggedUser: ROLES.ADMIN
+            });
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        dataset.should.have.property('dataLastUpdated').and.equal(timestamp);
+    });
+
+
+    it('Update a dataset with an invalid dataLastUpdated should fail', async () => {
+        const response = await requester
+            .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
+            .send({
+                dataLastUpdated: 'potato',
+                loggedUser: ROLES.ADMIN
+            });
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(400);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`- dataLastUpdated: must be an date - `);
     });
 
     afterEach(() => {

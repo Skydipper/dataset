@@ -239,7 +239,8 @@ class DatasetService {
             legend: dataset.legend,
             clonedHost: dataset.clonedHost,
             widgetRelevantProps: dataset.widgetRelevantProps,
-            layerRelevantProps: dataset.layerRelevantProps
+            layerRelevantProps: dataset.layerRelevantProps,
+            dataLastUpdated: dataset.dataLastUpdated
         }).save();
         logger.debug('[DatasetService]: Creating in graph');
         if (stage !== 'staging') {
@@ -371,6 +372,7 @@ class DatasetService {
         currentDataset.widgetRelevantProps = dataset.widgetRelevantProps || currentDataset.widgetRelevantProps;
         currentDataset.layerRelevantProps = dataset.layerRelevantProps || currentDataset.layerRelevantProps;
         currentDataset.updatedAt = new Date();
+        currentDataset.dataLastUpdated = dataset.dataLastUpdated || currentDataset.dataLastUpdated;
         const oldStatus = currentDataset.status;
         if (user.id === 'microservice' && (dataset.status === 0 || dataset.status === 1 || dataset.status === 2)) {
             if (dataset.status === 0) {
@@ -630,6 +632,7 @@ class DatasetService {
         newDataset.provider = 'json';
         newDataset.connectorUrl = dataset.datasetUrl;
         newDataset.tableName = currentDataset.tableName;
+        newDataset.dataLastUpdated = currentDataset.dataLastUpdated;
         newDataset.overwrite = currentDataset.overwrite || currentDataset.dataOverwrite;
         newDataset.published = user.role === 'ADMIN' ? dataset.published || currentDataset.published : false;
         newDataset.legend = dataset.legend;
