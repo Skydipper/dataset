@@ -125,14 +125,15 @@ describe('Dataset create tests', () => {
                 detail: 'Ok'
             });
 
-        const timestamp = new Date().getTime();
+        const timestamp = new Date();
         const dataset = {
-            name: `JSON Dataset - ${timestamp}`,
+            name: `JSON Dataset - ${timestamp.getTime()}`,
             application: ['forest-atlas', 'rw'],
             connectorType: 'document',
             env: 'production',
             provider: 'json',
             dataPath: 'data',
+            dataLastUpdated: timestamp.toISOString(),
             data: {
                 data: [
                     {
@@ -155,8 +156,7 @@ describe('Dataset create tests', () => {
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('object');
-        createdDataset.should.have.property('name').and.equal(`JSON Dataset - ${timestamp}`);
-        // createdDataset.application.should.be.an.instanceOf(Array).and.have.lengthOf(2);
+        createdDataset.should.have.property('name').and.equal(`JSON Dataset - ${timestamp.getTime()}`);
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('json');
         createdDataset.should.have.property('connectorUrl');
@@ -164,6 +164,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
+        createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
     });

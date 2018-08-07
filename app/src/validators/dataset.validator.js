@@ -44,6 +44,14 @@ class DatasetValidator {
         return false;
     }
 
+    static isISOString(property) {
+        if (typeof property === 'string' && property.length > 0) {
+            const date = new Date(property);
+            return !Number.isNaN(date.getTime());
+        }
+        return false;
+    }
+
     static notEmptyArray(property) {
         if (property instanceof Array && property.length > 0) {
             return true;
@@ -199,6 +207,7 @@ class DatasetValidator {
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
         koaObj.checkBody('widgetRelevantProps').optional().check(widgetRelevantProps => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
         koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
+        koaObj.checkBody('dataLastUpdated').optional().check(dataLastUpdated => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
@@ -238,6 +247,7 @@ class DatasetValidator {
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
         koaObj.checkBody('widgetRelevantProps').optional().check(widgetRelevantProps => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
         koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
+        koaObj.checkBody('dataLastUpdated').optional().check(dataLastUpdated => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
         if (koaObj.errors) {
             logger.error('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);

@@ -34,6 +34,7 @@ class DatasetSerializer {
                 taskId: el.taskId,
                 createdAt: el.createdAt,
                 updatedAt: el.updatedAt,
+                dataLastUpdated: el.dataLastUpdated ? el.dataLastUpdated.toISOString() : null,
                 metadata: el.metadata,
                 widget: el.widget,
                 layer: el.layer,

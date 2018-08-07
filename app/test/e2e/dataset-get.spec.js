@@ -37,6 +37,10 @@ describe('Get datasets tests', () => {
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array');
         response.body.should.have.property('links').and.be.an('object');
+
+        const datasetOne = deserializeDataset(response)[0];
+
+        datasetOne.attributes.should.have.property('dataLastUpdated').and.equal(cartoFakeDataset.dataLastUpdated.toISOString());
     });
 
     it('Get an existing dataset by ID should be successful', async () => {

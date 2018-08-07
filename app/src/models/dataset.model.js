@@ -80,6 +80,7 @@ const Dataset = new Schema({
     },
     widgetRelevantProps: [{ type: String, required: false, trim: true }],
     layerRelevantProps: [{ type: String, required: false, trim: true }],
+    dataLastUpdated: { type: Date },
     updatedAt: { type: Date, default: Date.now }
 });
 
