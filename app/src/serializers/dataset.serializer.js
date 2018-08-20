@@ -34,6 +34,7 @@ class DatasetSerializer {
                 taskId: el.taskId,
                 createdAt: el.createdAt,
                 updatedAt: el.updatedAt,
+                dataLastUpdated: el.dataLastUpdated ? el.dataLastUpdated.toISOString() : null,
                 metadata: el.metadata,
                 widget: el.widget,
                 layer: el.layer,
@@ -58,12 +59,10 @@ class DatasetSerializer {
                     data.docs.splice(data.docs.indexOf(undefined), 1);
                 }
                 result.data = data.docs.map(el => DatasetSerializer.serializeElement(el));
+            } else if (Array.isArray(data)) {
+                result.data = DatasetSerializer.serializeElement(data[0]);
             } else {
-                if (Array.isArray(data)) {
-                    result.data = DatasetSerializer.serializeElement(data[0]);
-                } else {
-                    result.data = DatasetSerializer.serializeElement(data);
-                }
+                result.data = DatasetSerializer.serializeElement(data);
             }
         }
         if (link) {

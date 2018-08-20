@@ -5,8 +5,17 @@
   "repository": "https://github.com/resource-watch/dataset",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_PATH=app/src node ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
-    "start": "NODE_PATH=app/src node app/index.js"
+    "test": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
+    "start": "NODE_PATH=app/src node $NODE_DEBUG_OPTION app/index.js",
+    "coverage": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js nyc",
+    "eslint": "eslint 'app/**/*.js' --fix",
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint 'app/**/*.js' --fix",
+      "git add"
+    ]
   },
   "keywords": [
     "dataset",
@@ -17,12 +26,17 @@
   "author": "https://github.com/archelogos",
   "license": "MIT",
   "devDependencies": {
-    "babel-eslint": "^7.2.0",
-    "eslint": "^3.18.0",
-    "eslint-config-airbnb": "^14.1.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-react": "^6.10.0",
+    "babel-cli": "^6.26.0",
+    "babel-eslint": "^7.2.3",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "chai": "4.1.2",
+    "chai-http": "4.0.0 ",
+    "eslint": "5.2.0",
+    "eslint-config-airbnb": "17.0.0",
+    "eslint-plugin-import": "2.13.0",
+    "eslint-plugin-jsx-a11y": "6.1.1",
+    "eslint-plugin-react": "7.10.0",
     "grunt": "^1.0.1",
     "grunt-apidoc": "^0.11.0",
     "grunt-cli": "^1.2.0",
@@ -32,12 +46,13 @@
     "grunt-express-server": "^0.5.1",
     "grunt-mocha-test": "^0.13.2",
     "grunt-notify": "^0.4.3",
+    "grunt-simple-nyc": "^1.1.1",
+    "lint-staged": "^7.2.0",
     "load-grunt-tasks": "^3.4.0",
-    "mocha": "^3.2.0",
-    "should": "^11.2.1",
-    "nock": "^9.0.2",
-    "superagent": "^3.3.1",
-    "supertest": "^3.0.0"
+    "mocha": "5.2.0",
+    "nock": "9.4.4",
+    "nyc": "^12.0.2",
+    "should": "13.2.3"
   },
   "dependencies": {
     "bunyan": "^1.8.5",

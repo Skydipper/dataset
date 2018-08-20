@@ -1,4 +1,4 @@
-const URL = require('url').URL;
+const { URL } = require('url');
 const logger = require('logger');
 const Dataset = require('models/dataset.model');
 const RelationshipsService = require('services/relationships.service');
@@ -17,9 +17,7 @@ const stage = process.env.NODE_ENV;
 const manualSort = (array, sortedIds) => {
     const tempArray = [];
     sortedIds.forEach((id) => {
-        const dataset = array.find((el) => {
-            return el._id === id;
-        });
+        const dataset = array.find(el => el._id === id);
         if (dataset) {
             tempArray.push(dataset);
         }
@@ -27,10 +25,7 @@ const manualSort = (array, sortedIds) => {
     return tempArray;
 };
 
-const manualPaginate = (array, pageSize, pageNumber) => {
-    pageNumber -= 1;
-    return array.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
-};
+const manualPaginate = (array, pageSize, pageNumber) => array.slice((pageNumber - 1) * pageSize, (pageNumber) * pageSize);
 
 const manualSortAndPaginate = (array, sortedIds, size, page) => {
     const sortedArray = manualSort(array, sortedIds);
@@ -43,6 +38,7 @@ const manualSortAndPaginate = (array, sortedIds, size, page) => {
 
 class DatasetService {
 
+    // eslint-disable-next-line consistent-return
     static async getSlug(name) {
         const valid = false;
         let slugTemp = null;
@@ -52,6 +48,7 @@ class DatasetService {
             if (i > 0) {
                 slugTemp += `_${i}`;
             }
+            // eslint-disable-next-line no-await-in-loop
             const currentDataset = await Dataset.findOne({
                 slug: slugTemp
             }).exec();
@@ -69,9 +66,9 @@ class DatasetService {
                     return new URL(dataset.connectorUrl).pathname.split('/tables/')[1].split('/')[0];
                 }
                 return decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split('from ')[1].split(' ')[0];
-            } else if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
+            } if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
                 return new URL(dataset.connectorUrl).pathname.split(/services|FeatureServer/)[1].replace(/\//g, '');
-            } else if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
+            } if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
                 return 'data';
             }
             return dataset.tableName;
@@ -80,9 +77,8 @@ class DatasetService {
         }
     }
 
-    static getFilteredQuery(query, ids = [], search = []) {
-        const collection = query.collection;
-        const favourite = query.favourite;
+    static getFilteredQuery(query, ids = []) {
+        const { collection, favourite } = query;
         if (!query.application && query.app) {
             query.application = query.app;
             if (favourite) {
@@ -129,10 +125,8 @@ class DatasetService {
                     query[param] = { $ne: null };
                     break;
                 case 'Date':
-                    query[param] = query[param];
                     break;
                 default:
-                    query[param] = query[param];
 
                 }
             } else if (param === 'env') {
@@ -245,7 +239,8 @@ class DatasetService {
             legend: dataset.legend,
             clonedHost: dataset.clonedHost,
             widgetRelevantProps: dataset.widgetRelevantProps,
-            layerRelevantProps: dataset.layerRelevantProps
+            layerRelevantProps: dataset.layerRelevantProps,
+            dataLastUpdated: dataset.dataLastUpdated
         }).save();
         logger.debug('[DatasetService]: Creating in graph');
         if (stage !== 'staging') {
@@ -256,7 +251,7 @@ class DatasetService {
                 const result = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
-                newDataset = result[0];
+                [newDataset] = result;
             }
         }
         // if vocabularies
@@ -270,7 +265,7 @@ class DatasetService {
                     const result = await DatasetService.update(newDataset._id, newDataset, {
                         id: 'microservice'
                     });
-                    newDataset = result[0];
+                    [newDataset] = result;
                 }
             }
             try {
@@ -280,7 +275,7 @@ class DatasetService {
                 const result = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
-                newDataset = result[0];
+                [newDataset] = result;
             }
         }
         if (dataset.sync && dataset.connectorType === 'document') {
@@ -377,6 +372,7 @@ class DatasetService {
         currentDataset.widgetRelevantProps = dataset.widgetRelevantProps || currentDataset.widgetRelevantProps;
         currentDataset.layerRelevantProps = dataset.layerRelevantProps || currentDataset.layerRelevantProps;
         currentDataset.updatedAt = new Date();
+        currentDataset.dataLastUpdated = dataset.dataLastUpdated || currentDataset.dataLastUpdated;
         const oldStatus = currentDataset.status;
         if (user.id === 'microservice' && (dataset.status === 0 || dataset.status === 1 || dataset.status === 2)) {
             if (dataset.status === 0) {
@@ -584,14 +580,24 @@ class DatasetService {
             limit,
             sort: filteredSort
         };
-        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0 || sort.indexOf('metadata') >= 0) {
+        if (
+            sort.indexOf('most-favorited') >= 0
+            || sort.indexOf('most-viewed') >= 0
+            || sort.indexOf('relevance') >= 0
+            || sort.indexOf('metadata') >= 0
+        ) {
             options.limit = 999999;
             options.page = 1;
         }
         logger.info(`[DBACCESS-FIND]: dataset`);
         let pages = await Dataset.paginate(filteredQuery, options);
         pages = Object.assign({}, pages);
-        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0 || sort.indexOf('metadata') >= 0) {
+        if (
+            sort.indexOf('most-favorited') >= 0
+            || sort.indexOf('most-viewed') >= 0
+            || sort.indexOf('relevance') >= 0
+            || sort.indexOf('metadata') >= 0
+        ) {
             const sortedAndPaginated = manualSortAndPaginate(pages.docs, ids, limit, page); // array, ids, size, page
             // original values
             pages.docs = sortedAndPaginated.docs;
@@ -626,6 +632,7 @@ class DatasetService {
         newDataset.provider = 'json';
         newDataset.connectorUrl = dataset.datasetUrl;
         newDataset.tableName = currentDataset.tableName;
+        newDataset.dataLastUpdated = currentDataset.dataLastUpdated;
         newDataset.overwrite = currentDataset.overwrite || currentDataset.dataOverwrite;
         newDataset.published = user.role === 'ADMIN' ? dataset.published || currentDataset.published : false;
         newDataset.legend = dataset.legend;
@@ -657,9 +664,7 @@ class DatasetService {
     static async hasPermission(id, user) {
         let permission = true;
         const dataset = await DatasetService.get(id);
-        const appPermission = dataset.application.find(datasetApp =>
-            user.extraUserData.apps.find(app => app === datasetApp)
-        );
+        const appPermission = dataset.application.find(datasetApp => user.extraUserData.apps.find(app => app === datasetApp));
         if (!appPermission) {
             permission = false;
         }
