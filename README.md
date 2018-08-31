@@ -1,5 +1,7 @@
 # Dataset microservice
 
+[![Build Status](https://travis-ci.org/resource-watch/dataset.svg?branch=master)](https://travis-ci.org/resource-watch/dataset)
+
 ## Dataset model
 
 | Property Name           	| Value         	| Description                                	| Required 	| Notes                                                                                                                                                             	|
