@@ -16,6 +16,7 @@ const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const { USER_ROLES } = require('app.constants');
 const InvalidRequest = require('errors/invalidRequest.error');
+const ForbiddenRequest = require('errors/forbiddenRequest.error');
 
 const router = new Router({
     prefix: '/dataset',
@@ -141,6 +142,14 @@ class DatasetRouter {
         } catch (err) {
             if (err instanceof DatasetNotFound) {
                 ctx.throw(404, err.message);
+                return;
+            }
+            if (err instanceof ForbiddenRequest) {
+                ctx.throw(403, err.message);
+                return;
+            }
+            if (err instanceof InvalidRequest) {
+                ctx.throw(400, err.message);
                 return;
             }
             if (err instanceof DatasetDuplicated) {

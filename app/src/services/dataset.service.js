@@ -7,10 +7,13 @@ const SyncService = require('services/sync.service');
 const FileDataService = require('services/fileDataService.service');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const DatasetProtected = require('errors/datasetProtected.error');
+const ForbiddenRequest = require('errors/forbiddenRequest.error');
+const InvalidRequest = require('errors/invalidRequest.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const SyncError = require('errors/sync.error');
 const GraphService = require('services/graph.service');
 const slug = require('slug');
+const { STATUS } = require('app.constants');
 
 const stage = process.env.NODE_ENV;
 
@@ -328,6 +331,17 @@ class DatasetService {
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
+        }
+        if (typeof dataset.status !== 'undefined') {
+            if (user.role !== 'ADMIN' && user.id !== 'microservice') {
+                logger.error(`[DatasetService]: User ${user.id} does not have permission to update status on dataset with id ${id}`);
+                throw new ForbiddenRequest(`User does not have permission to update status on dataset with id ${id}`);
+            }
+            if (!STATUS.includes(dataset.status)) {
+                logger.error(`[DatasetService]: Invalid status '${dataset.status}' for update to dataset with id ${id}`);
+                throw new InvalidRequest(`Invalid status '${dataset.status}' for update to dataset with id ${id}`);
+            }
+            currentDataset.status = dataset.status;
         }
         if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
             dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
