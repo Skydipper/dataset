@@ -9,7 +9,8 @@ const { getTestServer } = require('./test-server');
 const should = chai.should();
 
 const requester = getTestServer();
-
+nock.disableNetConnect();
+nock.enableNetConnect(process.env.HOST_IP);
 
 describe('Dataset create tests', () => {
 
@@ -25,7 +26,7 @@ describe('Dataset create tests', () => {
 
     /* Create a Carto Dataset */
     it('Create a CARTO DB dataset should be successful', async () => {
-        nock(`${process.env.CT_URL}`)
+        nock(process.env.CT_URL)
             .post(/v1\/graph\/dataset\/(\w|-)*$/)
             .once()
             .reply(200, {
@@ -159,6 +160,60 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('name').and.equal(`JSON Dataset - ${timestamp.getTime()}`);
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('json');
+        createdDataset.should.have.property('connectorUrl');
+        createdDataset.should.have.property('tableName');
+        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('status').and.equal('pending');
+        createdDataset.should.have.property('overwrite').and.equal(false);
+        createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
+        createdDataset.legend.should.be.an.instanceOf(Object);
+        createdDataset.clonedHost.should.be.an.instanceOf(Object);
+    });
+
+    /* Create a CSV */
+    it('Create a CSV dataset should be successful', async () => {
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/csv', () => true)
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
+        const timestamp = new Date();
+        const dataset = {
+            name: `CSV Dataset - ${timestamp.getTime()}`,
+            application: ['forest-atlas', 'rw'],
+            connectorType: 'document',
+            connectorUrl: 'https://fake-file.csv',
+            env: 'production',
+            provider: 'csv',
+            dataPath: 'data',
+            dataLastUpdated: timestamp.toISOString(),
+            data: {
+                data: [
+                    {
+                        a: 1,
+                        b: 2
+                    },
+                    {
+                        a: 2,
+                        b: 1
+                    },
+                ]
+            }
+        };
+
+        const response = await requester.post(`/api/v1/dataset`).send({
+            dataset,
+            loggedUser: ROLES.ADMIN
+        });
+        const createdDataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        createdDataset.should.have.property('name').and.equal(`CSV Dataset - ${timestamp.getTime()}`);
+        createdDataset.should.have.property('connectorType').and.equal('document');
+        createdDataset.should.have.property('provider').and.equal('csv');
         createdDataset.should.have.property('connectorUrl');
         createdDataset.should.have.property('tableName');
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
