@@ -75,11 +75,55 @@ describe('Dataset update tests', () => {
                 dataLastUpdated: 'potato',
                 loggedUser: ROLES.ADMIN
             });
-        const dataset = deserializeDataset(response);
 
         response.status.should.equal(400);
         response.body.should.have.property('errors').and.be.an('array');
         response.body.errors[0].should.have.property('detail').and.equal(`- dataLastUpdated: must be an date - `);
+    });
+
+    it('Update status for a dataset as non-admin should fail', async () => {
+        const response = await requester
+            .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
+            .send({
+                status: 'pending',
+                application: ['gfw', 'rw'],
+                loggedUser: ROLES.MANAGER
+            });
+
+        response.status.should.equal(403);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`User does not have permission to update status on dataset with id ${cartoFakeDataset._id}`);
+    });
+
+    it('Update status for a dataset as non-admin with invalid status should fail', async () => {
+        const response = await requester
+            .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
+            .send({
+                status: 'fail',
+                application: ['gfw', 'rw'],
+                loggedUser: ROLES.ADMIN
+            });
+
+        response.status.should.equal(400);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Invalid status 'fail' for update to dataset with id ${cartoFakeDataset._id}`);
+    });
+
+    it('Update status for a dataset as admin with valid status should succeed', async () => {
+        const response = await requester
+            .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
+            .send({
+                status: 'pending',
+                application: ['gfw', 'rw'],
+                loggedUser: ROLES.ADMIN
+            });
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        dataset.should.have.property('status').and.equal('pending');
+        dataset.legend.should.be.an.instanceOf(Object);
+        dataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
     afterEach(() => {
