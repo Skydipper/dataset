@@ -95,7 +95,7 @@ describe('Dataset update tests', () => {
         response.body.errors[0].should.have.property('detail').and.equal(`User does not have permission to update status on dataset with id ${cartoFakeDataset._id}`);
     });
 
-    it('Update status for a dataset as non-admin with invalid status should fail', async () => {
+    it('Update status for a dataset as non-admin with invalid status (string) should fail', async () => {
         const response = await requester
             .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
             .send({
@@ -109,7 +109,21 @@ describe('Dataset update tests', () => {
         response.body.errors[0].should.have.property('detail').and.equal(`Invalid status 'fail' for update to dataset with id ${cartoFakeDataset._id}`);
     });
 
-    it('Update status for a dataset as admin with valid status should succeed', async () => {
+    it('Update status for a dataset as non-admin with invalid status (int) should fail', async () => {
+        const response = await requester
+            .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
+            .send({
+                status: 78,
+                application: ['gfw', 'rw'],
+                loggedUser: ROLES.ADMIN
+            });
+
+        response.status.should.equal(400);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Invalid status '78' for update to dataset with id ${cartoFakeDataset._id}`);
+    });
+
+    it('Update status for a dataset as admin with valid status (string) should succeed', async () => {
         const response = await requester
             .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
             .send({
@@ -122,6 +136,23 @@ describe('Dataset update tests', () => {
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('object');
         dataset.should.have.property('status').and.equal('pending');
+        dataset.legend.should.be.an.instanceOf(Object);
+        dataset.clonedHost.should.be.an.instanceOf(Object);
+    });
+
+    it('Update status for a dataset as admin with valid status (int) should succeed', async () => {
+        const response = await requester
+            .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
+            .send({
+                status: 2,
+                application: ['gfw', 'rw'],
+                loggedUser: ROLES.ADMIN
+            });
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        dataset.should.have.property('status').and.equal('failed');
         dataset.legend.should.be.an.instanceOf(Object);
         dataset.clonedHost.should.be.an.instanceOf(Object);
     });

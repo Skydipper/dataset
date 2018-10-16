@@ -69,9 +69,11 @@ class DatasetService {
                     return new URL(dataset.connectorUrl).pathname.split('/tables/')[1].split('/')[0];
                 }
                 return decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split('from ')[1].split(' ')[0];
-            } if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
+            }
+            if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
                 return new URL(dataset.connectorUrl).pathname.split(/services|FeatureServer/)[1].replace(/\//g, '');
-            } if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
+            }
+            if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
                 return 'data';
             }
             return dataset.tableName;
@@ -337,11 +339,15 @@ class DatasetService {
                 logger.error(`[DatasetService]: User ${user.id} does not have permission to update status on dataset with id ${id}`);
                 throw new ForbiddenRequest(`User does not have permission to update status on dataset with id ${id}`);
             }
-            if (!STATUS.includes(dataset.status)) {
+
+            if (typeof dataset.status === 'string' && STATUS.includes(dataset.status)) {
+                currentDataset.status = dataset.status;
+            } else if (Number.isInteger(dataset.status) && typeof STATUS[dataset.status] !== 'undefined') {
+                currentDataset.status = STATUS[dataset.status];
+            } else {
                 logger.error(`[DatasetService]: Invalid status '${dataset.status}' for update to dataset with id ${id}`);
                 throw new InvalidRequest(`Invalid status '${dataset.status}' for update to dataset with id ${id}`);
             }
-            currentDataset.status = dataset.status;
         }
         if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
             dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
