@@ -435,7 +435,7 @@ const authorizationMiddleware = async (ctx, next) => {
     if (application) {
         const appPermission = application.find(app => user.extraUserData.apps.find(userApp => userApp === app));
         if (!appPermission) {
-            ctx.throw(403, 'Forbidden'); // if manager or admin but no application -> out
+            ctx.throw(403, 'Forbidden - User does not have access to this dataset\'s application'); // if manager or admin but no application -> out
             return;
         }
     }
