@@ -224,6 +224,41 @@ describe('Dataset create tests', () => {
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
+    it('Create a CSV dataset with an app that\'s not part of the user account should fail', async () => {
+        const timestamp = new Date();
+        const dataset = {
+            name: `CSV Dataset - ${timestamp.getTime()}`,
+            application: ['fakeapp'],
+            connectorType: 'document',
+            connectorUrl: 'https://fake-file.csv',
+            env: 'production',
+            provider: 'csv',
+            dataPath: 'data',
+            dataLastUpdated: timestamp.toISOString(),
+            data: {
+                data: [
+                    {
+                        a: 1,
+                        b: 2
+                    },
+                    {
+                        a: 2,
+                        b: 1
+                    },
+                ]
+            }
+        };
+
+        const response = await requester.post(`/api/v1/dataset`).send({
+            dataset,
+            loggedUser: ROLES.ADMIN
+        });
+
+        response.status.should.equal(403);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Forbidden - User does not have access to this dataset's application`);
+    });
+
     afterEach(() => {
         if (!nock.isDone()) {
             throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`);
