@@ -52,6 +52,7 @@ describe('Dataset clone tests', () => {
         dataset.should.have.property('name').and.not.equal(cartoFakeDataset.name);
         response.body.data.should.have.property('id').and.not.equal(cartoFakeDataset._id);
 
+        dataset.should.have.property('application').and.deep.equal(['gfw', 'rw']);
         dataset.should.have.property('connectorType').and.equal('document');
         dataset.should.have.property('provider').and.equal('json');
         dataset.should.have.property('connectorUrl').and.equal('other dataset url');
@@ -62,6 +63,7 @@ describe('Dataset clone tests', () => {
         dataset.legend.should.be.an.instanceOf(Object);
         dataset.clonedHost.should.be.an.instanceOf(Object);
     });
+
     afterEach(() => {
         if (!nock.isDone()) {
             throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`);
