@@ -6,6 +6,7 @@ const config = require('config');
 const loader = require('loader');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
 const ErrorSerializer = require('serializers/error.serializer');
+const sleep = require('sleep');
 
 const mongoUri = process.env.MONGO_URI || `mongodb://${config.get('mongodb.host')}:${config.get('mongodb.port')}/${config.get('mongodb.database')}`;
 const koaValidate = require('koa-validate');
@@ -16,6 +17,8 @@ const koaBody = require('koa-body')({
     formLimit: '50mb',
     textLimit: '50mb'
 });
+
+let retries = 10;
 
 let dbOptions = {};
 // KUBE CLUSTER
@@ -42,9 +45,16 @@ if (mongoUri.indexOf('replicaSet') > -1) {
 
 const onDbReady = (err) => {
     if (err) {
-        logger.error('MongoURI', mongoUri);
-        logger.error(err);
-        throw new Error(err);
+        if (retries >= 0) {
+            retries--;
+            logger.error(`Failed to connect to MongoDB uri ${mongoUri}, retrying...`);
+            sleep.sleep(5);
+            mongoose.connect(mongoUri, onDbReady);
+        } else {
+            logger.error('MongoURI', mongoUri);
+            logger.error(err);
+            throw new Error(err);
+        }
     }
 };
 
