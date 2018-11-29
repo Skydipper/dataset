@@ -89,7 +89,7 @@ const mapDatasetToMetadataSearchResult = (dataset) => {
             status: 'published'
         }
     };
-}
+};
 
 module.exports = {
     createDataset,
