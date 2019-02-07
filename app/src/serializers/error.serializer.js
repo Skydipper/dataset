@@ -5,14 +5,14 @@ class ErrorSerializer {
         let message = '';
         switch (typeParam) {
 
-        case 'body':
-            message = 'Invalid body parameter';
-            break;
-        case 'query':
-            message = 'Invalid query parameter';
-            break;
-        default:
-            message = '';
+            case 'body':
+                message = 'Invalid body parameter';
+                break;
+            case 'query':
+                message = 'Invalid query parameter';
+                break;
+            default:
+                message = '';
 
         }
         return {
