@@ -53,6 +53,7 @@ module.exports = (grunt) => {
             },
 
         },
+
         nyc: {
             cover: {
                 options: {

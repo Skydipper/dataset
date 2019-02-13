@@ -20,6 +20,7 @@ class RelationshipsService {
 
     static async getResources(ids, includes, query = '', users = [], isAdmin = false) {
         logger.info(`Getting resources of ids: ${ids}`);
+        delete query.ids;
         let resources = includes.map(async (include) => {
             const obj = {};
             if (INCLUDES.indexOf(include) >= 0) {
@@ -39,29 +40,36 @@ class RelationshipsService {
                 }
                 if (include === 'user') {
                     payload = {
-                        ids: users
+                        ids: users.filter(element => element !== undefined)
                     };
                     version = false;
                     uri = '/auth';
                 }
+
+                const uriQuery = serializeObjToQuery(RelationshipsService.treatQuery(query));
+
                 try {
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
-                        uri: `${uri}/${include}/find-by-ids?${serializeObjToQuery(RelationshipsService.treatQuery(query))}`,
+                        uri: `${uri}/${include}/find-by-ids?${uriQuery}`,
                         method: 'POST',
                         json: true,
                         body: payload,
                         version
                     });
                 } catch (e) {
-                    logger.error(e);
-                    // throw new Error(e);
+                    logger.error(`Error loading '${include}' resources for dataset: ${e}`);
+                    throw new Error(`Error loading '${include}' resources for dataset: ${e}`);
                 }
             }
             return obj;
         });
         resources = (await Promise.all(resources)); // [array of promises]
         resources.unshift({});
-        resources = resources.reduce((acc, val) => { const key = Object.keys(val)[0]; acc[key] = val[key]; return acc; }); // object with include as keys
+        resources = resources.reduce((acc, val) => {
+            const key = Object.keys(val)[0];
+            acc[key] = val[key];
+            return acc;
+        }); // object with include as keys
         includes.forEach((include) => {
             if (resources[include]) {
                 const { data } = resources[include];
@@ -94,7 +102,10 @@ class RelationshipsService {
     static async getRelationships(datasets, includes, query = '', isAdmin = false) {
         logger.info(`Getting relationships of datasets`, isAdmin);
         datasets.unshift({});
-        const map = datasets.reduce((acc, val) => { acc[val._id] = val; return acc; });
+        const map = datasets.reduce((acc, val) => {
+            acc[val._id] = val;
+            return acc;
+        });
         const users = datasets.map(el => el.userId);
         const ids = Object.keys(map);
         const resources = await RelationshipsService.getResources(ids, includes, query, users, isAdmin);
@@ -284,7 +295,7 @@ class RelationshipsService {
             });
             return result.data;
         } catch (e) {
-            throw new Error(e);
+            throw new Error(`Error searching by label synonyms: ${e}`);
         }
     }
 
