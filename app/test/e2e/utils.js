@@ -69,27 +69,25 @@ const createDataset = (provider) => {
     };
 };
 
-const mapDatasetToMetadataSearchResult = (dataset) => {
-    return {
-        id: getUUID(),
-        type: 'metadata',
-        attributes: {
-            dataset: dataset._id,
-            application: dataset.application[0],
-            resource: {},
-            language: 'en',
-            name: dataset.name,
-            description: dataset.description,
-            license: 'Other',
-            info: {
-                foo: 'bar'
-            },
-            createdAt: '2018-07-17T16:32:45.315Z',
-            updatedAt: '2018-07-17T16:32:45.315Z',
-            status: 'published'
-        }
-    };
-};
+const mapDatasetToMetadataSearchResult = dataset => ({
+    id: getUUID(),
+    type: 'metadata',
+    attributes: {
+        dataset: dataset._id,
+        application: dataset.application[0],
+        resource: {},
+        language: 'en',
+        name: dataset.name,
+        description: dataset.description,
+        license: 'Other',
+        info: {
+            foo: 'bar'
+        },
+        createdAt: '2018-07-17T16:32:45.315Z',
+        updatedAt: '2018-07-17T16:32:45.315Z',
+        status: 'published'
+    }
+});
 
 module.exports = {
     createDataset,

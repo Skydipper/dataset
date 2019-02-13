@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:7.7
+FROM mhart/alpine-node:11.8
 MAINTAINER sergio.gordillo@vizzuality.com
 
 ENV NAME dataset
