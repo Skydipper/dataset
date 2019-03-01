@@ -30,11 +30,8 @@ node {
   try {
 
     stage ('Build docker') {
-      withCredentials([usernamePassword(credentialsId: 'Vizzuality Docker Hub', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
-        sh("docker -H :2375 login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}")
-        sh("docker -H :2375 build -t ${imageTag} .")
-        sh("docker -H :2375 build -t ${dockerUsername}/${appName}:latest .")
-      }
+      sh("docker -H :2375 build -t ${imageTag} .")
+      sh("docker -H :2375 build -t ${dockerUsername}/${appName}:latest .")
     }
 
     stage ('Run Tests') {
