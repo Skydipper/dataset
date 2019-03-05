@@ -663,16 +663,7 @@ class DatasetService {
             hostPath: currentDataset.tableName
         };
         const createdDataset = await DatasetService.create(newDataset, user);
-        logger.debug('[DatasetService]: Creating in graph');
-        // if (stage !== 'staging') {
-        //     try {
-        //         await GraphService.createDataset(createdDataset._id);
-        //     } catch (err) {
-        //         logger.error('Error creating widget in graph. Removing widget');
-        //         await createdDataset.remove();
-        //         throw new Error(err);
-        //     }
-        // }
+        
         if (fullCloning) {
             RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);
             RelationshipsService.cloneMetadatas(id, createdDataset.toObject()._id);
