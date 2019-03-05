@@ -106,23 +106,23 @@ class FileDataService {
         try {
             switch (provider) {
 
-            case 'csv': {
-                const line = await firstline(filePath);
-                if (line) {
-                    fields = line.split(',');
+                case 'csv': {
+                    const line = await firstline(filePath);
+                    if (line) {
+                        fields = line.split(',');
+                    }
+                    break;
                 }
-                break;
-            }
-            case 'tsv': {
-                const line = await firstline(filePath);
-                if (line) {
-                    fields = line.split('\t');
+                case 'tsv': {
+                    const line = await firstline(filePath);
+                    if (line) {
+                        fields = line.split('\t');
+                    }
+                    break;
                 }
-                break;
-            }
 
-            default:
-                break;
+                default:
+                    break;
 
             }
         } catch (err) {

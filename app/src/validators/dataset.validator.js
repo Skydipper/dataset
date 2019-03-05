@@ -148,23 +148,23 @@ class DatasetValidator {
 
         switch (property) {
 
-        case 'connectorType':
-            errorMessage = `must be valid [${Object.keys(CONNECTOR_TYPES).reduce((acc, el) => `${acc}, ${el}`)}]`;
-            break;
-        case 'provider':
-            if (CONNECTOR_TYPES[koaObj.request.body.connectorType]) {
-                errorMessage = `must be valid [${CONNECTOR_TYPES[koaObj.request.body.connectorType].provider.reduce((acc, el) => `${acc}, ${el}`)}]`;
-            } else {
-                errorMessage = `there is no provider for that connectorType`;
-            }
-            break;
-        case 'connectorUrl':
-            errorMessage = `empty or invalid connectorUrl`;
-            break;
-        case 'subscribable':
-            errorMessage = `invalid subscribable object`;
-            break;
-        default:
+            case 'connectorType':
+                errorMessage = `must be valid [${Object.keys(CONNECTOR_TYPES).reduce((acc, el) => `${acc}, ${el}`)}]`;
+                break;
+            case 'provider':
+                if (CONNECTOR_TYPES[koaObj.request.body.connectorType]) {
+                    errorMessage = `must be valid [${CONNECTOR_TYPES[koaObj.request.body.connectorType].provider.reduce((acc, el) => `${acc}, ${el}`)}]`;
+                } else {
+                    errorMessage = `there is no provider for that connectorType`;
+                }
+                break;
+            case 'connectorUrl':
+                errorMessage = `empty or invalid connectorUrl`;
+                break;
+            case 'subscribable':
+                errorMessage = `invalid subscribable object`;
+                break;
+            default:
             // do nothing
 
         }

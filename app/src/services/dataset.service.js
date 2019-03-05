@@ -109,29 +109,29 @@ class DatasetService {
             } else if (param !== 'env' && param !== 'userId' && param !== 'usersRole') {
                 switch (Dataset.schema.paths[param].instance) {
 
-                case 'String':
-                    query[param] = {
-                        $regex: query[param],
-                        $options: 'i'
-                    };
-                    break;
-                case 'Array':
-                    if (query[param].indexOf('@') >= 0) {
+                    case 'String':
                         query[param] = {
-                            $all: query[param].split('@').map(elem => elem.trim())
+                            $regex: query[param],
+                            $options: 'i'
                         };
-                    } else {
-                        query[param] = {
-                            $in: query[param].split(',').map(elem => elem.trim())
-                        };
-                    }
-                    break;
-                case 'Mixed':
-                    query[param] = { $ne: null };
-                    break;
-                case 'Date':
-                    break;
-                default:
+                        break;
+                    case 'Array':
+                        if (query[param].indexOf('@') >= 0) {
+                            query[param] = {
+                                $all: query[param].split('@').map(elem => elem.trim())
+                            };
+                        } else {
+                            query[param] = {
+                                $in: query[param].split(',').map(elem => elem.trim())
+                            };
+                        }
+                        break;
+                    case 'Mixed':
+                        query[param] = { $ne: null };
+                        break;
+                    case 'Date':
+                        break;
+                    default:
 
                 }
             } else if (param === 'env') {
@@ -590,10 +590,9 @@ class DatasetService {
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
-        const search = query.search ? query.search.split(' ').map(elem => elem.trim()) : [];
         const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
-        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids, search);
+        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
             page,
@@ -664,16 +663,7 @@ class DatasetService {
             hostPath: currentDataset.tableName
         };
         const createdDataset = await DatasetService.create(newDataset, user);
-        logger.debug('[DatasetService]: Creating in graph');
-        if (stage !== 'staging') {
-            try {
-                await GraphService.createDataset(newDataset._id);
-            } catch (err) {
-                logger.error('Error creating widget in graph. Removing widget');
-                await createdDataset.remove();
-                throw new Error(err);
-            }
-        }
+        
         if (fullCloning) {
             RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);
             RelationshipsService.cloneMetadatas(id, createdDataset.toObject()._id);
