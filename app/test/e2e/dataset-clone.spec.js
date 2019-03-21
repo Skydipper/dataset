@@ -37,10 +37,60 @@ describe('Dataset clone tests', () => {
                 detail: 'Ok'
             });
 
+        nock(process.env.CT_URL)
+            .post('/v1/doc-datasets/json', (request) => {
+                const expected = {
+                    connectorType: 'document',
+                    provider: 'json',
+                    userId: '1a10d7c6e0a37126611fd7a7',
+                    layerRelevantProps: [],
+                    widgetRelevantProps: [],
+                    clonedHost: {
+                        hostProvider: 'cartodb',
+                        hostUrl: 'http://other.dataset.url',
+                        hostId: cartoFakeDataset._id,
+                        hostType: 'rest',
+                        hostPath: cartoFakeDataset.tableName
+                    },
+                    legend: {
+                        nested: [], country: [], region: [], date: []
+                    },
+                    taskId: null,
+                    protected: false,
+                    geoInfo: false,
+                    env: 'production',
+                    published: true,
+                    mainDateField: null,
+                    errorMessage: null,
+                    verified: false,
+                    overwrite: true,
+                    status: 'pending',
+                    tableName: cartoFakeDataset.tableName,
+                    connectorUrl: 'http://127.0.0.1:9000http://other.dataset.url',
+                    attributesPath: cartoFakeDataset.attributesPath,
+                    dataPath: 'data',
+                    application: ['gfw', 'rw'],
+                    subtitle: cartoFakeDataset.subtitle,
+                    type: null,
+                    connector_url: 'http://127.0.0.1:9000undefined',
+                    attributes_path: cartoFakeDataset.attributesPath,
+                    data_path: 'data',
+                    table_name: cartoFakeDataset.tableName
+                };
+
+                request.connector.should.deep.include(expected);
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
         const response = await requester
             .post(`/api/v1/dataset/${cartoFakeDataset._id}/clone`)
             .send({
-                datasetUrl: 'other dataset url',
+                datasetUrl: 'http://other.dataset.url',
                 application: ['gfw', 'rw'],
                 loggedUser: ROLES.ADMIN
             });
@@ -55,7 +105,7 @@ describe('Dataset clone tests', () => {
         dataset.should.have.property('application').and.deep.equal(['gfw', 'rw']);
         dataset.should.have.property('connectorType').and.equal('document');
         dataset.should.have.property('provider').and.equal('json');
-        dataset.should.have.property('connectorUrl').and.equal('other dataset url');
+        dataset.should.have.property('connectorUrl').and.equal('http://other.dataset.url');
         dataset.should.have.property('tableName').and.equal(cartoFakeDataset.tableName);
         dataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         dataset.should.have.property('status').and.equal('pending');

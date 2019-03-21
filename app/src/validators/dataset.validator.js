@@ -209,7 +209,7 @@ class DatasetValidator {
         koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
         koaObj.checkBody('dataLastUpdated').optional().check(dataLastUpdated => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
         if (koaObj.errors) {
-            logger.error('Error validating dataset creation');
+            logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
         }
         return true;
@@ -249,7 +249,7 @@ class DatasetValidator {
         koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
         koaObj.checkBody('dataLastUpdated').optional().check(dataLastUpdated => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
         if (koaObj.errors) {
-            logger.error('Error validating dataset creation');
+            logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
         }
         return true;
@@ -260,7 +260,7 @@ class DatasetValidator {
         koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('datasetUrl').notEmpty().isAscii();
         if (koaObj.errors) {
-            logger.error('Error validating dataset creation');
+            logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
         }
         return true;
@@ -284,7 +284,7 @@ class DatasetValidator {
             // koaObj.errors = [{
             //     dataset: 'it has to be a valid file'
             // }];
-            logger.error('Error validating dataset creation');
+            logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
         }
         return true;

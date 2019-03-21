@@ -79,6 +79,46 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${cartoFakeDataset._id}/vocabulary/knowledge_graph?application=rw`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${cartoFakeDataset._id}/layer`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${cartoFakeDataset._id}/widget`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${cartoFakeDataset._id}/metadata`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${cartoFakeDataset._id}/vocabulary`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
         const deleteResponse = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
 
         deleteResponse.status.should.equal(200);
