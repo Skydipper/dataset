@@ -201,7 +201,7 @@ class DatasetService {
         }).exec();
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         if (!dataset) {
-            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
+            logger.info(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         if (includes.length > 0) {
@@ -336,7 +336,7 @@ class DatasetService {
         }
         if (typeof dataset.status !== 'undefined') {
             if (user.role !== 'ADMIN' && user.id !== 'microservice') {
-                logger.error(`[DatasetService]: User ${user.id} does not have permission to update status on dataset with id ${id}`);
+                logger.info(`[DatasetService]: User ${user.id} does not have permission to update status on dataset with id ${id}`);
                 throw new ForbiddenRequest(`User does not have permission to update status on dataset with id ${id}`);
             }
 
@@ -345,7 +345,7 @@ class DatasetService {
             } else if (Number.isInteger(dataset.status) && typeof STATUS[dataset.status] !== 'undefined') {
                 currentDataset.status = STATUS[dataset.status];
             } else {
-                logger.error(`[DatasetService]: Invalid status '${dataset.status}' for update to dataset with id ${id}`);
+                logger.info(`[DatasetService]: Invalid status '${dataset.status}' for update to dataset with id ${id}`);
                 throw new InvalidRequest(`Invalid status '${dataset.status}' for update to dataset with id ${id}`);
             }
         }
@@ -663,7 +663,7 @@ class DatasetService {
             hostPath: currentDataset.tableName
         };
         const createdDataset = await DatasetService.create(newDataset, user);
-        
+
         if (fullCloning) {
             RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);
             RelationshipsService.cloneMetadatas(id, createdDataset.toObject()._id);
