@@ -1,4 +1,4 @@
-const URL = require('url').URL;
+const { URL } = require('url');
 const logger = require('logger');
 const Dataset = require('models/dataset.model');
 const RelationshipsService = require('services/relationships.service');
@@ -7,19 +7,20 @@ const SyncService = require('services/sync.service');
 const FileDataService = require('services/fileDataService.service');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const DatasetProtected = require('errors/datasetProtected.error');
+const ForbiddenRequest = require('errors/forbiddenRequest.error');
+const InvalidRequest = require('errors/invalidRequest.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const SyncError = require('errors/sync.error');
 const GraphService = require('services/graph.service');
 const slug = require('slug');
+const { STATUS } = require('app.constants');
 
 const stage = process.env.NODE_ENV;
 
 const manualSort = (array, sortedIds) => {
     const tempArray = [];
     sortedIds.forEach((id) => {
-        const dataset = array.find((el) => {
-            return el._id === id;
-        });
+        const dataset = array.find(el => el._id === id);
         if (dataset) {
             tempArray.push(dataset);
         }
@@ -27,10 +28,7 @@ const manualSort = (array, sortedIds) => {
     return tempArray;
 };
 
-const manualPaginate = (array, pageSize, pageNumber) => {
-    pageNumber -= 1;
-    return array.slice(pageNumber * pageSize, (pageNumber + 1) * pageSize);
-};
+const manualPaginate = (array, pageSize, pageNumber) => array.slice((pageNumber - 1) * pageSize, (pageNumber) * pageSize);
 
 const manualSortAndPaginate = (array, sortedIds, size, page) => {
     const sortedArray = manualSort(array, sortedIds);
@@ -43,8 +41,9 @@ const manualSortAndPaginate = (array, sortedIds, size, page) => {
 
 class DatasetService {
 
+    // eslint-disable-next-line consistent-return
     static async getSlug(name) {
-        let valid = false;
+        const valid = false;
         let slugTemp = null;
         let i = 0;
         while (!valid) {
@@ -52,6 +51,7 @@ class DatasetService {
             if (i > 0) {
                 slugTemp += `_${i}`;
             }
+            // eslint-disable-next-line no-await-in-loop
             const currentDataset = await Dataset.findOne({
                 slug: slugTemp
             }).exec();
@@ -69,9 +69,11 @@ class DatasetService {
                     return new URL(dataset.connectorUrl).pathname.split('/tables/')[1].split('/')[0];
                 }
                 return decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split('from ')[1].split(' ')[0];
-            } else if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
+            }
+            if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
                 return new URL(dataset.connectorUrl).pathname.split(/services|FeatureServer/)[1].replace(/\//g, '');
-            } else if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
+            }
+            if (dataset.provider === 'rwjson' && dataset.connectorUrl) {
                 return 'data';
             }
             return dataset.tableName;
@@ -80,9 +82,8 @@ class DatasetService {
         }
     }
 
-    static getFilteredQuery(query, ids = [], search = []) {
-        const collection = query.collection;
-        const favourite = query.favourite;
+    static getFilteredQuery(query, ids = []) {
+        const { collection, favourite } = query;
         if (!query.application && query.app) {
             query.application = query.app;
             if (favourite) {
@@ -92,6 +93,9 @@ class DatasetService {
         if (!query.env) { // default value
             query.env = 'production';
         }
+        // if (!query.published) { // default value
+        //     query.published = true;
+        // }
         if (query.userId) {
             query.userId = {
                 $eq: query.userId
@@ -105,31 +109,29 @@ class DatasetService {
             } else if (param !== 'env' && param !== 'userId' && param !== 'usersRole') {
                 switch (Dataset.schema.paths[param].instance) {
 
-                case 'String':
-                    query[param] = {
-                        $regex: query[param],
-                        $options: 'i'
-                    };
-                    break;
-                case 'Array':
-                    if (query[param].indexOf('@') >= 0) {
+                    case 'String':
                         query[param] = {
-                            $all: query[param].split('@').map(elem => elem.trim())
+                            $regex: query[param],
+                            $options: 'i'
                         };
-                    } else {
-                        query[param] = {
-                            $in: query[param].split(',').map(elem => elem.trim())
-                        };
-                    }
-                    break;
-                case 'Mixed':
-                    query[param] = { $ne: null };
-                    break;
-                case 'Date':
-                    query[param] = query[param];
-                    break;
-                default:
-                    query[param] = query[param];
+                        break;
+                    case 'Array':
+                        if (query[param].indexOf('@') >= 0) {
+                            query[param] = {
+                                $all: query[param].split('@').map(elem => elem.trim())
+                            };
+                        } else {
+                            query[param] = {
+                                $in: query[param].split(',').map(elem => elem.trim())
+                            };
+                        }
+                        break;
+                    case 'Mixed':
+                        query[param] = { $ne: null };
+                        break;
+                    case 'Date':
+                        break;
+                    default:
 
                 }
             } else if (param === 'env') {
@@ -191,7 +193,7 @@ class DatasetService {
         return filteredSort;
     }
 
-    static async get(id, query = {}) {
+    static async get(id, query = {}, isAdmin = false) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({
@@ -199,11 +201,11 @@ class DatasetService {
         }).exec();
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         if (!dataset) {
-            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
+            logger.info(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         if (includes.length > 0) {
-            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query));
+            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query), isAdmin);
         }
         return dataset;
     }
@@ -242,7 +244,8 @@ class DatasetService {
             legend: dataset.legend,
             clonedHost: dataset.clonedHost,
             widgetRelevantProps: dataset.widgetRelevantProps,
-            layerRelevantProps: dataset.layerRelevantProps
+            layerRelevantProps: dataset.layerRelevantProps,
+            dataLastUpdated: dataset.dataLastUpdated
         }).save();
         logger.debug('[DatasetService]: Creating in graph');
         if (stage !== 'staging') {
@@ -250,9 +253,10 @@ class DatasetService {
                 await GraphService.createDataset(newDataset._id);
             } catch (err) {
                 newDataset.errorMessage = err.message;
-                newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                const result = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
+                [newDataset] = result;
             }
         }
         // if vocabularies
@@ -263,18 +267,20 @@ class DatasetService {
                     await GraphService.associateTags(newDataset._id, dataset.vocabularies);
                 } catch (err) {
                     newDataset.errorMessage = err.message;
-                    newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                    const result = await DatasetService.update(newDataset._id, newDataset, {
                         id: 'microservice'
                     });
+                    [newDataset] = result;
                 }
             }
             try {
                 await RelationshipsService.createVocabularies(newDataset._id, dataset.vocabularies);
             } catch (err) {
                 newDataset.errorMessage = err.message;
-                newDataset = await DatasetService.update(newDataset._id, newDataset, {
+                const result = await DatasetService.update(newDataset._id, newDataset, {
                     id: 'microservice'
                 });
+                [newDataset] = result;
             }
         }
         if (dataset.sync && dataset.connectorType === 'document') {
@@ -328,6 +334,21 @@ class DatasetService {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
+        if (typeof dataset.status !== 'undefined') {
+            if (user.role !== 'ADMIN' && user.id !== 'microservice') {
+                logger.info(`[DatasetService]: User ${user.id} does not have permission to update status on dataset with id ${id}`);
+                throw new ForbiddenRequest(`User does not have permission to update status on dataset with id ${id}`);
+            }
+
+            if (typeof dataset.status === 'string' && STATUS.includes(dataset.status)) {
+                currentDataset.status = dataset.status;
+            } else if (Number.isInteger(dataset.status) && typeof STATUS[dataset.status] !== 'undefined') {
+                currentDataset.status = STATUS[dataset.status];
+            } else {
+                logger.info(`[DatasetService]: Invalid status '${dataset.status}' for update to dataset with id ${id}`);
+                throw new InvalidRequest(`Invalid status '${dataset.status}' for update to dataset with id ${id}`);
+            }
+        }
         if (dataset.connectorUrl && dataset.connectorUrl.indexOf('rw.dataset.raw') >= 0) {
             dataset.connectorUrl = await FileDataService.uploadFileToS3(dataset.connectorUrl);
         }
@@ -371,6 +392,8 @@ class DatasetService {
         currentDataset.widgetRelevantProps = dataset.widgetRelevantProps || currentDataset.widgetRelevantProps;
         currentDataset.layerRelevantProps = dataset.layerRelevantProps || currentDataset.layerRelevantProps;
         currentDataset.updatedAt = new Date();
+        currentDataset.dataLastUpdated = dataset.dataLastUpdated || currentDataset.dataLastUpdated;
+        const oldStatus = currentDataset.status;
         if (user.id === 'microservice' && (dataset.status === 0 || dataset.status === 1 || dataset.status === 2)) {
             if (dataset.status === 0) {
                 currentDataset.status = 'pending';
@@ -409,7 +432,7 @@ class DatasetService {
                 }
             }
         }
-        return newDataset;
+        return [newDataset, newDataset.status !== oldStatus];
     }
 
     static async deleteWidgets(datasetId) {
@@ -432,6 +455,22 @@ class DatasetService {
         logger.info('Deleting layers of dataset', datasetId);
         await ctRegisterMicroservice.requestToMicroservice({
             uri: `/dataset/${datasetId}/metadata`,
+            method: 'DELETE'
+        });
+    }
+
+    static async deleteVocabularies(datasetId) {
+        logger.info('Deleting layers of dataset', datasetId);
+        await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/dataset/${datasetId}/vocabulary`,
+            method: 'DELETE'
+        });
+    }
+
+    static async deleteKnowledgeGraphVocabulary(datasetId, application) {
+        logger.info('Deleting knowledge_graph', datasetId);
+        await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/dataset/${datasetId}/vocabulary/knowledge_graph?application=${application}`,
             method: 'DELETE'
         });
     }
@@ -484,10 +523,15 @@ class DatasetService {
         await DatasetService.checkSecureDeleteResources(id);
 
         logger.info('Checking user apps');
-        user.extraUserData.apps.forEach(app => {
+        user.extraUserData.apps.forEach(async (app) => {
             const idx = currentDataset.application.indexOf(app);
             if (idx > -1) {
                 currentDataset.application.splice(idx, 1);
+                try {
+                    await DatasetService.deleteKnowledgeGraphVocabulary(id, app);
+                } catch (err) {
+                    logger.error(err);
+                }
             }
         });
         let deletedDataset;
@@ -508,13 +552,6 @@ class DatasetService {
                     logger.error(err.message);
                 }
             }
-            logger.debug('[DatasetService]: Deleting in graph');
-            try {
-                await GraphService.deleteDataset(id);
-            } catch (err) {
-                logger.error('Error removing dataset of the graph', err);
-            }
-
             logger.debug('[DatasetService]: Deleting layers');
             try {
                 await DatasetService.deleteLayers(id);
@@ -535,35 +572,51 @@ class DatasetService {
             } catch (err) {
                 logger.error('Error removing metadata', err);
             }
+
+            logger.debug('[DatasetService]: Deleting vocabularies');
+            try {
+                await DatasetService.deleteVocabularies(id);
+            } catch (err) {
+                logger.error('Error removing vocabularies', err);
+            }
             // remove the dataset at the end
             deletedDataset = await currentDataset.remove();
         }
         return deletedDataset;
     }
 
-    static async getAll(query = {}) {
+    static async getAll(query = {}, isAdmin = false) {
         logger.debug(`[DatasetService]: Getting all datasets`);
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
-        const search = query.search ? query.search.split(' ').map(elem => elem.trim()) : [];
         const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
-        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids, search);
+        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
             page,
             limit,
             sort: filteredSort
         };
-        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+        if (
+            sort.indexOf('most-favorited') >= 0
+            || sort.indexOf('most-viewed') >= 0
+            || sort.indexOf('relevance') >= 0
+            || sort.indexOf('metadata') >= 0
+        ) {
             options.limit = 999999;
             options.page = 1;
         }
         logger.info(`[DBACCESS-FIND]: dataset`);
         let pages = await Dataset.paginate(filteredQuery, options);
         pages = Object.assign({}, pages);
-        if (sort.indexOf('most-favorited') >= 0 || sort.indexOf('most-viewed') >= 0) {
+        if (
+            sort.indexOf('most-favorited') >= 0
+            || sort.indexOf('most-viewed') >= 0
+            || sort.indexOf('relevance') >= 0
+            || sort.indexOf('metadata') >= 0
+        ) {
             const sortedAndPaginated = manualSortAndPaginate(pages.docs, ids, limit, page); // array, ids, size, page
             // original values
             pages.docs = sortedAndPaginated.docs;
@@ -573,7 +626,7 @@ class DatasetService {
             pages.pages = Math.ceil(pages.total / pages.limit);
         }
         if (includes.length > 0) {
-            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query));
+            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query), isAdmin);
         }
         return pages;
     }
@@ -598,6 +651,7 @@ class DatasetService {
         newDataset.provider = 'json';
         newDataset.connectorUrl = dataset.datasetUrl;
         newDataset.tableName = currentDataset.tableName;
+        newDataset.dataLastUpdated = currentDataset.dataLastUpdated;
         newDataset.overwrite = currentDataset.overwrite || currentDataset.dataOverwrite;
         newDataset.published = user.role === 'ADMIN' ? dataset.published || currentDataset.published : false;
         newDataset.legend = dataset.legend;
@@ -609,16 +663,7 @@ class DatasetService {
             hostPath: currentDataset.tableName
         };
         const createdDataset = await DatasetService.create(newDataset, user);
-        logger.debug('[DatasetService]: Creating in graph');
-        if (stage !== 'staging') {
-            try {
-                await GraphService.createDataset(newDataset._id);
-            } catch (err) {
-                logger.error('Error creating widget in graph. Removing widget');
-                await createdDataset.remove();
-                throw new Error(err);
-            }
-        }
+
         if (fullCloning) {
             RelationshipsService.cloneVocabularies(id, createdDataset.toObject()._id);
             RelationshipsService.cloneMetadatas(id, createdDataset.toObject()._id);
@@ -629,9 +674,7 @@ class DatasetService {
     static async hasPermission(id, user) {
         let permission = true;
         const dataset = await DatasetService.get(id);
-        const appPermission = dataset.application.find(datasetApp =>
-            user.extraUserData.apps.find(app => app === datasetApp)
-        );
+        const appPermission = dataset.application.find(datasetApp => user.extraUserData.apps.find(app => app === datasetApp));
         if (!appPermission) {
             permission = false;
         }
@@ -644,13 +687,26 @@ class DatasetService {
     static async getDatasetIdsBySearch(search) {
         // are we sure?
         const searchQuery = [
-            { name: new RegExp(search.join('|'), 'i') },
-            { subtitle: new RegExp(search.join('|'), 'i') }
+            { name: new RegExp(search.map(w => `(?=.*${w})`).join(''), 'i') },
+            { subtitle: new RegExp(search.map(w => `(?=.*${w})`).join(''), 'i') }
         ];
         const query = { $or: searchQuery };
         const datasets = await Dataset.find(query);
         const datasetIds = datasets.map(el => el._id);
         return datasetIds;
+    }
+
+    static async recover(id) {
+        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
+            slug: id
+        }).exec();
+        if (!currentDataset) {
+            logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
+            throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
+        }
+        currentDataset.status = 'saved';
+        currentDataset.errorMessage = '';
+        return currentDataset.save();
     }
 
 }

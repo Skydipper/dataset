@@ -2,8 +2,8 @@ const logger = require('logger');
 const fs = require('fs');
 const s3 = require('s3');
 const firstline = require('firstline');
-const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID;
-const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY;
+
+const { S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env;
 
 const S3Client = s3.createClient({
     maxAsyncS3: 20, // this is the default
@@ -85,7 +85,7 @@ class FileDataService {
         // read tmp dir
         fs.readdir('/tmp/', (_, files) => {
             // iterate over them
-            files.forEach(file => {
+            files.forEach((file) => {
                 // upload_* (raw dataset)
                 if (file.indexOf('upload_') >= 0) {
                     // stats
@@ -106,23 +106,23 @@ class FileDataService {
         try {
             switch (provider) {
 
-            case 'csv': {
-                const line = await firstline(filePath);
-                if (line) {
-                    fields = line.split(',');
+                case 'csv': {
+                    const line = await firstline(filePath);
+                    if (line) {
+                        fields = line.split(',');
+                    }
+                    break;
                 }
-                break;
-            }
-            case 'tsv': {
-                const line = await firstline(filePath);
-                if (line) {
-                    fields = line.split('\t');
+                case 'tsv': {
+                    const line = await firstline(filePath);
+                    if (line) {
+                        fields = line.split('\t');
+                    }
+                    break;
                 }
-                break;
-            }
 
-            default:
-                break;
+                default:
+                    break;
 
             }
         } catch (err) {

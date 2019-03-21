@@ -52,9 +52,6 @@ const ROLES = {
     }
 };
 
-const BASE_URL = 'http://localhost:5000/api/v1';
-
 module.exports = {
-    ROLES,
-    BASE_URL
+    ROLES
 };

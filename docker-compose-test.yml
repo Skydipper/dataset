@@ -1,20 +1,22 @@
-test:
-  extends:
-    file: base.yml
-    service: base
-  container_name: dataset-test
-  environment:
-    NODE_ENV: test
-    CT_URL: http://mymachine:9000
-    API_VERSION: v1
-    STAMPERY_TOKEN: token
-  command: test
-  links:
-    - mongo
+version: "3"
+services:
+  test:
+    build: .
+    ports:
+      - "3000:3000"
+    container_name: dataset-test
+    environment:
+      NODE_ENV: test
+      CT_URL: http://mymachine:9000
+      API_VERSION: v1
+      STAMPERY_TOKEN: token
+      MONGO_PORT_27017_TCP_ADDR: mongo
+    command: test
+    depends_on:
+      - mongo
 
-mongo:
-  image: mongo:3.4
-  command: --smallfiles
-  ports:
-    - "27017"
-  restart: always
+  mongo:
+    image: mongo:3.4
+    command: --smallfiles
+    ports:
+      - "27017"
