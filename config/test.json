@@ -6,7 +6,7 @@
         "dirLogFile": null
     },
     "mongodb":{
-        "database": "dataset_db_test",
+        "database": "dataset_test",
         "host": "mymachine",
         "port": 27017
     },

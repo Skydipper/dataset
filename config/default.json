@@ -10,7 +10,7 @@
         "port": 3000
     },
     "mongodb":{
-        "database": "dataset_db",
+        "database": "dataset",
         "host": "mymachine",
         "port": 27017
     },
