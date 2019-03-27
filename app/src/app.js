@@ -76,7 +76,7 @@ app.use(async (ctx, next) => {
             error = inErr;
         }
         ctx.status = error.status || ctx.status || 500;
-        if (this.status >= 500) {
+        if (ctx.status >= 500) {
             logger.error(error);
         } else {
             logger.info(error);
