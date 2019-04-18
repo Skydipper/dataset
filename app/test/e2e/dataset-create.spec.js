@@ -73,9 +73,10 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(true);
-        createdDataset.should.have.property('createdAt');
+        createdDataset.should.have.property('createdAt').and.be.a('string');
+        createdDataset.should.have.property('updatedAt').and.be.a('string');
         createdDataset.should.have.property('dataLastUpdated');
-        new Date(createdDataset.dataLastUpdated).should.afterDate(new Date(createdDataset.createdAt));
+        new Date(createdDataset.updatedAt).should.equalDate(new Date(createdDataset.createdAt));
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
     });
