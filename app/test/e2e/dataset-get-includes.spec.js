@@ -430,6 +430,7 @@ describe('Get datasets with includes tests', () => {
                 clonedHost: {},
                 errorMessage: null,
                 taskId: null,
+                createdAt: cartoFakeDataset.createdAt.toISOString(),
                 updatedAt: cartoFakeDataset.updatedAt.toISOString(),
                 dataLastUpdated: cartoFakeDataset.dataLastUpdated.toISOString(),
                 metadata: [
