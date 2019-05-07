@@ -53,7 +53,22 @@ describe('Dataset clone tests', () => {
                         hostPath: cartoFakeDataset.tableName
                     },
                     legend: {
-                        nested: [], country: [], region: [], date: []
+                        binary: [],
+                        boolean: [],
+                        byte: [],
+                        country: [],
+                        date: [],
+                        double: [],
+                        float: [],
+                        half_float: [],
+                        integer: [],
+                        keyword: [],
+                        nested: [],
+                        region: [],
+                        scaled_float: [],
+                        short: [],
+                        string: [],
+                        text: []
                     },
                     taskId: null,
                     protected: false,

@@ -68,7 +68,23 @@ const Dataset = new Schema({
         date: [{ type: String, required: false, trim: true }],
         region: [{ type: String, required: false, trim: true }],
         country: [{ type: String, required: false, trim: true }],
-        nested: [{ type: String, required: false, trim: true }]
+        nested: [{ type: String, required: false, trim: true }],
+
+        integer: [{ type: String, required: false, trim: true }],
+        short: [{ type: String, required: false, trim: true }],
+        byte: [{ type: String, required: false, trim: true }],
+        double: [{ type: String, required: false, trim: true }],
+        float: [{ type: String, required: false, trim: true }],
+        half_float: [{ type: String, required: false, trim: true }],
+        scaled_float: [{ type: String, required: false, trim: true }],
+
+        boolean: [{ type: String, required: false, trim: true }],
+        binary: [{ type: String, required: false, trim: true }],
+
+        string: [{ type: String, required: false, trim: true }],
+
+        text: [{ type: String, required: false, trim: true }],
+        keyword: [{ type: String, required: false, trim: true }]
     },
     clonedHost: {
         _id: false,
