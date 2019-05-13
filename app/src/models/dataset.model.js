@@ -81,8 +81,6 @@ const Dataset = new Schema({
         boolean: [{ type: String, required: false, trim: true }],
         binary: [{ type: String, required: false, trim: true }],
 
-        string: [{ type: String, required: false, trim: true }],
-
         text: [{ type: String, required: false, trim: true }],
         keyword: [{ type: String, required: false, trim: true }]
     },
