@@ -67,7 +67,7 @@ describe('Dataset clone tests', () => {
                         region: [],
                         scaled_float: [],
                         short: [],
-                        string: [],
+                        keyword: [],
                         text: []
                     },
                     taskId: null,

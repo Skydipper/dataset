@@ -436,7 +436,7 @@ describe('Get datasets with includes tests', () => {
                     region: [],
                     scaled_float: [],
                     short: [],
-                    string: [],
+                    keyword: [],
                     text: []
                 },
                 clonedHost: {},
