@@ -47,7 +47,7 @@ const onDbReady = (err) => {
     if (err) {
         if (retries >= 0) {
             retries--;
-            logger.error(`Failed to connect to MongoDB uri ${mongoUri}, retrying...`);
+            logger.error(`Failed to connect to MongoDB uri ${mongoUri} with error message "${err.message}", retrying...`);
             sleep.sleep(5);
             mongoose.connect(mongoUri, onDbReady);
         } else {
