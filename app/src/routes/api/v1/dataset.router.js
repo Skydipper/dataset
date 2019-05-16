@@ -460,8 +460,8 @@ const authorizationBigQuery = async (ctx, next) => {
     const user = DatasetRouter.getUser(ctx);
     if (ctx.request.body.provider === 'bigquery'
         && (
-            user.email !== 'sergio.gordillo@vizzuality.com'
-            && user.email !== 'raul.requero@vizzuality.com'
+            user.email !== 'enrique.cornejo@vizzuality.com'
+            && user.email !== 'tiago.garcia@vizzuality.com'
             && user.email !== 'alicia.arenzana@vizzuality.com'
         )
     ) {

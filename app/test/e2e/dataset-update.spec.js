@@ -26,7 +26,7 @@ describe('Dataset update tests', () => {
     });
 
     /* Update */
-    it('Update a dataset', async () => {
+    it('Update a dataset (happy case)', async () => {
         const response = await requester
             .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
             .send({
@@ -65,6 +65,7 @@ describe('Dataset update tests', () => {
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('object');
         dataset.should.have.property('dataLastUpdated').and.equal(timestamp);
+        dataset.should.have.property('createdAt').and.equal(cartoFakeDataset.createdAt.toISOString());
     });
 
 
@@ -155,6 +156,7 @@ describe('Dataset update tests', () => {
         dataset.should.have.property('status').and.equal('failed');
         dataset.legend.should.be.an.instanceOf(Object);
         dataset.clonedHost.should.be.an.instanceOf(Object);
+        dataset.should.have.property('createdAt').and.equal(cartoFakeDataset.createdAt.toISOString());
     });
 
     afterEach(() => {
