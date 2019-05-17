@@ -31,8 +31,6 @@ spec:
             value: prod
           - name: NODE_PATH
             value: app/src
-          - name: LOGGER_LEVEL
-            value: debug
           - name: LOCAL_URL
             value: http://{name}.default.svc.cluster.local:3000
           - name: MONGO_URI
