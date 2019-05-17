@@ -7,8 +7,6 @@ ENV USER microservice
 RUN apk update && apk upgrade && \
     apk add --no-cache --update bash git openssh python alpine-sdk
 
-RUN apk add --no-cache --update mongodb
-
 RUN addgroup $USER && adduser -s /bin/bash -D -G $USER $USER
 
 RUN npm install -g grunt-cli bunyan
