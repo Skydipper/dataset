@@ -216,7 +216,7 @@ describe('Dataset create tests', () => {
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
-    it('Create a CSV dataset with data in the body  should be successful', async () => {
+    it('Create a CSV dataset with data in the body should be successful', async () => {
         nock(`${process.env.CT_URL}/v1`)
             .post('/doc-datasets/csv', () => true)
             .reply(200, {
