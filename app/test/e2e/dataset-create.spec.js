@@ -123,8 +123,7 @@ describe('Dataset create tests', () => {
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
-    /* Create a JSON */
-    it('Create a JSON dataset should be successful', async () => {
+    it('Create a JSON dataset with data in the body should be successful', async () => {
         nock(`${process.env.CT_URL}/v1`)
             .post('/doc-datasets/json', () => true)
             .reply(200, {
@@ -166,7 +165,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('name').and.equal(`JSON Dataset - ${timestamp.getTime()}`);
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('json');
-        createdDataset.should.have.property('connectorUrl');
+        createdDataset.should.have.property('connectorUrl').and.equal(null);
         createdDataset.should.have.property('tableName');
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
@@ -176,8 +175,48 @@ describe('Dataset create tests', () => {
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
-    /* Create a CSV */
-    it('Create a CSV dataset should be successful', async () => {
+    it('Create a JSON dataset with data from a file should be successful', async () => {
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/json', () => true)
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
+        const timestamp = new Date();
+        const dataset = {
+            name: `JSON Dataset - ${timestamp.getTime()}`,
+            application: ['forest-atlas', 'rw'],
+            connectorType: 'document',
+            connectorUrl: 'https://fake-file.csv',
+            env: 'production',
+            provider: 'json',
+            dataPath: 'data',
+            dataLastUpdated: timestamp.toISOString()
+        };
+
+        const response = await requester.post(`/api/v1/dataset`).send({
+            dataset,
+            loggedUser: ROLES.ADMIN
+        });
+        const createdDataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        createdDataset.should.have.property('name').and.equal(`JSON Dataset - ${timestamp.getTime()}`);
+        createdDataset.should.have.property('connectorType').and.equal('document');
+        createdDataset.should.have.property('provider').and.equal('json');
+        createdDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+        createdDataset.should.have.property('tableName');
+        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('status').and.equal('pending');
+        createdDataset.should.have.property('overwrite').and.equal(false);
+        createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
+        createdDataset.legend.should.be.an.instanceOf(Object);
+        createdDataset.clonedHost.should.be.an.instanceOf(Object);
+    });
+
+    it('Create a CSV dataset with data in the body should be successful', async () => {
         nock(`${process.env.CT_URL}/v1`)
             .post('/doc-datasets/csv', () => true)
             .reply(200, {
@@ -194,19 +233,7 @@ describe('Dataset create tests', () => {
             env: 'production',
             provider: 'csv',
             dataPath: 'data',
-            dataLastUpdated: timestamp.toISOString(),
-            data: {
-                data: [
-                    {
-                        a: 1,
-                        b: 2
-                    },
-                    {
-                        a: 2,
-                        b: 1
-                    },
-                ]
-            }
+            dataLastUpdated: timestamp.toISOString()
         };
 
         const response = await requester.post(`/api/v1/dataset`).send({
@@ -220,7 +247,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('name').and.equal(`CSV Dataset - ${timestamp.getTime()}`);
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('csv');
-        createdDataset.should.have.property('connectorUrl');
+        createdDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
         createdDataset.should.have.property('tableName');
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
