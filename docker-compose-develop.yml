@@ -16,7 +16,8 @@ develop:
     - mongo
   volumes:
     - ./app:/opt/dataset/app
-
+  extra_hosts:
+    - "mymachine:$MYMACHINE"
 mongo:
   image: mongo:3.4
   container_name: dataset-mongo-develop
