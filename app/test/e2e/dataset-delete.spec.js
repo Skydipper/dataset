@@ -12,6 +12,10 @@ const { getTestServer } = require('./test-server');
 const requester = getTestServer();
 
 let cartoFakeDataset = null;
+let jsonFakeDataset = null;
+
+nock.disableNetConnect();
+nock.enableNetConnect(process.env.HOST_IP);
 
 describe('Dataset delete tests', () => {
 
@@ -23,6 +27,7 @@ describe('Dataset delete tests', () => {
         nock.cleanAll();
 
         cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+        jsonFakeDataset = await new Dataset(createDataset('json')).save();
     });
 
 
@@ -43,7 +48,7 @@ describe('Dataset delete tests', () => {
         response.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${uuid}' doesn't exist`);
     });
 
-    it('Deleting an existing dataset should be successful and return the dataset', async () => {
+    it('Deleting an existing carto dataset should be successful and return the dataset', async () => {
         nock(`${process.env.CT_URL}`)
             .get(`/v1/dataset/${cartoFakeDataset._id}/layer?protected=true`)
             .once()
@@ -141,6 +146,111 @@ describe('Dataset delete tests', () => {
         getResponse.body.should.have.property('errors').and.be.an('array');
         getResponse.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${cartoFakeDataset._id}' doesn't exist`);
     });
+
+
+    it('Deleting an existing json dataset should be successful and return the dataset', async () => {
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/dataset/${jsonFakeDataset._id}/layer?protected=true`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/dataset/${jsonFakeDataset._id}/widget?protected=true`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`, (request) => {
+                const requestDataset = request.connector;
+
+                requestDataset.attributesPath.should.deep.equal(jsonFakeDataset.attributesPath);
+                requestDataset.connectorType.should.deep.equal(jsonFakeDataset.connectorType);
+                requestDataset.connectorUrl.should.deep.equal(jsonFakeDataset.connectorUrl);
+                requestDataset.name.should.deep.equal(jsonFakeDataset.name);
+                requestDataset.overwrite.should.deep.equal(jsonFakeDataset.overwrite);
+                requestDataset.slug.should.deep.equal(jsonFakeDataset.slug);
+                requestDataset.tableName.should.deep.equal(jsonFakeDataset.tableName);
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/vocabulary/knowledge_graph?application=rw`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/layer`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/widget`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/metadata`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/vocabulary`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        const deleteResponse = await requester
+            .delete(`/api/v1/dataset/${jsonFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
+            .send();
+
+        deleteResponse.status.should.equal(200);
+        const createdDataset = deserializeDataset(deleteResponse);
+
+        deleteResponse.status.should.equal(200);
+        deleteResponse.body.should.have.property('data').and.be.an('object');
+        createdDataset.should.have.property('name').and.equal(jsonFakeDataset.name);
+        createdDataset.should.have.property('connectorType').and.equal('document');
+        createdDataset.should.have.property('provider').and.equal('json');
+        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('status').and.equal('saved');
+        createdDataset.should.have.property('overwrite').and.equal(true);
+        createdDataset.legend.should.be.an.instanceOf(Object);
+        createdDataset.clonedHost.should.be.an.instanceOf(Object);
+
+        const getResponse = await requester
+            .get(`/api/v1/dataset/${jsonFakeDataset._id}`)
+            .send();
+
+        getResponse.status.should.equal(404);
+        getResponse.body.should.have.property('errors').and.be.an('array');
+        getResponse.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${jsonFakeDataset._id}' doesn't exist`);
+    });
+
 
     afterEach(() => {
         if (!nock.isDone()) {

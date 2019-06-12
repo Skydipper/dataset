@@ -41,7 +41,7 @@ class DatasetRouter {
         return user;
     }
 
-    static notifyAdapter(ctx, dataset) {
+    static async notifyAdapter(ctx, dataset) {
         const { connectorType, provider } = dataset;
         const clonedDataset = Object.assign({}, dataset.toObject());
         clonedDataset.id = dataset._id;
@@ -68,7 +68,7 @@ class DatasetRouter {
 
         const method = ctx.request.method === 'DELETE' ? 'DELETE' : 'POST';
 
-        ctRegisterMicroservice.requestToMicroservice({
+        return ctRegisterMicroservice.requestToMicroservice({
             uri,
             method,
             json: true,
@@ -164,13 +164,14 @@ class DatasetRouter {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Deleting dataset with id: ${id}`);
         try {
+            const dataset = await DatasetService.get(id);
+
+            // Delete adapter-specific things before deleting the actual dataset. If adapter fails, bail
+            await DatasetRouter.notifyAdapter(ctx, dataset);
+
             const user = DatasetRouter.getUser(ctx);
-            const dataset = await DatasetService.delete(id, user);
-            try {
-                DatasetRouter.notifyAdapter(ctx, dataset);
-            } catch (error) {
-                // do nothing
-            }
+            await DatasetService.delete(id, user);
+
             ctx.set('uncache', `dataset ${dataset.id} ${dataset.slug}`);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
