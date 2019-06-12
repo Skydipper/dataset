@@ -452,7 +452,7 @@ class DatasetService {
     }
 
     static async deleteMetadata(datasetId) {
-        logger.info('Deleting layers of dataset', datasetId);
+        logger.info('Deleting metadata of dataset', datasetId);
         await ctRegisterMicroservice.requestToMicroservice({
             uri: `/dataset/${datasetId}/metadata`,
             method: 'DELETE'
@@ -460,7 +460,7 @@ class DatasetService {
     }
 
     static async deleteVocabularies(datasetId) {
-        logger.info('Deleting layers of dataset', datasetId);
+        logger.info('Deleting vocabularies of dataset', datasetId);
         await ctRegisterMicroservice.requestToMicroservice({
             uri: `/dataset/${datasetId}/vocabulary`,
             method: 'DELETE'
@@ -468,7 +468,7 @@ class DatasetService {
     }
 
     static async deleteKnowledgeGraphVocabulary(datasetId, application) {
-        logger.info('Deleting knowledge_graph', datasetId);
+        logger.info('Deleting knowledge graph of dataset', datasetId);
         await ctRegisterMicroservice.requestToMicroservice({
             uri: `/dataset/${datasetId}/vocabulary/knowledge_graph?application=${application}`,
             method: 'DELETE'
@@ -476,7 +476,7 @@ class DatasetService {
     }
 
     static async checkSecureDeleteResources(id) {
-        logger.info('Checking if it is secure delete the resources(layer, widget) of the dataset');
+        logger.info('Checking if it is safe to delete the associated resources (layer, widget) of the dataset');
         try {
             const layers = await ctRegisterMicroservice.requestToMicroservice({
                 uri: `/dataset/${id}/layer?protected=true`,
@@ -485,7 +485,7 @@ class DatasetService {
             });
             logger.debug(layers);
             if (layers && layers.data.length > 0) {
-                throw new DatasetProtected('Exist protected layers associated to the dataset');
+                throw new DatasetProtected('There are protected layers associated with the dataset');
             }
         } catch (err) {
             logger.error('Error obtaining protected layers of the dataset');
@@ -498,10 +498,10 @@ class DatasetService {
                 json: true
             });
             if (widgets && widgets.data.length > 0) {
-                throw new DatasetProtected('Exist protected widgets associated to the dataset');
+                throw new DatasetProtected('There are widgets layers associated with the dataset');
             }
         } catch (err) {
-            logger.error('Error obtaining protected widgets of the dataset');
+            logger.error('Error obtaining protected widgets for the dataset');
             throw err;
         }
     }
@@ -540,18 +540,6 @@ class DatasetService {
             deletedDataset = await currentDataset.save();
         } else {
             logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
-            if (currentDataset.connectorType === 'document') {
-                try {
-                    await ctRegisterMicroservice.requestToMicroservice({
-                        uri: `/document/${currentDataset._id}`,
-                        method: 'DELETE',
-                        json: true
-                    });
-                    SyncService.delete(currentDataset._id);
-                } catch (err) {
-                    logger.error(err.message);
-                }
-            }
             logger.debug('[DatasetService]: Deleting layers');
             try {
                 await DatasetService.deleteLayers(id);
