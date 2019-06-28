@@ -1,4 +1,3 @@
-
 class DatasetNotFound extends Error {
 
     constructor(message) {

@@ -1,4 +1,3 @@
-
 class ConnectorUrlNotValid extends Error {
 
     constructor(message) {

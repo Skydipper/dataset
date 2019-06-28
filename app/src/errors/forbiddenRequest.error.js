@@ -1,4 +1,3 @@
-
 class ForbiddenRequest extends Error {
 
     constructor(message) {

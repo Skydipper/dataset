@@ -1,4 +1,3 @@
-
 class DatasetProtected extends Error {
 
     constructor(message) {

@@ -1,4 +1,3 @@
-
 class DatasetSerializer {
 
     static serializeElement(el) {

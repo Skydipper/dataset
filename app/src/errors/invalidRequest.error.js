@@ -1,4 +1,3 @@
-
 class InvalidRequest extends Error {
 
     constructor(message) {

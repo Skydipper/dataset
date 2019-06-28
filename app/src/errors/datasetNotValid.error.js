@@ -1,4 +1,3 @@
-
 class DatasetNotValid extends Error {
 
     constructor(messages) {
