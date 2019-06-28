@@ -47,7 +47,7 @@ const onDbReady = (err) => {
     if (err) {
         if (retries >= 0) {
             retries--;
-            logger.error(`Failed to connect to MongoDB uri ${mongoUri}, retrying...`);
+            logger.error(`Failed to connect to MongoDB uri ${mongoUri} with error message "${err.message}", retrying...`);
             sleep.sleep(5);
             mongoose.connect(mongoUri, onDbReady);
         } else {
@@ -72,11 +72,16 @@ app.use(async (ctx, next) => {
         try {
             error = JSON.parse(inErr);
         } catch (e) {
-            logger.error('Could not parse error message - is it JSON?: ', inErr);
+            logger.debug('Could not parse error message - is it JSON?: ', inErr);
             error = inErr;
         }
         ctx.status = error.status || ctx.status || 500;
-        logger.error(error);
+        if (ctx.status >= 500) {
+            logger.error(error);
+        } else {
+            logger.info(error);
+        }
+
         ctx.body = ErrorSerializer.serializeError(ctx.status, error.message);
         if (process.env.NODE_ENV === 'prod' && ctx.status === 500) {
             ctx.body = 'Unexpected error';

@@ -69,11 +69,6 @@ spec:
                 secretKeyRef:
                   name: mssecrets
                   key: S3_SECRET_ACCESS_KEY
-          - name: NEWRELIC_LICENSE
-            valueFrom:
-                secretKeyRef:
-                  name: mssecrets
-                  key: NEWRELIC_LICENSE
           - name: STAMPERY_TOKEN
             valueFrom:
                 secretKeyRef:
