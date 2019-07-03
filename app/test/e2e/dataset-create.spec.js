@@ -27,24 +27,7 @@ describe('Dataset create tests', () => {
 
     /* Create a Carto Dataset */
     it('Create a CARTO DB dataset should be successful', async () => {
-        nock(process.env.CT_URL)
-            .post(/v1\/graph\/dataset\/(\w|-)*$/)
-            .once()
-            .reply(200, {
-                status: 200,
-                detail: 'Ok'
-            });
-
-        nock(`${process.env.CT_URL}/v1`)
-            .post('/rest-datasets/cartodb', () => true)
-            .once()
-            .reply(200, {
-                status: 200,
-                detail: 'Ok'
-            });
-
-        const date = new Date();
-        const timestamp = date.getTime();
+        const timestamp = new Date().getTime();
         const dataset = {
             name: `Carto DB Dataset - ${timestamp}`,
             application: ['rw'],
@@ -54,6 +37,33 @@ describe('Dataset create tests', () => {
             connectorUrl: 'https://wri-01.carto.com/tables/wdpa_protected_areas/table',
             overwrite: true
         };
+
+        nock(process.env.CT_URL)
+            .post(/v1\/graph\/dataset\/(\w|-)*$/)
+            .once()
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/rest-datasets/cartodb', (request) => {
+                request.should.have.property('connector').and.be.an('object');
+                const requestDataset = request.connector;
+
+                requestDataset.should.have.property('name').and.equal(dataset.name);
+                requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
+                requestDataset.should.have.property('application').and.eql(dataset.application);
+                requestDataset.should.have.property('sources').and.eql([]);
+                requestDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
         const response = await requester
             .post(`/api/v1/dataset`)
             .send({
@@ -83,14 +93,6 @@ describe('Dataset create tests', () => {
 
     /* Create a FeatureServer dataset */
     it('Create a FeatureServer dataset should be successful', async () => {
-        nock(`${process.env.CT_URL}/v1`)
-            .post('/rest-datasets/featureservice', () => true)
-            .once()
-            .reply(200, {
-                status: 200,
-                detail: 'Ok'
-            });
-
         const timestamp = new Date().getTime();
         const dataset = {
             name: `FeatureServer Dataset - ${timestamp}`,
@@ -101,6 +103,25 @@ describe('Dataset create tests', () => {
             connectorUrl: 'http://services6.arcgis.com/bIipaUHHcz1GaAsv/arcgis/rest/services/Mineral_Development_Agreements/FeatureServer/0?f=pjson',
             overwrite: true
         };
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/rest-datasets/featureservice', (request) => {
+                request.should.have.property('connector').and.be.an('object');
+                const requestDataset = request.connector;
+
+                requestDataset.should.have.property('name').and.equal(dataset.name);
+                requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
+                requestDataset.should.have.property('application').and.eql(dataset.application);
+                requestDataset.should.have.property('sources').and.eql([]);
+                requestDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
@@ -124,13 +145,6 @@ describe('Dataset create tests', () => {
     });
 
     it('Create a JSON dataset with data in the body should be successful', async () => {
-        nock(`${process.env.CT_URL}/v1`)
-            .post('/doc-datasets/json', () => true)
-            .reply(200, {
-                status: 200,
-                detail: 'Ok'
-            });
-
         const timestamp = new Date();
         const dataset = {
             name: `JSON Dataset - ${timestamp.getTime()}`,
@@ -154,6 +168,25 @@ describe('Dataset create tests', () => {
             }
         };
 
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/json', (request) => {
+                request.should.have.property('connector').and.be.an('object');
+                const requestDataset = request.connector;
+
+                requestDataset.should.have.property('name').and.equal(dataset.name);
+                requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
+                requestDataset.should.have.property('application').and.eql(dataset.application);
+                requestDataset.should.have.property('data').and.deep.equal(dataset.data);
+                requestDataset.should.have.property('sources').and.eql([]);
+                requestDataset.should.have.property('connectorUrl').and.equal(null);
+
+                return true;
+            })
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
             loggedUser: ROLES.ADMIN
@@ -176,13 +209,6 @@ describe('Dataset create tests', () => {
     });
 
     it('Create a JSON dataset with data from a file should be successful', async () => {
-        nock(`${process.env.CT_URL}/v1`)
-            .post('/doc-datasets/json', () => true)
-            .reply(200, {
-                status: 200,
-                detail: 'Ok'
-            });
-
         const timestamp = new Date();
         const dataset = {
             name: `JSON Dataset - ${timestamp.getTime()}`,
@@ -194,6 +220,24 @@ describe('Dataset create tests', () => {
             dataPath: 'data',
             dataLastUpdated: timestamp.toISOString()
         };
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/json', (request) => {
+                request.should.have.property('connector').and.be.an('object');
+                const requestDataset = request.connector;
+
+                requestDataset.should.have.property('name').and.equal(dataset.name);
+                requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
+                requestDataset.should.have.property('application').and.eql(dataset.application);
+                requestDataset.should.have.property('sources').and.eql([]);
+                requestDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+
+                return true;
+            })
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
@@ -217,13 +261,6 @@ describe('Dataset create tests', () => {
     });
 
     it('Create a JSON dataset with data from multiple files should be successful', async () => {
-        nock(`${process.env.CT_URL}/v1`)
-            .post('/doc-datasets/json', () => true)
-            .reply(200, {
-                status: 200,
-                detail: 'Ok'
-            });
-
         const timestamp = new Date();
         const dataset = {
             name: `JSON Dataset - ${timestamp.getTime()}`,
@@ -239,6 +276,25 @@ describe('Dataset create tests', () => {
             dataPath: 'data',
             dataLastUpdated: timestamp.toISOString()
         };
+
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/json', (request) => {
+                request.should.have.property('connector').and.be.an('object');
+                const requestDataset = request.connector;
+
+                requestDataset.should.have.property('name').and.equal(dataset.name);
+                requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
+                requestDataset.should.have.property('application').and.eql(dataset.application);
+                requestDataset.should.have.property('sources').and.eql(dataset.sources);
+                requestDataset.should.have.property('connectorUrl').and.equal(null);
+
+                return true;
+            })
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
@@ -263,13 +319,6 @@ describe('Dataset create tests', () => {
     });
 
     it('Create a CSV dataset with data in the body should be successful', async () => {
-        nock(`${process.env.CT_URL}/v1`)
-            .post('/doc-datasets/csv', () => true)
-            .reply(200, {
-                status: 200,
-                detail: 'Ok'
-            });
-
         const timestamp = new Date();
         const dataset = {
             name: `CSV Dataset - ${timestamp.getTime()}`,
@@ -281,6 +330,24 @@ describe('Dataset create tests', () => {
             dataPath: 'data',
             dataLastUpdated: timestamp.toISOString()
         };
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/csv', (request) => {
+                request.should.have.property('connector').and.be.an('object');
+                const requestDataset = request.connector;
+
+                requestDataset.should.have.property('name').and.equal(dataset.name);
+                requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
+                requestDataset.should.have.property('application').and.eql(dataset.application);
+                requestDataset.should.have.property('sources').and.eql([]);
+                requestDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+
+                return true;
+            })
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
