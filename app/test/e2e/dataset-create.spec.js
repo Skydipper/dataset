@@ -178,7 +178,7 @@ describe('Dataset create tests', () => {
                 requestDataset.should.have.property('application').and.eql(dataset.application);
                 requestDataset.should.have.property('data').and.deep.equal(dataset.data);
                 requestDataset.should.have.property('sources').and.eql([]);
-                requestDataset.should.have.property('connectorUrl').and.equal(null);
+                requestDataset.should.not.have.property('connectorUrl');
 
                 return true;
             })
@@ -229,8 +229,8 @@ describe('Dataset create tests', () => {
                 requestDataset.should.have.property('name').and.equal(dataset.name);
                 requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
                 requestDataset.should.have.property('application').and.eql(dataset.application);
-                requestDataset.should.have.property('sources').and.eql([]);
-                requestDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+                requestDataset.should.have.property('sources').and.eql([dataset.connectorUrl]);
+                requestDataset.should.not.have.property('connectorUrl');
 
                 return true;
             })
@@ -287,7 +287,7 @@ describe('Dataset create tests', () => {
                 requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
                 requestDataset.should.have.property('application').and.eql(dataset.application);
                 requestDataset.should.have.property('sources').and.eql(dataset.sources);
-                requestDataset.should.have.property('connectorUrl').and.equal(null);
+                requestDataset.should.not.have.property('connectorUrl');
 
                 return true;
             })
@@ -318,6 +318,111 @@ describe('Dataset create tests', () => {
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
+    it('Create a JSON dataset with data from files in `sources` and `connectorUrl` should fail', async () => {
+        const timestamp = new Date();
+        const dataset = {
+            name: `JSON Dataset - ${timestamp.getTime()}`,
+            application: ['forest-atlas', 'rw'],
+            connectorType: 'document',
+            sources: [
+                'https://fake-file-0.json',
+                'https://fake-file-1.json',
+                'https://fake-file-2.json'
+            ],
+            connectorUrl: 'https://fake-file-3.json',
+            env: 'production',
+            provider: 'json',
+            dataPath: 'data',
+            dataLastUpdated: timestamp.toISOString()
+        };
+
+        const response = await requester.post(`/api/v1/dataset`).send({
+            dataset,
+            loggedUser: ROLES.ADMIN
+        });
+        const createdDataset = deserializeDataset(response);
+
+        response.status.should.equal(400);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal('- connectorUrl: Specify either `connectorUrl`, `sources` or `data` - ');
+    });
+
+    it('Create a JSON dataset with data from files in `connectorUrl` and data in the body should fail', async () => {
+        const timestamp = new Date();
+        const dataset = {
+            name: `JSON Dataset - ${timestamp.getTime()}`,
+            application: ['forest-atlas', 'rw'],
+            connectorType: 'document',
+            connectorUrl: 'https://fake-file-0.json',
+            data: {
+                data: [
+                    {
+                        a: 1,
+                        b: 2
+                    },
+                    {
+                        a: 2,
+                        b: 1
+                    },
+                ]
+            },
+            env: 'production',
+            provider: 'json',
+            dataPath: 'data',
+            dataLastUpdated: timestamp.toISOString()
+        };
+
+        const response = await requester.post(`/api/v1/dataset`).send({
+            dataset,
+            loggedUser: ROLES.ADMIN
+        });
+        const createdDataset = deserializeDataset(response);
+
+        response.status.should.equal(400);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal('- connectorUrl: Specify either `connectorUrl`, `sources` or `data` - ');
+    });
+
+    it('Create a JSON dataset with data from files in `sources` and data in the body should fail', async () => {
+        const timestamp = new Date();
+        const dataset = {
+            name: `JSON Dataset - ${timestamp.getTime()}`,
+            application: ['forest-atlas', 'rw'],
+            connectorType: 'document',
+            sources: [
+                'https://fake-file-0.json',
+                'https://fake-file-1.json',
+                'https://fake-file-2.json'
+            ],
+            data: {
+                data: [
+                    {
+                        a: 1,
+                        b: 2
+                    },
+                    {
+                        a: 2,
+                        b: 1
+                    },
+                ]
+            },
+            env: 'production',
+            provider: 'json',
+            dataPath: 'data',
+            dataLastUpdated: timestamp.toISOString()
+        };
+
+        const response = await requester.post(`/api/v1/dataset`).send({
+            dataset,
+            loggedUser: ROLES.ADMIN
+        });
+        const createdDataset = deserializeDataset(response);
+
+        response.status.should.equal(400);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal('- connectorUrl: Specify either `connectorUrl`, `sources` or `data` - ');
+    });
+
     it('Create a CSV dataset with data in the body should be successful', async () => {
         const timestamp = new Date();
         const dataset = {
@@ -339,8 +444,8 @@ describe('Dataset create tests', () => {
                 requestDataset.should.have.property('name').and.equal(dataset.name);
                 requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
                 requestDataset.should.have.property('application').and.eql(dataset.application);
-                requestDataset.should.have.property('sources').and.eql([]);
-                requestDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+                requestDataset.should.have.property('sources').and.eql([dataset.connectorUrl]);
+                requestDataset.should.not.have.property('connectorUrl');
 
                 return true;
             })
@@ -380,19 +485,7 @@ describe('Dataset create tests', () => {
             env: 'production',
             provider: 'csv',
             dataPath: 'data',
-            dataLastUpdated: timestamp.toISOString(),
-            data: {
-                data: [
-                    {
-                        a: 1,
-                        b: 2
-                    },
-                    {
-                        a: 2,
-                        b: 1
-                    },
-                ]
-            }
+            dataLastUpdated: timestamp.toISOString()
         };
 
         const response = await requester.post(`/api/v1/dataset`).send({

@@ -51,6 +51,7 @@ class DatasetRouter {
         clonedDataset.data_path = dataset.dataPath;
         clonedDataset.table_name = dataset.tableName;
         clonedDataset.data = ctx.request.body.data;
+
         let uri = '';
         if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
@@ -71,6 +72,42 @@ class DatasetRouter {
         return ctRegisterMicroservice.requestToMicroservice({
             uri,
             method,
+            json: true,
+            body: { connector: clonedDataset }
+        });
+    }
+
+    static async notifyAdapterCreate(ctx, dataset) {
+        const { connectorType, provider } = dataset;
+        const clonedDataset = Object.assign({}, dataset.toObject());
+
+        clonedDataset.id = dataset._id;
+        clonedDataset.connector_url = dataset.connectorUrl;
+        clonedDataset.attributes_path = dataset.attributesPath;
+        clonedDataset.data_columns = dataset.datasetAttributes;
+        clonedDataset.data_path = dataset.dataPath;
+        clonedDataset.table_name = dataset.tableName;
+        clonedDataset.data = ctx.request.body.data;
+
+        let uri = '';
+        if (connectorType === 'rest') {
+            uri += `/rest-datasets/${provider}`;
+        } else if (connectorType === 'document') {
+            uri += `/doc-datasets/${provider}`;
+            if (!clonedDataset.sources || !clonedDataset.sources.length) {
+                if (clonedDataset.connectorUrl) {
+                    clonedDataset.sources = [clonedDataset.connectorUrl];
+                } else {
+                    clonedDataset.sources = [];
+                }
+            }
+            delete clonedDataset.connector_url;
+            delete clonedDataset.connectorUrl;
+        }
+
+        return ctRegisterMicroservice.requestToMicroservice({
+            uri,
+            method: 'POST',
             json: true,
             body: { connector: clonedDataset }
         });
@@ -104,7 +141,7 @@ class DatasetRouter {
             const user = DatasetRouter.getUser(ctx);
             const dataset = await DatasetService.create(ctx.request.body, user);
             try {
-                DatasetRouter.notifyAdapter(ctx, dataset);
+                DatasetRouter.notifyAdapterCreate(ctx, dataset);
             } catch (error) {
                 // do nothing
                 logger.error(error);

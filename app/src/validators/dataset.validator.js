@@ -211,6 +211,11 @@ class DatasetValidator {
             .toLow()
             .check(provider => DatasetValidator.checkProvider(provider, koaObj), DatasetValidator.errorMessage('provider', koaObj));
         // connectorUrl
+
+        if ([koaObj.checkBody('connectorUrl').exists, koaObj.checkBody('sources').exists, koaObj.checkBody('data').exists].filter(e => e).length > 1) {
+            koaObj.checkBody('connectorUrl').addError('Specify either `connectorUrl`, `sources` or `data`');
+        }
+
         koaObj.checkBody('connectorUrl').check(connectorUrl => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
         koaObj.checkBody('sources').check(sources => DatasetValidator.checkSources(sources, koaObj), DatasetValidator.errorMessage('sources'));
         koaObj.checkBody('tableName').optional().check(tableName => DatasetValidator.isString(tableName), 'must be a string');
