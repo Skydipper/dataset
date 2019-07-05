@@ -32,6 +32,9 @@ const Dataset = new Schema({
     connectorUrl: {
         type: String, required: false, trim: true, default: null
     },
+    sources: [{
+        type: String, required: false, trim: true, default: null
+    }],
     tableName: {
         type: String, required: false, trim: true, default: null
     },

@@ -233,6 +233,7 @@ class DatasetService {
             env: dataset.env || 'production',
             geoInfo: dataset.geoInfo || false,
             connectorUrl: dataset.connectorUrl,
+            sources: dataset.sources,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
             status: dataset.connectorType === 'wms' ? 'saved' : 'pending',
