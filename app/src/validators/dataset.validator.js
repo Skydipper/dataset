@@ -83,7 +83,7 @@ class DatasetValidator {
     static checkConnectorUrl(connectorUrl, koaObj) {
         let validation = false;
         const {
-            connectorType, provider, data, tableName
+            connectorType, provider, data, tableName, sources
         } = koaObj.request.body;
 
         // it is a document - json?
@@ -92,7 +92,9 @@ class DatasetValidator {
             if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
                 validation = true;
                 // if data is not provided, check if url is valid
-            } else if (DatasetValidator.validUrl(connectorUrl) || connectorUrl.indexOf('rw.dataset.raw') >= 0) {
+            } else if (connectorUrl && (DatasetValidator.validUrl(connectorUrl) || connectorUrl.indexOf('rw.dataset.raw') >= 0)) {
+                validation = true;
+            } else if (!connectorUrl && sources) {
                 validation = true;
             } else {
                 validation = false;
@@ -108,9 +110,29 @@ class DatasetValidator {
             }
             // in other cases just validate url
         } else if (connectorUrl && (DatasetValidator.validUrl(connectorUrl) || connectorUrl.indexOf('rw.dataset.raw') >= 0)) {
-            validation = true;
+            validation = connectorUrl || (!connectorUrl && sources);
         }
         return validation;
+    }
+
+    static checkSources(sources, koaObj) {
+        const {
+            connectorType, connectorUrl, provider, data
+        } = koaObj.request.body;
+
+        if (connectorType !== 'document') {
+            return true;
+        }
+
+        if (connectorUrl && !sources) {
+            return true;
+        }
+
+        if (provider === 'json' && (DatasetValidator.isArray(data) || DatasetValidator.isObject(data))) {
+            return true;
+        }
+
+        return DatasetValidator.isArray(sources);
     }
 
     static checkSubscribable(subscribable) {
@@ -189,7 +211,13 @@ class DatasetValidator {
             .toLow()
             .check(provider => DatasetValidator.checkProvider(provider, koaObj), DatasetValidator.errorMessage('provider', koaObj));
         // connectorUrl
+
+        if ([koaObj.checkBody('connectorUrl').exists, koaObj.checkBody('sources').exists, koaObj.checkBody('data').exists].filter(e => e).length > 1) {
+            koaObj.checkBody('connectorUrl').addError('Specify either `connectorUrl`, `sources` or `data`');
+        }
+
         koaObj.checkBody('connectorUrl').check(connectorUrl => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
+        koaObj.checkBody('sources').check(sources => DatasetValidator.checkSources(sources, koaObj), DatasetValidator.errorMessage('sources'));
         koaObj.checkBody('tableName').optional().check(tableName => DatasetValidator.isString(tableName), 'must be a string');
         koaObj.checkBody('published').optional().toBoolean();
         koaObj.checkBody('overwrite').optional().toBoolean();

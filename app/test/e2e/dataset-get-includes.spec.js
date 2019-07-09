@@ -236,7 +236,8 @@ describe('Get datasets with includes tests', () => {
                                         label: 'Tcl_name',
                                         key: 'x'
                                     }, { format: '.2s', label: 'Shape_Area', key: 'y' }]
-                                }, name: 'tooltip'
+                                },
+                                name: 'tooltip'
                             }],
                             marks: [{
                                 axes: [{
@@ -330,7 +331,8 @@ describe('Get datasets with includes tests', () => {
                                     summarize: [{
                                         ops: ['distinct'],
                                         field: 'x'
-                                    }], type: 'aggregate'
+                                    }],
+                                    type: 'aggregate'
                                 }, { expr: '(datum["distinct_x"] + 1) * 25', field: 'width', type: 'formula' }],
                                 source: 'table',
                                 name: 'layout'
@@ -524,7 +526,8 @@ describe('Get datasets with includes tests', () => {
                             }, { color: '#FF5C00', name: 'Tx2 tiger conservation landscapes' }, {
                                 color: '#229a00',
                                 name: 'Terai arc landscape corridors'
-                            }], type: 'basic'
+                            }],
+                            type: 'basic'
                         },
                         interactionConfig: {
                             output: [{
@@ -654,6 +657,7 @@ describe('Get datasets with includes tests', () => {
                 provider: 'cartodb',
                 userId: '1a10d7c6e0a37126611fd7a7',
                 connectorUrl: cartoFakeDataset.connectorUrl,
+                sources: [],
                 tableName: cartoFakeDataset.tableName,
                 status: 'saved',
                 published: true,
@@ -679,7 +683,6 @@ describe('Get datasets with includes tests', () => {
                     region: [],
                     scaled_float: [],
                     short: [],
-                    keyword: [],
                     text: []
                 },
                 clonedHost: {},
