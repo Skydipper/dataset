@@ -373,6 +373,7 @@ class DatasetRouter {
                 fields
             };
         } catch (err) {
+            logger.error('Error uploading file', err);
             ctx.throw(500, 'Error uploading file');
         }
     }
