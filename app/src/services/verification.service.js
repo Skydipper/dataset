@@ -10,15 +10,7 @@ class VerificationService {
 
     async getVerificationData(id) {
         logger.debug('Getting verification data');
-        return new Promise((resolve, reject) => {
-            this.stampery.getById(id, (err, res) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(res);
-            });
-        });
+        return this.stampery.getById(id);
     }
 
 }

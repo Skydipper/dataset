@@ -70,7 +70,7 @@
     "request-promise": "^4.1.1",
     "sleep": "^5.2.3",
     "slug": "^0.9.1",
-    "stampery": "^6.0.2",
+    "stampery": "^6.1.0",
     "uuid": "^3.0.1"
   }
 }
