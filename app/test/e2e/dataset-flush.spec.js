@@ -44,12 +44,24 @@ describe('Upload raw data', () => {
         response.status.should.equal(403);
     });
 
-    it('Successfully flush a dataset for MANAGER', async () => {
+    it('Return 404 error if the dataset doesn\'t exit', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
-            .field('loggedUser', JSON.stringify(ROLES.MANAGER))
+            .field('loggedUser', JSON.stringify(ROLES.USER))
             .send();
 
-        response.status.should.equal(200);
+        response.status.should.equal(403);
+    });
+
+    it('Successfully flush a dataset for MANAGER and ADMIN', async () => {
+        const responseManager = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+            .field('loggedUser', JSON.stringify(ROLES.MANAGER))
+            .send();
+        const responseAdmin = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+            .field('loggedUser', JSON.stringify(ROLES.ADMIN))
+            .send();
+
+        responseManager.status.should.equal(200);
+        responseAdmin.status.should.equal(200);
     });
 
     afterEach(() => {
