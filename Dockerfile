@@ -1,5 +1,5 @@
-FROM mhart/alpine-node:11.8
-MAINTAINER sergio.gordillo@vizzuality.com
+FROM node:12.6-alpine
+MAINTAINER info@vizzuality.com
 
 ENV NAME dataset
 ENV USER microservice
