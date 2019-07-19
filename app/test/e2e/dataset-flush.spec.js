@@ -42,7 +42,7 @@ describe('Upload raw data', () => {
         ensureCorrectError(response.body, 'Forbidden');
     });
 
-    it('Return 404 error if the dataset doesn\'t exit', async () => {
+    it('Return 403 error if the dataset doesn\'t exit', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
             .field('loggedUser', JSON.stringify(ROLES.USER))
             .send();
@@ -51,16 +51,20 @@ describe('Upload raw data', () => {
         ensureCorrectError(response.body, 'Forbidden');
     });
 
-    it('Successfully flush a dataset for MANAGER and ADMIN', async () => {
-        const responseManager = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+    it('Successfully flush a dataset as a MANAGER', async () => {
+        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
             .field('loggedUser', JSON.stringify(ROLES.MANAGER))
             .send();
-        const responseAdmin = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+
+        response.status.should.equal(200);
+    });
+
+    it('Successfully flush a dataset as an ADMIN', async () => {
+        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
             .field('loggedUser', JSON.stringify(ROLES.ADMIN))
             .send();
 
-        responseManager.status.should.equal(200);
-        responseAdmin.status.should.equal(200);
+        response.status.should.equal(200);
     });
 
     afterEach(() => {

@@ -33,18 +33,22 @@ describe('Upload raw data', () => {
         ensureCorrectError(response.body, 'Unauthorized');
     });
 
-    it('Return 401 error if role is either USER or MANAGER', async () => {
-        const responseUser = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
+    it('Return 401 error if role is USER', async () => {
+        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
             .field('loggedUser', JSON.stringify(ROLES.USER))
             .send();
-        const responseManager = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
+
+        response.status.should.equal(401);
+        ensureCorrectError(response.body, 'Unauthorized');
+    });
+
+    it('Return 401 error if role is MANAGER', async () => {
+        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
             .field('loggedUser', JSON.stringify(ROLES.MANAGER))
             .send();
 
-        responseUser.status.should.equal(401);
-        ensureCorrectError(responseUser.body, 'Unauthorized');
-        responseManager.status.should.equal(401);
-        ensureCorrectError(responseManager.body, 'Unauthorized');
+        response.status.should.equal(401);
+        ensureCorrectError(response.body, 'Unauthorized');
     });
 
     it('Return 404 error if the dataset doesn\'t exist', async () => {
