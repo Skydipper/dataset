@@ -1,14 +1,10 @@
-const fs = require('fs');
 const nock = require('nock');
-const chai = require('chai');
 
 const Dataset = require('models/dataset.model');
 
 const { ROLES } = require('./test.constants');
-const { createDataset } = require('./utils');
+const { createDataset, ensureCorrectError } = require('./utils');
 const { getTestServer } = require('./test-server');
-
-const should = chai.should();
 
 const requester = getTestServer();
 
@@ -34,6 +30,7 @@ describe('Upload raw data', () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`).send();
 
         response.status.should.equal(401);
+        ensureCorrectError(response.body, 'Unauthorized');
     });
 
     it('Return 403 error if role USER tries to flush a dataset', async () => {
@@ -42,6 +39,7 @@ describe('Upload raw data', () => {
             .send();
 
         response.status.should.equal(403);
+        ensureCorrectError(response.body, 'Forbidden');
     });
 
     it('Return 404 error if the dataset doesn\'t exit', async () => {
@@ -50,6 +48,7 @@ describe('Upload raw data', () => {
             .send();
 
         response.status.should.equal(403);
+        ensureCorrectError(response.body, 'Forbidden');
     });
 
     it('Successfully flush a dataset for MANAGER and ADMIN', async () => {

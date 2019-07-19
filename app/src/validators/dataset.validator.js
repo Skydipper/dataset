@@ -294,6 +294,17 @@ class DatasetValidator {
         return true;
     }
 
+    static async validateFindByIDS(koaObj) {
+        logger.info('Validating Dataset Find by ids');
+        koaObj.checkBody('ids').notEmpty().check(ids => ids.some(id => DatasetValidator.isString(id)), 'must be a string');
+
+        if (koaObj.errors) {
+            logger.info('Error validating dataset find by ids');
+            throw new DatasetNotValid(koaObj.errors);
+        }
+        return true;
+    }
+
     static async validateUpload(koaObj) {
         logger.info('Validating Dataset Raw Upload');
         koaObj.checkFile('dataset').notEmpty();

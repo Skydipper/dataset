@@ -34,9 +34,11 @@ const arrayIntersection = (arr1, arr2) => arr1.filter(n => arr2.indexOf(n) !== -
 class DatasetRouter {
 
     static getUser(ctx) {
-        let user = Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser);
-        if (ctx.request.body.fields) {
-            user = Object.assign(user, JSON.parse(ctx.request.body.fields.loggedUser));
+        const { query, body } = ctx.request;
+
+        let user = Object.assign({}, query.loggedUser ? JSON.parse(query.loggedUser) : {}, ctx.request.body.loggedUser);
+        if (body.fields && body.fields.loggedUser) {
+            user = Object.assign(user, JSON.parse(body.fields.loggedUser));
         }
         return user;
     }
@@ -433,6 +435,8 @@ const validationMiddleware = async (ctx, next) => {
             await DatasetValidator.validateCloning(ctx);
         } else if (ctx.request.path.indexOf('upload') >= 0) {
             await DatasetValidator.validateUpload(ctx);
+        } else if (ctx.request.path.indexOf('find-by-ids') >= 0) {
+            await DatasetValidator.validateFindByIDS(ctx);
         } else {
             await DatasetValidator.validateUpdate(ctx);
         }
@@ -533,7 +537,7 @@ const authorizationRecover = async (ctx, next) => {
 };
 
 router.get('/', DatasetRouter.getAll);
-router.post('/find-by-ids', DatasetRouter.findByIds);
+router.post('/find-by-ids', validationMiddleware, DatasetRouter.findByIds);
 router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, DatasetRouter.create);
 // router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, authorizationSubscribable, DatasetRouter.create);
 router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRouter.upload);

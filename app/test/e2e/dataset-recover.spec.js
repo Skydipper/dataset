@@ -1,14 +1,9 @@
-const fs = require('fs');
 const nock = require('nock');
-const chai = require('chai');
-
 const Dataset = require('models/dataset.model');
 
 const { ROLES } = require('./test.constants');
-const { createDataset } = require('./utils');
+const { createDataset, ensureCorrectError } = require('./utils');
 const { getTestServer } = require('./test-server');
-
-const should = chai.should();
 
 const requester = getTestServer();
 
@@ -35,6 +30,7 @@ describe('Upload raw data', () => {
             .send();
 
         response.status.should.equal(401);
+        ensureCorrectError(response.body, 'Unauthorized');
     });
 
     it('Return 401 error if role is either USER or MANAGER', async () => {
@@ -46,7 +42,9 @@ describe('Upload raw data', () => {
             .send();
 
         responseUser.status.should.equal(401);
+        ensureCorrectError(responseUser.body, 'Unauthorized');
         responseManager.status.should.equal(401);
+        ensureCorrectError(responseManager.body, 'Unauthorized');
     });
 
     it('Return 404 error if the dataset doesn\'t exist', async () => {
@@ -55,6 +53,7 @@ describe('Upload raw data', () => {
             .send();
 
         response.status.should.equal(404);
+        ensureCorrectError(response.body, 'Dataset with id \'fake-id\' doesn\'t exist');
     });
 
     it('Successfully recover a dataset', async () => {
