@@ -318,6 +318,64 @@ describe('Dataset create tests', () => {
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
+    it('Create a CSV dataset with data from multiple files should be successful', async () => {
+        const timestamp = new Date();
+        const dataset = {
+            name: `CSV Dataset - ${timestamp.getTime()}`,
+            application: ['forest-atlas', 'rw'],
+            connectorType: 'document',
+            sources: [
+                'https://fake-file-0.csv',
+                'https://fake-file-1.csv',
+                'https://fake-file-2.csv'
+            ],
+            env: 'production',
+            provider: 'csv',
+            dataPath: 'data',
+            dataLastUpdated: timestamp.toISOString()
+        };
+
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/doc-datasets/csv', (request) => {
+                request.should.have.property('connector').and.be.an('object');
+                const requestDataset = request.connector;
+
+                requestDataset.should.have.property('name').and.equal(dataset.name);
+                requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
+                requestDataset.should.have.property('application').and.eql(dataset.application);
+                requestDataset.should.have.property('sources').and.eql(dataset.sources);
+                requestDataset.should.not.have.property('connectorUrl');
+
+                return true;
+            })
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
+        const response = await requester.post(`/api/v1/dataset`).send({
+            dataset,
+            loggedUser: ROLES.ADMIN
+        });
+        const createdDataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        createdDataset.should.have.property('name').and.equal(`CSV Dataset - ${timestamp.getTime()}`);
+        createdDataset.should.have.property('connectorType').and.equal('document');
+        createdDataset.should.have.property('provider').and.equal('csv');
+        createdDataset.should.have.property('connectorUrl').and.equal(null);
+        createdDataset.should.have.property('sources').and.eql(dataset.sources);
+        createdDataset.should.have.property('tableName');
+        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('status').and.equal('pending');
+        createdDataset.should.have.property('overwrite').and.equal(false);
+        createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
+        createdDataset.legend.should.be.an.instanceOf(Object);
+        createdDataset.clonedHost.should.be.an.instanceOf(Object);
+    });
+
     it('Create a JSON dataset with data from files in `sources` and `connectorUrl` should fail', async () => {
         const timestamp = new Date();
         const dataset = {
