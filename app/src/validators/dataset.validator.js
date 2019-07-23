@@ -87,9 +87,9 @@ class DatasetValidator {
         } = koaObj.request.body;
 
         // it is a document - json?
-        if (connectorType === 'document' && provider === 'json') {
+        if (connectorType === 'document') {
             // is it data valid?
-            if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
+            if (provider === 'json' && (DatasetValidator.isArray(data) || DatasetValidator.isObject(data))) {
                 validation = true;
                 // if data is not provided, check if url is valid
             } else if (connectorUrl && (DatasetValidator.validUrl(connectorUrl) || connectorUrl.indexOf('rw.dataset.raw') >= 0)) {
