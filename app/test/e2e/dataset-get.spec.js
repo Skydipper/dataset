@@ -13,6 +13,7 @@ const requester = getTestServer();
 
 let cartoFakeDataset;
 let jsonFakeDataset;
+let jsonFakeDatasetWithSources;
 
 
 describe('Get datasets tests', () => {
@@ -28,6 +29,12 @@ describe('Get datasets tests', () => {
 
         cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
         jsonFakeDataset = await new Dataset(createDataset('json')).save();
+
+        const datasetWithSources = createDataset('json');
+        datasetWithSources.sources = [datasetWithSources.connectorUrl];
+        delete datasetWithSources.connectorUrl;
+
+        jsonFakeDatasetWithSources = await new Dataset(datasetWithSources).save();
     });
 
     /* Get All Datasets */
@@ -62,18 +69,23 @@ describe('Get datasets tests', () => {
     });
 
     /* Pagination */
-    it('Get a page with 2 datasets using pagination', async () => {
+    it('Get a page with 3 datasets using pagination', async () => {
         const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=3`).send();
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
-        response.body.should.have.property('data').with.lengthOf(2);
+        response.body.should.have.property('data').with.lengthOf(3);
         response.body.should.have.property('links').and.be.an('object');
 
         const datasetIds = datasets.map(dataset => dataset.id);
 
         datasetIds.should.contain(cartoFakeDataset._id);
         datasetIds.should.contain(jsonFakeDataset._id);
+        datasetIds.should.contain(jsonFakeDatasetWithSources._id);
+
+        const datasetThree = deserializeDataset(response)[2];
+
+        datasetThree.attributes.should.have.property('sources').and.eql(jsonFakeDatasetWithSources.sources);
     });
 
     it('Get the first page with one dataset using pagination', async () => {
@@ -100,6 +112,17 @@ describe('Get datasets tests', () => {
         const datasetIds = datasets.map(dataset => dataset.id);
 
         datasetIds.should.contain(jsonFakeDataset._id);
+    });
+
+    it('Get an existing dataset by ID should be successful - With `sources` field', async () => {
+        const response = await requester.get(`/api/v1/dataset/${jsonFakeDatasetWithSources._id}`).send();
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        dataset.should.have.property('name').and.equal(jsonFakeDatasetWithSources.name);
+        dataset.should.have.property('sources').and.eql(jsonFakeDatasetWithSources.sources);
+        dataset.should.have.property('connectorUrl').and.equal(null);
     });
 
     afterEach(() => {

@@ -1,6 +1,6 @@
 const logger = require('logger');
 const fs = require('fs');
-const s3 = require('s3');
+const s3 = require('@auth0/s3');
 const firstline = require('firstline');
 
 const { S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env;

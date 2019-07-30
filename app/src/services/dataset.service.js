@@ -8,6 +8,7 @@ const FileDataService = require('services/fileDataService.service');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const DatasetProtected = require('errors/datasetProtected.error');
 const ForbiddenRequest = require('errors/forbiddenRequest.error');
+const MicroserviceConnection = require('errors/microserviceConnection.error');
 const InvalidRequest = require('errors/invalidRequest.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const SyncError = require('errors/sync.error');
@@ -233,6 +234,7 @@ class DatasetService {
             env: dataset.env || 'production',
             geoInfo: dataset.geoInfo || false,
             connectorUrl: dataset.connectorUrl,
+            sources: dataset.sources,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
             status: dataset.connectorType === 'wms' ? 'saved' : 'pending',
@@ -489,7 +491,7 @@ class DatasetService {
             }
         } catch (err) {
             logger.error('Error obtaining protected layers of the dataset');
-            throw err;
+            throw new MicroserviceConnection(`Error obtaining protected layers of the dataset: ${err.message}`);
         }
         try {
             const widgets = await ctRegisterMicroservice.requestToMicroservice({
@@ -502,7 +504,7 @@ class DatasetService {
             }
         } catch (err) {
             logger.error('Error obtaining protected widgets for the dataset');
-            throw err;
+            throw new MicroserviceConnection(`Error obtaining protected widgets of the dataset: ${err.message}`);
         }
     }
 

@@ -1,4 +1,3 @@
-
 class SyncError extends Error {
 
     constructor(message) {

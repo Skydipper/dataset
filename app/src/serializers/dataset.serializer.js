@@ -1,4 +1,3 @@
-
 class DatasetSerializer {
 
     static serializeElement(el) {
@@ -17,6 +16,7 @@ class DatasetSerializer {
                 provider: el.provider,
                 userId: el.userId,
                 connectorUrl: el.connectorUrl,
+                sources: el.sources,
                 tableName: el.tableName,
                 status: el.status,
                 published: el.published,

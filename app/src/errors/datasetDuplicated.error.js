@@ -1,4 +1,3 @@
-
 class DatasetDuplicated extends Error {
 
     constructor(message) {

@@ -26,7 +26,68 @@ const deserializeDataset = (response) => {
     return response;
 };
 
+const expectedDataset = dataset => ({
+    id: dataset.id,
+    type: 'dataset',
+    attributes:
+        {
+            name: dataset.name,
+            slug: dataset.slug,
+            type: null,
+            subtitle: dataset.subtitle,
+            application: ['rw'],
+            dataPath: dataset.dataPath,
+            attributesPath: dataset.attributesPath,
+            connectorType: 'rest',
+            provider: 'cartodb',
+            userId: '1a10d7c6e0a37126611fd7a7',
+            connectorUrl: dataset.connectorUrl,
+            sources: [],
+            tableName: dataset.tableName,
+            status: 'saved',
+            published: true,
+            overwrite: true,
+            verified: false,
+            blockchain: {},
+            mainDateField: null,
+            env: 'production',
+            geoInfo: false,
+            protected: false,
+            legend:
+                {
+                    date: [],
+                    region: [],
+                    country: [],
+                    nested: [],
+                    integer: [],
+                    short: [],
+                    byte: [],
+                    double: [],
+                    float: [],
+                    half_float: [],
+                    scaled_float: [],
+                    boolean: [],
+                    binary: [],
+                    text: [],
+                    keyword: []
+                },
+            clonedHost: {},
+            errorMessage: null,
+            taskId: null,
+            createdAt: dataset.createdAt.toISOString(),
+            updatedAt: dataset.updatedAt.toISOString(),
+            dataLastUpdated: dataset.dataLastUpdated.toISOString(),
+            widgetRelevantProps: [],
+            layerRelevantProps: []
+        }
+});
+
 const getUUID = () => Math.random().toString(36).substring(7);
+
+const ensureCorrectError = (body, errMessage) => {
+    body.should.have.property('errors').and.be.an('array');
+    body.errors[0].should.have.property('detail').and.equal(errMessage);
+};
 
 const createDataset = (provider) => {
     let connectorType = '';
@@ -92,6 +153,8 @@ const mapDatasetToMetadataSearchResult = dataset => ({
 module.exports = {
     createDataset,
     deserializeDataset,
+    expectedDataset,
+    ensureCorrectError,
     mapDatasetToMetadataSearchResult,
     getUUID
 };

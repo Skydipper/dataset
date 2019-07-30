@@ -52,7 +52,51 @@ describe('Get datasets with includes tests', () => {
                         description: 'The global human footprint map, created by Venter et al. (2016), used the human footprint framework to compile remotely sensed and bottom-up survey information on 8 variables measuring the direct and indirect human pressures on the environment in 1993 and 2009. The study included data on (1) extent of built environments, (2) crop land, (3) pasture land, (4) human population density, (5) nighttime lights, (6) railways, (7) roads, and (8) navigable waterways. These pressures were weighted according to estimates of their relative levels of human pressure and then summed together to create the standardized human footprint for all non-Antarctic land areas at 1 km resolution. Resource Watch shows only a subset of the data set. For access to the full data set and additional information, see the Learn More link.',
                         source: 'UNBC/WCS/ETH Zurich/UQ/JCU/CUNY/CIESIN',
                         info: {
-                            rwId: 'bio.015', data_type: 'Raster', name: 'Terrestrial Human Footprint', sources: [{ 'source-name': 'University of Northern British Columbia (UNBC)', id: 0, 'source-description': '' }, { 'source-name': 'Wildlife Conservation Society (WCS)', id: 1, 'source-description': '' }, { 'source-name': 'Swiss Federal Institute of Technology in Zurich (ETH Zurich)', id: 2, 'source-description': '' }, { 'source-name': 'University of Queensland (UQ)', id: 3, 'source-description': '' }, { 'source-name': 'James Cook University (JCU)', id: 4, 'source-description': '' }, { 'source-name': 'City University of New York (CUNY)', id: 5, 'source-description': '' }, { 'source-name': 'Columbia University Earth Institute Center for International Earth Science Information Network (CIESIN)', id: 6, 'source-description': '' }], technical_title: 'Global Terrestrial Human Footprint maps', functions: 'A globally standardized measure of the cumulative human pressure on the terrestrial environment', cautions: 'Only the 2009 data layer is visible on Resource Watch. The study did not fully account for all human pressures, and a lack of available data resulted in 3 of their pressures being static through time, which would cause an underestimation of human footprint expansion if these pressures expanded at a higher than average rate. Also, the human footprint measures the pressure humans place on nature, not the realized state or impacts on natural systems or their biodiversity. Significant scope exists to determine how natural systems respond to cumulating human pressures, and if nonlinearity or thresholds exist where pressures lead to accelerated impacts.', citation: '(1) Venter, O., E.W. Sanderson, A. Magrach, J.R. Allan, J. Beher, K.R. Jones, H.P. Possingham, W.F. Laurance, P. Wood, B.M. Fekete, M.A. Levy, J.E. Watson. 2016. "Global Terrestrial Human Footprint Maps for 1993 and 2009." Scientific Data 3: 160067. http://dx.doi.org/10.1038/sdata.2016.67. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).   (2) Venter, O., E.W. Sanderson, A. Magrach, J.R. Allan, J. Beher, K.R. Jones, H.P. Possingham, W.F. Laurance, P. Wood, B.M. Fekete, M.A. Levy, J.E. Watson. 2016. Data from "Global Terrestrial Human Footprint Maps for 1993 and 2009." Dryad Digital Repository. http://dx.doi.org/10.5061/dryad.052q5.2. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).', license: 'Public domain', license_link: 'https://creativecommons.org/publicdomain/zero/1.0/', geographic_coverage: 'Global', spatial_resolution: '1 km', date_of_content: '1993, 2009', frequency_of_updates: null, learn_more_link: 'http://datadryad.org/resource/doi:10.5061/dryad.052q5', data_download_link: null, data_download_original_link: 'http://datadryad.org/resource/doi:10.5061/dryad.052q5'
+                            rwId: 'bio.015',
+                            data_type: 'Raster',
+                            name: 'Terrestrial Human Footprint',
+                            sources: [{
+                                'source-name': 'University of Northern British Columbia (UNBC)',
+                                id: 0,
+                                'source-description': ''
+                            }, {
+                                'source-name': 'Wildlife Conservation Society (WCS)',
+                                id: 1,
+                                'source-description': ''
+                            }, {
+                                'source-name': 'Swiss Federal Institute of Technology in Zurich (ETH Zurich)',
+                                id: 2,
+                                'source-description': ''
+                            }, {
+                                'source-name': 'University of Queensland (UQ)',
+                                id: 3,
+                                'source-description': ''
+                            }, {
+                                'source-name': 'James Cook University (JCU)',
+                                id: 4,
+                                'source-description': ''
+                            }, {
+                                'source-name': 'City University of New York (CUNY)',
+                                id: 5,
+                                'source-description': ''
+                            }, {
+                                'source-name': 'Columbia University Earth Institute Center for International Earth Science Information Network (CIESIN)',
+                                id: 6,
+                                'source-description': ''
+                            }],
+                            technical_title: 'Global Terrestrial Human Footprint maps',
+                            functions: 'A globally standardized measure of the cumulative human pressure on the terrestrial environment',
+                            cautions: 'Only the 2009 data layer is visible on Resource Watch. The study did not fully account for all human pressures, and a lack of available data resulted in 3 of their pressures being static through time, which would cause an underestimation of human footprint expansion if these pressures expanded at a higher than average rate. Also, the human footprint measures the pressure humans place on nature, not the realized state or impacts on natural systems or their biodiversity. Significant scope exists to determine how natural systems respond to cumulating human pressures, and if nonlinearity or thresholds exist where pressures lead to accelerated impacts.',
+                            citation: '(1) Venter, O., E.W. Sanderson, A. Magrach, J.R. Allan, J. Beher, K.R. Jones, H.P. Possingham, W.F. Laurance, P. Wood, B.M. Fekete, M.A. Levy, J.E. Watson. 2016. "Global Terrestrial Human Footprint Maps for 1993 and 2009." Scientific Data 3: 160067. http://dx.doi.org/10.1038/sdata.2016.67. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).   (2) Venter, O., E.W. Sanderson, A. Magrach, J.R. Allan, J. Beher, K.R. Jones, H.P. Possingham, W.F. Laurance, P. Wood, B.M. Fekete, M.A. Levy, J.E. Watson. 2016. Data from "Global Terrestrial Human Footprint Maps for 1993 and 2009." Dryad Digital Repository. http://dx.doi.org/10.5061/dryad.052q5.2. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).',
+                            license: 'Public domain',
+                            license_link: 'https://creativecommons.org/publicdomain/zero/1.0/',
+                            geographic_coverage: 'Global',
+                            spatial_resolution: '1 km',
+                            date_of_content: '1993, 2009',
+                            frequency_of_updates: null,
+                            learn_more_link: 'http://datadryad.org/resource/doi:10.5061/dryad.052q5',
+                            data_download_link: null,
+                            data_download_original_link: 'http://datadryad.org/resource/doi:10.5061/dryad.052q5'
                         },
                         createdAt: '2017-10-11T15:58:23.860Z',
                         updatedAt: '2019-02-05T20:30:27.799Z',
@@ -98,7 +142,13 @@ describe('Get datasets with includes tests', () => {
         nock(process.env.CT_URL)
             .get('/v1/graph/query/search-by-label-synonyms')
             .query({
-                application: 'rw', env: 'production', includes: 'layer,metadata,vocabulary,widget,graph,user', language: 'en', page: { number: '1,1', size: '12,12' }, published: true, search: 'human'
+                application: 'rw',
+                env: 'production',
+                includes: 'layer,metadata,vocabulary,widget,graph,user',
+                language: 'en',
+                page: { number: '1,1', size: '12,12' },
+                published: true,
+                search: 'human'
             })
             .reply(200, { data: [cartoFakeDataset.id] });
 
@@ -106,7 +156,12 @@ describe('Get datasets with includes tests', () => {
         nock(process.env.CT_URL)
             .post('/auth/user/find-by-ids', { ids: [ROLES.ADMIN.id] })
             .query({
-                application: 'rw', env: 'production', language: 'en', page: { number: '1,1', size: '12,12' }, published: true, search: 'human'
+                application: 'rw',
+                env: 'production',
+                language: 'en',
+                page: { number: '1,1', size: '12,12' },
+                published: true,
+                search: 'human'
             })
             .reply(200, { data: [] });
 
@@ -114,7 +169,12 @@ describe('Get datasets with includes tests', () => {
         nock(process.env.CT_URL)
             .post('/v1/widget/find-by-ids', { ids: [cartoFakeDataset.id], app: 'rw' })
             .query({
-                application: 'rw', env: 'production', language: 'en', page: { number: '1,1', size: '12,12' }, published: true, search: 'human'
+                application: 'rw',
+                env: 'production',
+                language: 'en',
+                page: { number: '1,1', size: '12,12' },
+                published: true,
+                search: 'human'
             })
             .reply(200, {
                 data: [{
@@ -150,10 +210,16 @@ describe('Get datasets with includes tests', () => {
                                 size: null,
                                 color: null,
                                 category: {
-                                    tableName: 'conservationMapServer3', datasetID: cartoFakeDataset.id, type: 'esriFieldTypeString', name: 'tcl_name'
+                                    tableName: 'conservationMapServer3',
+                                    datasetID: cartoFakeDataset.id,
+                                    type: 'esriFieldTypeString',
+                                    name: 'tcl_name'
                                 },
                                 value: {
-                                    tableName: 'conservationMapServer3', datasetID: cartoFakeDataset.id, type: 'esriFieldTypeDouble', name: 'shape_Area'
+                                    tableName: 'conservationMapServer3',
+                                    datasetID: cartoFakeDataset.id,
+                                    type: 'esriFieldTypeDouble',
+                                    name: 'shape_Area'
                                 },
                                 limit: 500,
                                 visualizationType: 'map'
@@ -163,18 +229,42 @@ describe('Get datasets with includes tests', () => {
                             zoom: 3,
                             layer_id: '84698937-429c-4141-8752-8d8f36a7e98c',
                             type: 'map',
-                            interaction_config: [{ config: { fields: [{ format: '.2f', label: 'Tcl_name', key: 'x' }, { format: '.2s', label: 'Shape_Area', key: 'y' }] }, name: 'tooltip' }],
+                            interaction_config: [{
+                                config: {
+                                    fields: [{
+                                        format: '.2f',
+                                        label: 'Tcl_name',
+                                        key: 'x'
+                                    }, { format: '.2s', label: 'Shape_Area', key: 'y' }]
+                                },
+                                name: 'tooltip'
+                            }],
                             marks: [{
                                 axes: [{
-                                    grid: 'true', properties: { axis: { strokeWidth: { value: 0 } } }, offset: 5, tickSizeEnd: 0, scale: 'y', type: 'y'
+                                    grid: 'true',
+                                    properties: { axis: { strokeWidth: { value: 0 } } },
+                                    offset: 5,
+                                    tickSizeEnd: 0,
+                                    scale: 'y',
+                                    type: 'y'
                                 }],
                                 scales: [{
-                                    padding: 1, points: true, round: true, bandSize: 25, domain: { field: 'x', data: 'table' }, range: 'width', type: 'ordinal', name: 'x'
+                                    padding: 1,
+                                    points: true,
+                                    round: true,
+                                    bandSize: 25,
+                                    domain: { field: 'x', data: 'table' },
+                                    range: 'width',
+                                    type: 'ordinal',
+                                    name: 'x'
                                 }],
                                 marks: [{
                                     properties: {
                                         enter: {
-                                            y2: { value: 0, scale: 'y' }, y: { field: 'y', scale: 'y' }, width: { offset: -15, band: true, scale: 'x' }, xc: { field: 'x', scale: 'x' }
+                                            y2: { value: 0, scale: 'y' },
+                                            y: { field: 'y', scale: 'y' },
+                                            width: { offset: -15, band: true, scale: 'x' },
+                                            xc: { field: 'x', scale: 'x' }
                                         }
                                     },
                                     from: { data: 'table' },
@@ -182,7 +272,12 @@ describe('Get datasets with includes tests', () => {
                                 }, {
                                     properties: {
                                         enter: {
-                                            opacity: [{ value: 1, test: 'datum.min_y < 0' }, { value: 0 }], strokeWidth: { value: 1 }, stroke: { value: '#A9ABAD' }, x2: { field: { group: 'width' } }, x: { value: '0' }, y: { value: '0', scale: 'y' }
+                                            opacity: [{ value: 1, test: 'datum.min_y < 0' }, { value: 0 }],
+                                            strokeWidth: { value: 1 },
+                                            stroke: { value: '#A9ABAD' },
+                                            x2: { field: { group: 'width' } },
+                                            x: { value: '0' },
+                                            y: { value: '0', scale: 'y' }
                                         }
                                     },
                                     from: { data: 'stats' },
@@ -191,7 +286,10 @@ describe('Get datasets with includes tests', () => {
                                     axes: [{
                                         properties: {
                                             labels: {
-                                                baseline: { value: 'middle' }, align: { value: 'right' }, angle: { value: 270 }, text: { template: '{{ datum["data"] | truncate:25 }}' }
+                                                baseline: { value: 'middle' },
+                                                align: { value: 'right' },
+                                                angle: { value: 270 },
+                                                text: { template: '{{ datum["data"] | truncate:25 }}' }
                                             },
                                             axis: { strokeWidth: { value: 0 } }
                                         },
@@ -207,16 +305,42 @@ describe('Get datasets with includes tests', () => {
                                 type: 'group'
                             }],
                             axes: [{
-                                properties: { labels: { text: { template: '' } } }, tickSize: 0, ticks: 0, scale: 'x', type: 'x'
+                                properties: { labels: { text: { template: '' } } },
+                                tickSize: 0,
+                                ticks: 0,
+                                scale: 'x',
+                                type: 'x'
                             }, {
-                                properties: { axis: { strokeWidth: { value: 0 } } }, offset: 5, tickSizeEnd: 0, scale: 'y', type: 'y'
+                                properties: { axis: { strokeWidth: { value: 0 } } },
+                                offset: 5,
+                                tickSizeEnd: 0,
+                                scale: 'y',
+                                type: 'y'
                             }],
                             scales: [{
-                                real: false, domain: { field: 'x', data: 'table' }, range: 'width', type: 'ordinal', name: 'x'
+                                real: false,
+                                domain: { field: 'x', data: 'table' },
+                                range: 'width',
+                                type: 'ordinal',
+                                name: 'x'
                             }, {
                                 domain: { field: 'y', data: 'table' }, range: 'height', type: 'linear', name: 'y'
                             }],
-                            data: [{ values: [], name: 'table' }, { transform: [{ summarize: [{ ops: ['distinct'], field: 'x' }], type: 'aggregate' }, { expr: '(datum["distinct_x"] + 1) * 25', field: 'width', type: 'formula' }], source: 'table', name: 'layout' }, { transform: [{ summarize: [{ ops: ['min'], field: 'y' }], type: 'aggregate' }], source: 'table', name: 'stats' }],
+                            data: [{ values: [], name: 'table' }, {
+                                transform: [{
+                                    summarize: [{
+                                        ops: ['distinct'],
+                                        field: 'x'
+                                    }],
+                                    type: 'aggregate'
+                                }, { expr: '(datum["distinct_x"] + 1) * 25', field: 'width', type: 'formula' }],
+                                source: 'table',
+                                name: 'layout'
+                            }, {
+                                transform: [{ summarize: [{ ops: ['min'], field: 'y' }], type: 'aggregate' }],
+                                source: 'table',
+                                name: 'stats'
+                            }],
                             width: 1
                         },
                         template: false,
@@ -230,38 +354,61 @@ describe('Get datasets with includes tests', () => {
         nock(process.env.CT_URL)
             .post('/v1/dataset/vocabulary/find-by-ids', { ids: [cartoFakeDataset.id] })
             .query({
-                application: 'rw', env: 'production', language: 'en', page: { number: '1,1', size: '12,12' }, published: true, search: 'human'
+                application: 'rw',
+                env: 'production',
+                language: 'en',
+                page: { number: '1,1', size: '12,12' },
+                published: true,
+                search: 'human'
             })
             .reply(200, {
                 data: [{
                     type: 'vocabulary',
                     attributes: {
-                        resource: { id: '3b7c3e8f-f7c0-466f-8f7c-01d73afc0988', type: 'dataset' }, tags: ['vector', 'geospatial', 'table', 'commodity', 'commerce'], name: 'knowledge_graph', application: 'rw'
+                        resource: { id: '3b7c3e8f-f7c0-466f-8f7c-01d73afc0988', type: 'dataset' },
+                        tags: ['vector', 'geospatial', 'table', 'commodity', 'commerce'],
+                        name: 'knowledge_graph',
+                        application: 'rw'
                     }
                 }, {
                     type: 'vocabulary',
                     attributes: {
-                        resource: { id: '4d7ce999-1e37-418f-b8a6-1816b29e901a', type: 'dataset' }, tags: ['population', 'poverty', 'table', 'geospatial'], name: 'knowledge_graph', application: 'rw'
+                        resource: { id: '4d7ce999-1e37-418f-b8a6-1816b29e901a', type: 'dataset' },
+                        tags: ['population', 'poverty', 'table', 'geospatial'],
+                        name: 'knowledge_graph',
+                        application: 'rw'
                     }
                 }, {
                     type: 'vocabulary',
                     attributes: {
-                        resource: { id: '85345c7d-b608-4698-a44d-f5554885b99e', type: 'dataset' }, tags: ['geospatial', 'global', 'historical', 'annual', 'population', 'raster'], name: 'knowledge_graph', application: 'rw'
+                        resource: { id: '85345c7d-b608-4698-a44d-f5554885b99e', type: 'dataset' },
+                        tags: ['geospatial', 'global', 'historical', 'annual', 'population', 'raster'],
+                        name: 'knowledge_graph',
+                        application: 'rw'
                     }
                 }, {
                     type: 'vocabulary',
                     attributes: {
-                        resource: { id: 'bae38478-a7c7-400c-a086-a425b61261e9', type: 'dataset' }, tags: ['geospatial', 'global', 'land_use', 'land', 'agriculture', 'food_and_agriculture', 'forest_cover', 'forest', 'settlements', 'urban_expansion'], name: 'knowledge_graph', application: 'rw'
+                        resource: { id: 'bae38478-a7c7-400c-a086-a425b61261e9', type: 'dataset' },
+                        tags: ['geospatial', 'global', 'land_use', 'land', 'agriculture', 'food_and_agriculture', 'forest_cover', 'forest', 'settlements', 'urban_expansion'],
+                        name: 'knowledge_graph',
+                        application: 'rw'
                     }
                 }, {
                     type: 'vocabulary',
                     attributes: {
-                        resource: { id: 'cebc516b-0d62-442b-97e0-6f89dcbb1562', type: 'dataset' }, tags: ['geospatial', 'global', 'land_use', 'agriculture', 'food_and_agriculture', 'forest', 'forest_cover', 'future'], name: 'knowledge_graph', application: 'rw'
+                        resource: { id: 'cebc516b-0d62-442b-97e0-6f89dcbb1562', type: 'dataset' },
+                        tags: ['geospatial', 'global', 'land_use', 'agriculture', 'food_and_agriculture', 'forest', 'forest_cover', 'future'],
+                        name: 'knowledge_graph',
+                        application: 'rw'
                     }
                 }, {
                     type: 'vocabulary',
                     attributes: {
-                        resource: { id: '8f92a786-0b80-4746-8d14-85a70898d4ba', type: 'dataset' }, tags: ['historical', 'global', 'population', 'human_activity', 'geospatial'], name: 'knowledge_graph', application: 'rw'
+                        resource: { id: '8f92a786-0b80-4746-8d14-85a70898d4ba', type: 'dataset' },
+                        tags: ['historical', 'global', 'population', 'human_activity', 'geospatial'],
+                        name: 'knowledge_graph',
+                        application: 'rw'
                     }
                 }]
             });
@@ -270,7 +417,12 @@ describe('Get datasets with includes tests', () => {
         nock(process.env.CT_URL)
             .post('/v1/dataset/metadata/find-by-ids', { ids: [cartoFakeDataset.id] })
             .query({
-                application: 'rw', env: 'production', language: 'en', page: { number: '1,1', size: '12,12' }, published: true, search: 'human'
+                application: 'rw',
+                env: 'production',
+                language: 'en',
+                page: { number: '1,1', size: '12,12' },
+                published: true,
+                search: 'human'
             })
             .reply(200, {
                 data: [{
@@ -285,10 +437,37 @@ describe('Get datasets with includes tests', () => {
                         description: 'These 3 data sets, produced by WWF and RESOLVE, show the location of current tiger habitat and priority areas for habitat conservation. (1) Tiger Conservation Landscapes: Tiger conservation landscapes (TCLs) are large blocks of contiguous or connected area of suitable tiger habitat that that can support at least 5 adult tigers and where tiger presence has been confirmed in the past 10 years. The data set was created by mapping tiger distribution, determined by land cover type, forest extent, and prey base, against a human influence index. Areas of high human influence that overlapped with suitable habitat were not considered tiger habitat. (2) Tx2 Tiger Conservation Landscapes: This data set displays 29 Tx2 tiger conservation landscapes (Tx2 TCLs), defined areas that could double the wild tiger population through proper conservation and management by 2020. (3) Terai Arc Landscape corridors: This data set displays 9 forest corridors on the Nepalese side of the Terai Arc Landscape (TAL). The TAL is an area that encompasses lowlands and the foothills of the Himalayas and contains 14 protected areas in total. Wildlife corridors enable animals to travel between these areas, increasing their long-term survival. Corridors are defined as existing forests connecting current Royal Bengal tiger metapopulations in Nepal and India. Resource Watch shows only a subset of the data set. For access to the full data set and additional information, see the Learn More link.',
                         source: 'WWF/RESOLVE',
                         info: {
-                            rwId: 'bio.030', data_type: 'Vector', name: 'Tiger Conservation Landscapes', sources: [{ 'source-name': 'World Wildlife Fund (WWF)', id: 0, 'source-description': '' }, { 'source-name': 'Resolve', id: 1, 'source-description': '' }], technical_title: 'Tiger Conservation Landscapes 2.0', functions: 'Location of current tiger habitats, areas of habitat expansion, and critical tiger corridors', cautions: 'Tiger conservation landscapes were created under the assumption that suitable habitat depends on quality and size of land cover and prey base. Land cover data were problematic in certain geographies due to the presence of tree plantations. In some cases, forest cover was overestimated or underestimated. The Tiger Location database, on which this data set was built, is incomplete for some regions, and the data come from a variety of sources and research methods.', citation: '(1) WWF and RESOLVE. "Tiger Conservation Landscapes." Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).  (2) Tiger Conservation Landscapes: Dinerstein, E., Loucks, C.J., Wikramanayake, E., Ginsberg, J., Sanderson, E., Seidensticker, J., Forrest, J.L., Bryja, G., Heydlauff, A., Klenzendorf, S., Mills, J, O\'Brien, T., Shrestha, M, Simons, R., Songer, M. 2007. "The fate of wild tigers." BioScience 57: 508-14. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).  (3) Tx2 Tiger Conservation Landscapes: Wikramanayake, E., Dinerstein, E., Seidensticker, J., Lumpkin, S., Pandav, B., Shrestha, M., Mishra, H., Ballou, J., Johnsingh, A.J.T., Chestin, I., Sunarto, S., Thinley, P., Thapa, K., Jiang, G., Elagupillay, S., Kafley, H., Pradhan, N.M.B., Jigme, K., Teak, S., Cutter, P., Aziz, Md. A., Than, U. 2011. A landscape-based conservation strategy to double the wild tiger population. Conservation Letters, 4 (3):219-227. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).  (4) Terai Arc Landscape corridors: Wikramanayake, E., M. McNight, E. Dinerstein, A. Joshi, B. Gurung, D. Smith. 2004. Designing a Conservation Landscape for Tigers in Human-Dominated Environments. Conservation Biology (18):839-844. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org). ', license: 'Creative Commons Attribution 4.0 International', license_link: 'https://creativecommons.org/licenses/by/4.0/', geographic_coverage: 'Bangladesh, Bhutan, Cambodia, China, India, Indonesia, Laos, Malaysia, Myanmar, Nepal, Russia, Thailand, Vietnam', spatial_resolution: null, date_of_content: null, frequency_of_updates: 'Annual', learn_more_link: 'https://www.worldwildlife.org/publications/tiger-conservation-landscape-data-and-report', data_download_link: null, data_download_original_link: 'http://data.globalforestwatch.org/datasets/04d892c083f54c638228931da081467b_3'
+                            rwId: 'bio.030',
+                            data_type: 'Vector',
+                            name: 'Tiger Conservation Landscapes',
+                            sources: [{
+                                'source-name': 'World Wildlife Fund (WWF)',
+                                id: 0,
+                                'source-description': ''
+                            }, { 'source-name': 'Resolve', id: 1, 'source-description': '' }],
+                            technical_title: 'Tiger Conservation Landscapes 2.0',
+                            functions: 'Location of current tiger habitats, areas of habitat expansion, and critical tiger corridors',
+                            cautions: 'Tiger conservation landscapes were created under the assumption that suitable habitat depends on quality and size of land cover and prey base. Land cover data were problematic in certain geographies due to the presence of tree plantations. In some cases, forest cover was overestimated or underestimated. The Tiger Location database, on which this data set was built, is incomplete for some regions, and the data come from a variety of sources and research methods.',
+                            citation: '(1) WWF and RESOLVE. "Tiger Conservation Landscapes." Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).  (2) Tiger Conservation Landscapes: Dinerstein, E., Loucks, C.J., Wikramanayake, E., Ginsberg, J., Sanderson, E., Seidensticker, J., Forrest, J.L., Bryja, G., Heydlauff, A., Klenzendorf, S., Mills, J, O\'Brien, T., Shrestha, M, Simons, R., Songer, M. 2007. "The fate of wild tigers." BioScience 57: 508-14. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).  (3) Tx2 Tiger Conservation Landscapes: Wikramanayake, E., Dinerstein, E., Seidensticker, J., Lumpkin, S., Pandav, B., Shrestha, M., Mishra, H., Ballou, J., Johnsingh, A.J.T., Chestin, I., Sunarto, S., Thinley, P., Thapa, K., Jiang, G., Elagupillay, S., Kafley, H., Pradhan, N.M.B., Jigme, K., Teak, S., Cutter, P., Aziz, Md. A., Than, U. 2011. A landscape-based conservation strategy to double the wild tiger population. Conservation Letters, 4 (3):219-227. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org).  (4) Terai Arc Landscape corridors: Wikramanayake, E., M. McNight, E. Dinerstein, A. Joshi, B. Gurung, D. Smith. 2004. Designing a Conservation Landscape for Tigers in Human-Dominated Environments. Conservation Biology (18):839-844. Accessed through Resource Watch, (date). [www.resourcewatch.org](www.resourcewatch.org). ',
+                            license: 'Creative Commons Attribution 4.0 International',
+                            license_link: 'https://creativecommons.org/licenses/by/4.0/',
+                            geographic_coverage: 'Bangladesh, Bhutan, Cambodia, China, India, Indonesia, Laos, Malaysia, Myanmar, Nepal, Russia, Thailand, Vietnam',
+                            spatial_resolution: null,
+                            date_of_content: null,
+                            frequency_of_updates: 'Annual',
+                            learn_more_link: 'https://www.worldwildlife.org/publications/tiger-conservation-landscape-data-and-report',
+                            data_download_link: null,
+                            data_download_original_link: 'http://data.globalforestwatch.org/datasets/04d892c083f54c638228931da081467b_3'
                         },
                         columns: {
-                            tcl_name: { alias: 'Name', description: 'Tiger Conservation Landscape name' }, area_ha: { alias: 'Area (ha)', description: 'Area in hectares' }, shape_Area: { alias: 'Shape Area' }, tx2_tcl: { alias: 'Tx2 Target', description: 'Progress on action plan to double tiger population' }, tcl_id: { alias: 'ID', description: 'Tiger Conservation Landscape unique ID' }
+                            tcl_name: { alias: 'Name', description: 'Tiger Conservation Landscape name' },
+                            area_ha: { alias: 'Area (ha)', description: 'Area in hectares' },
+                            shape_Area: { alias: 'Shape Area' },
+                            tx2_tcl: {
+                                alias: 'Tx2 Target',
+                                description: 'Progress on action plan to double tiger population'
+                            },
+                            tcl_id: { alias: 'ID', description: 'Tiger Conservation Landscape unique ID' }
                         },
                         createdAt: '2017-10-04T19:39:41.859Z',
                         updatedAt: '2019-02-05T20:30:28.882Z',
@@ -300,7 +479,12 @@ describe('Get datasets with includes tests', () => {
         nock(process.env.CT_URL)
             .post('/v1/layer/find-by-ids', { ids: [cartoFakeDataset.id], app: 'rw' })
             .query({
-                application: 'rw', env: 'production', language: 'en', page: { number: '1,1', size: '12,12' }, published: true, search: 'human'
+                application: 'rw',
+                env: 'production',
+                language: 'en',
+                page: { number: '1,1', size: '12,12' },
+                published: true,
+                search: 'human'
             })
             .reply(200, {
                 data: [{
@@ -322,15 +506,44 @@ describe('Get datasets with includes tests', () => {
                         layerConfig: {
                             account: 'wri-01',
                             body: {
-                                maxzoom: 18, minzoom: 3, extent: [16769672.5095, -3209132.19552, 3189564.31628, 5850795.89306], layers: [{ type: 'mapnik', options: { sql: 'SELECT * FROM tiger_conservation_landscapes', cartocss: '#tiger_conservation_landscapes {  polygon-fill: #FFCC00;  polygon-opacity: 0.8;  line-color: #FF5C00;  line-width: 0.5;  line-opacity: 0.5;}#tiger_conservation_landscapes[tx2_tcl=1] {  polygon-fill: #FF5C00;  line-color: #081B47;}', cartocss_version: '2.3.0' } }]
+                                maxzoom: 18,
+                                minzoom: 3,
+                                extent: [16769672.5095, -3209132.19552, 3189564.31628, 5850795.89306],
+                                layers: [{
+                                    type: 'mapnik',
+                                    options: {
+                                        sql: 'SELECT * FROM tiger_conservation_landscapes',
+                                        cartocss: '#tiger_conservation_landscapes {  polygon-fill: #FFCC00;  polygon-opacity: 0.8;  line-color: #FF5C00;  line-width: 0.5;  line-opacity: 0.5;}#tiger_conservation_landscapes[tx2_tcl=1] {  polygon-fill: #FF5C00;  line-color: #081B47;}',
+                                        cartocss_version: '2.3.0'
+                                    }
+                                }]
                             }
                         },
-                        legendConfig: { items: [{ color: '#FFCC00', name: 'Tiger conservation landscapes' }, { color: '#FF5C00', name: 'Tx2 tiger conservation landscapes' }, { color: '#229a00', name: 'Terai arc landscape corridors' }], type: 'basic' },
+                        legendConfig: {
+                            items: [{
+                                color: '#FFCC00',
+                                name: 'Tiger conservation landscapes'
+                            }, { color: '#FF5C00', name: 'Tx2 tiger conservation landscapes' }, {
+                                color: '#229a00',
+                                name: 'Terai arc landscape corridors'
+                            }],
+                            type: 'basic'
+                        },
                         interactionConfig: {
                             output: [{
-                                column: 'tcl_name', format: null, prefix: '', property: 'Tiger Conservation Landscape', suffix: '', type: 'esriFieldTypeString'
+                                column: 'tcl_name',
+                                format: null,
+                                prefix: '',
+                                property: 'Tiger Conservation Landscape',
+                                suffix: '',
+                                type: 'esriFieldTypeString'
                             }, {
-                                column: 'area_ha', format: null, prefix: '', property: 'Area', suffix: ' ha', type: 'esriFieldTypeInteger'
+                                column: 'area_ha',
+                                format: null,
+                                prefix: '',
+                                property: 'Area',
+                                suffix: ' ha',
+                                type: 'esriFieldTypeInteger'
                             }]
                         },
                         applicationConfig: {
@@ -345,43 +558,76 @@ describe('Get datasets with includes tests', () => {
         nock(process.env.CT_URL)
             .post('/v1/graph/find-by-ids', { ids: [cartoFakeDataset.id], app: 'rw' })
             .query({
-                application: 'rw', env: 'production', language: 'en', page: { number: '1,1', size: '12,12' }, published: true, search: 'human'
+                application: 'rw',
+                env: 'production',
+                language: 'en',
+                page: { number: '1,1', size: '12,12' },
+                published: true,
+                search: 'human'
             })
             .reply(200, {
                 data: [{
                     type: 'concept',
                     attributes: {
-                        dataset: cartoFakeDataset.id, id: 'endangered', label: 'Endangered', synonyms: '', default_parent: 'species'
+                        dataset: cartoFakeDataset.id,
+                        id: 'endangered',
+                        label: 'Endangered',
+                        synonyms: '',
+                        default_parent: 'species'
                     }
                 }, {
                     type: 'concept',
                     attributes: {
-                        dataset: cartoFakeDataset.id, id: 'conservation', label: 'Conservation', synonyms: '', default_parent: 'human_activity'
+                        dataset: cartoFakeDataset.id,
+                        id: 'conservation',
+                        label: 'Conservation',
+                        synonyms: '',
+                        default_parent: 'human_activity'
                     }
                 }, {
                     type: 'concept',
                     attributes: {
-                        dataset: cartoFakeDataset.id, id: 'animal', label: 'Animals', synonyms: ['animal'], default_parent: 'species'
+                        dataset: cartoFakeDataset.id,
+                        id: 'animal',
+                        label: 'Animals',
+                        synonyms: ['animal'],
+                        default_parent: 'species'
                     }
                 }, {
                     type: 'concept',
                     attributes: {
-                        dataset: cartoFakeDataset.id, id: 'global', label: 'Global', synonyms: '', default_parent: 'location'
+                        dataset: cartoFakeDataset.id,
+                        id: 'global',
+                        label: 'Global',
+                        synonyms: '',
+                        default_parent: 'location'
                     }
                 }, {
                     type: 'concept',
                     attributes: {
-                        dataset: cartoFakeDataset.id, id: 'table', label: 'Table', synonyms: '', default_parent: 'dataset'
+                        dataset: cartoFakeDataset.id,
+                        id: 'table',
+                        label: 'Table',
+                        synonyms: '',
+                        default_parent: 'dataset'
                     }
                 }, {
                     type: 'concept',
                     attributes: {
-                        dataset: cartoFakeDataset.id, id: 'geospatial', label: 'Geospatial', synonyms: '', default_parent: 'dataset'
+                        dataset: cartoFakeDataset.id,
+                        id: 'geospatial',
+                        label: 'Geospatial',
+                        synonyms: '',
+                        default_parent: 'dataset'
                     }
                 }, {
                     type: 'concept',
                     attributes: {
-                        dataset: cartoFakeDataset.id, id: 'vector', label: 'Vector', synonyms: '', default_parent: 'geospatial'
+                        dataset: cartoFakeDataset.id,
+                        id: 'vector',
+                        label: 'Vector',
+                        synonyms: '',
+                        default_parent: 'geospatial'
                     }
                 }]
             });
@@ -411,6 +657,7 @@ describe('Get datasets with includes tests', () => {
                 provider: 'cartodb',
                 userId: '1a10d7c6e0a37126611fd7a7',
                 connectorUrl: cartoFakeDataset.connectorUrl,
+                sources: [],
                 tableName: cartoFakeDataset.tableName,
                 status: 'saved',
                 published: true,
@@ -436,7 +683,6 @@ describe('Get datasets with includes tests', () => {
                     region: [],
                     scaled_float: [],
                     short: [],
-                    keyword: [],
                     text: []
                 },
                 clonedHost: {},

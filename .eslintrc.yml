@@ -3,15 +3,12 @@ extends: airbnb
 env:
   node: true
   es6: true
-parser: babel-eslint
-parserOptions:
-  sourceType: module
-  ecmaVersion: 6
 globals:
   describe: true
   it: true
   before: true
   after: true
+  afterEach: true
 rules:
   max-len: [1, 200, 2, {"ignoreUrls":true}]
   curly: [2, "multi-line"]

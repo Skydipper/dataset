@@ -11,6 +11,7 @@ const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const DatasetProtected = require('errors/datasetProtected.error');
+const MicroserviceConnection = require('errors/microserviceConnection.error');
 const DatasetNotValid = require('errors/datasetNotValid.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
@@ -34,9 +35,11 @@ const arrayIntersection = (arr1, arr2) => arr1.filter(n => arr2.indexOf(n) !== -
 class DatasetRouter {
 
     static getUser(ctx) {
-        let user = Object.assign({}, ctx.request.query.loggedUser ? JSON.parse(ctx.request.query.loggedUser) : {}, ctx.request.body.loggedUser);
-        if (ctx.request.body.fields) {
-            user = Object.assign(user, JSON.parse(ctx.request.body.fields.loggedUser));
+        const { query, body } = ctx.request;
+
+        let user = Object.assign({}, query.loggedUser ? JSON.parse(query.loggedUser) : {}, ctx.request.body.loggedUser);
+        if (body.fields && body.fields.loggedUser) {
+            user = Object.assign(user, JSON.parse(body.fields.loggedUser));
         }
         return user;
     }
@@ -51,6 +54,7 @@ class DatasetRouter {
         clonedDataset.data_path = dataset.dataPath;
         clonedDataset.table_name = dataset.tableName;
         clonedDataset.data = ctx.request.body.data;
+
         let uri = '';
         if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
@@ -68,9 +72,50 @@ class DatasetRouter {
 
         const method = ctx.request.method === 'DELETE' ? 'DELETE' : 'POST';
 
+        try {
+            return await ctRegisterMicroservice.requestToMicroservice({
+                uri,
+                method,
+                json: true,
+                body: { connector: clonedDataset }
+            });
+        } catch (err) {
+            logger.error('Error connecting to dataset adapter');
+            throw new MicroserviceConnection(`Error connecting to dataset adapter: ${err.message}`);
+        }
+    }
+
+    static async notifyAdapterCreate(ctx, dataset) {
+        const { connectorType, provider } = dataset;
+        const clonedDataset = Object.assign({}, dataset.toObject());
+
+        clonedDataset.id = dataset._id;
+        clonedDataset.connector_url = dataset.connectorUrl;
+        clonedDataset.attributes_path = dataset.attributesPath;
+        clonedDataset.data_columns = dataset.datasetAttributes;
+        clonedDataset.data_path = dataset.dataPath;
+        clonedDataset.table_name = dataset.tableName;
+        clonedDataset.data = ctx.request.body.data;
+
+        let uri = '';
+        if (connectorType === 'rest') {
+            uri += `/rest-datasets/${provider}`;
+        } else if (connectorType === 'document') {
+            uri += `/doc-datasets/${provider}`;
+            if (!clonedDataset.sources || !clonedDataset.sources.length) {
+                if (clonedDataset.connectorUrl) {
+                    clonedDataset.sources = [clonedDataset.connectorUrl];
+                } else {
+                    clonedDataset.sources = [];
+                }
+            }
+            delete clonedDataset.connector_url;
+            delete clonedDataset.connectorUrl;
+        }
+
         return ctRegisterMicroservice.requestToMicroservice({
             uri,
-            method,
+            method: 'POST',
             json: true,
             body: { connector: clonedDataset }
         });
@@ -104,7 +149,7 @@ class DatasetRouter {
             const user = DatasetRouter.getUser(ctx);
             const dataset = await DatasetService.create(ctx.request.body, user);
             try {
-                DatasetRouter.notifyAdapter(ctx, dataset);
+                DatasetRouter.notifyAdapterCreate(ctx, dataset);
             } catch (error) {
                 // do nothing
                 logger.error(error);
@@ -336,6 +381,7 @@ class DatasetRouter {
                 fields
             };
         } catch (err) {
+            logger.error('Error uploading file', err);
             ctx.throw(500, 'Error uploading file');
         }
     }
@@ -395,6 +441,8 @@ const validationMiddleware = async (ctx, next) => {
             await DatasetValidator.validateCloning(ctx);
         } else if (ctx.request.path.indexOf('upload') >= 0) {
             await DatasetValidator.validateUpload(ctx);
+        } else if (ctx.request.path.indexOf('find-by-ids') >= 0) {
+            await DatasetValidator.validateFindByIDS(ctx);
         } else {
             await DatasetValidator.validateUpdate(ctx);
         }
@@ -495,7 +543,7 @@ const authorizationRecover = async (ctx, next) => {
 };
 
 router.get('/', DatasetRouter.getAll);
-router.post('/find-by-ids', DatasetRouter.findByIds);
+router.post('/find-by-ids', validationMiddleware, DatasetRouter.findByIds);
 router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, DatasetRouter.create);
 // router.post('/', validationMiddleware, authorizationMiddleware, authorizationBigQuery, authorizationSubscribable, DatasetRouter.create);
 router.post('/upload', validationMiddleware, authorizationMiddleware, DatasetRouter.upload);
