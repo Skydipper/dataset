@@ -44,6 +44,7 @@ describe('Dataset update tests', () => {
         dataset.should.have.property('connectorUrl').and.equal(cartoFakeDataset.connectorUrl);
         dataset.should.have.property('tableName').and.equal(cartoFakeDataset.tableName);
         dataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        dataset.should.have.property('applicationConfig').and.deep.equal(cartoFakeDataset.applicationConfig);
         dataset.should.have.property('status').and.equal('saved');
         dataset.should.have.property('overwrite').and.equal(true);
         dataset.legend.should.be.an.instanceOf(Object);

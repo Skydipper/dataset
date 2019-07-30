@@ -109,6 +109,7 @@ describe('Dataset clone tests', () => {
                 loggedUser: ROLES.ADMIN
             });
         const dataset = deserializeDataset(response);
+        console.log("dataset-----", dataset);
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('object');
@@ -121,6 +122,7 @@ describe('Dataset clone tests', () => {
         dataset.should.have.property('provider').and.equal('json');
         dataset.should.have.property('connectorUrl').and.equal('http://other.dataset.url');
         dataset.should.have.property('tableName').and.equal(cartoFakeDataset.tableName);
+        dataset.should.have.property('applicationConfig').and.deep.equal(cartoFakeDataset.applicationConfig);
         dataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         dataset.should.have.property('status').and.equal('pending');
         dataset.should.have.property('overwrite').and.equal(true);

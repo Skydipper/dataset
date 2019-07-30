@@ -651,6 +651,7 @@ describe('Get datasets with includes tests', () => {
                 application: [
                     'rw'
                 ],
+                applicationConfig: cartoFakeDataset.applicationConfig,
                 dataPath: cartoFakeDataset.dataPath,
                 attributesPath: cartoFakeDataset.attributesPath,
                 connectorType: 'rest',

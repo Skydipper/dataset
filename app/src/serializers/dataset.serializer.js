@@ -26,6 +26,7 @@ class DatasetSerializer {
                 subscribable: el.subscribable,
                 mainDateField: el.mainDateField,
                 env: el.env,
+                applicationConfig: el.applicationConfig,
                 geoInfo: el.geoInfo,
                 protected: el.protected,
                 legend: el.legend,
