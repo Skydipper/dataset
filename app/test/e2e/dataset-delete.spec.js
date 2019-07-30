@@ -11,9 +11,6 @@ const { getTestServer } = require('./test-server');
 
 const requester = getTestServer();
 
-let cartoFakeDataset = null;
-let jsonFakeDataset = null;
-
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
@@ -23,15 +20,11 @@ describe('Dataset delete tests', () => {
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
-
-        nock.cleanAll();
-
-        cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
-        jsonFakeDataset = await new Dataset(createDataset('json')).save();
     });
 
-
     it('Not authorized dataset deletion should fail', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+
         const response = await requester
             .delete(`/api/v1/dataset/${cartoFakeDataset._id}`)
             .send();
@@ -49,6 +42,8 @@ describe('Dataset delete tests', () => {
     });
 
     it('Deleting an existing carto dataset should be successful and return the dataset', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+
         nock(`${process.env.CT_URL}`)
             .get(`/v1/dataset/${cartoFakeDataset._id}/layer?protected=true`)
             .once()
@@ -147,8 +142,121 @@ describe('Dataset delete tests', () => {
         getResponse.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${cartoFakeDataset._id}' doesn't exist`);
     });
 
+    it('Deleting an existing carto dataset with missing layer MS should fail with a meaningful error', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
-    it('Deleting an existing json dataset should be successful and return the dataset', async () => {
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/dataset/${cartoFakeDataset._id}/layer?protected=true`)
+            .once()
+            .reply(404, {
+                status: 404,
+                detail: 'Endpoint not found'
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`, (request) => {
+                const requestDataset = request.connector;
+
+                requestDataset.attributesPath.should.deep.equal(cartoFakeDataset.attributesPath);
+                requestDataset.connectorType.should.deep.equal(cartoFakeDataset.connectorType);
+                requestDataset.connectorUrl.should.deep.equal(cartoFakeDataset.connectorUrl);
+                requestDataset.name.should.deep.equal(cartoFakeDataset.name);
+                requestDataset.overwrite.should.deep.equal(cartoFakeDataset.overwrite);
+                requestDataset.slug.should.deep.equal(cartoFakeDataset.slug);
+                requestDataset.tableName.should.deep.equal(cartoFakeDataset.tableName);
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+
+        response.status.should.equal(500);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Error obtaining protected layers of the dataset: 404 - {"status":404,"detail":"Endpoint not found"}`);
+    });
+
+    it('Deleting an existing carto dataset with missing widget MS should fail with a meaningful error', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/dataset/${cartoFakeDataset._id}/layer?protected=true`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/dataset/${cartoFakeDataset._id}/widget?protected=true`)
+            .once()
+            .reply(404, {
+                status: 404,
+                detail: 'Endpoint not found'
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`, (request) => {
+                const requestDataset = request.connector;
+
+                requestDataset.attributesPath.should.deep.equal(cartoFakeDataset.attributesPath);
+                requestDataset.connectorType.should.deep.equal(cartoFakeDataset.connectorType);
+                requestDataset.connectorUrl.should.deep.equal(cartoFakeDataset.connectorUrl);
+                requestDataset.name.should.deep.equal(cartoFakeDataset.name);
+                requestDataset.overwrite.should.deep.equal(cartoFakeDataset.overwrite);
+                requestDataset.slug.should.deep.equal(cartoFakeDataset.slug);
+                requestDataset.tableName.should.deep.equal(cartoFakeDataset.tableName);
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+
+        response.status.should.equal(500);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Error obtaining protected widgets of the dataset: 404 - {"status":404,"detail":"Endpoint not found"}`);
+    });
+
+    it('Deleting an existing carto dataset with missing carto MS should fail with a meaningful error', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`, (request) => {
+                const requestDataset = request.connector;
+
+                requestDataset.attributesPath.should.deep.equal(cartoFakeDataset.attributesPath);
+                requestDataset.connectorType.should.deep.equal(cartoFakeDataset.connectorType);
+                requestDataset.connectorUrl.should.deep.equal(cartoFakeDataset.connectorUrl);
+                requestDataset.name.should.deep.equal(cartoFakeDataset.name);
+                requestDataset.overwrite.should.deep.equal(cartoFakeDataset.overwrite);
+                requestDataset.slug.should.deep.equal(cartoFakeDataset.slug);
+                requestDataset.tableName.should.deep.equal(cartoFakeDataset.tableName);
+                return true;
+            })
+            .once()
+            .reply(404, {
+                status: 404,
+                detail: 'Endpoint not found'
+            });
+
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+
+        response.status.should.equal(500);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Error connecting to dataset adapter: 404 - {"status":404,"detail":"Endpoint not found"}`);
+    });
+
+    it('Deleting an existing json dataset should be successful and return the dataset (happy case)', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+        const jsonFakeDataset = await new Dataset(createDataset('json')).save();
+
         nock(`${process.env.CT_URL}`)
             .get(`/v1/dataset/${jsonFakeDataset._id}/layer?protected=true`)
             .once()
@@ -250,7 +358,6 @@ describe('Dataset delete tests', () => {
         getResponse.body.should.have.property('errors').and.be.an('array');
         getResponse.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${jsonFakeDataset._id}' doesn't exist`);
     });
-
 
     afterEach(() => {
         if (!nock.isDone()) {
