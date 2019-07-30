@@ -76,7 +76,6 @@ describe('Dataset create tests', () => {
                 loggedUser: ROLES.ADMIN
             });
 
-        console.log("body----", response.body);
         const createdDataset = deserializeDataset(response);
 
         response.status.should.equal(200);

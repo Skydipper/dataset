@@ -109,7 +109,6 @@ describe('Dataset clone tests', () => {
                 loggedUser: ROLES.ADMIN
             });
         const dataset = deserializeDataset(response);
-        console.log("dataset-----", dataset);
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('object');
