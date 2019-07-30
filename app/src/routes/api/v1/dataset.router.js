@@ -11,6 +11,7 @@ const DatasetSerializer = require('serializers/dataset.serializer');
 const DatasetDuplicated = require('errors/datasetDuplicated.error');
 const DatasetNotFound = require('errors/datasetNotFound.error');
 const DatasetProtected = require('errors/datasetProtected.error');
+const MicroserviceConnection = require('errors/microserviceConnection.error');
 const DatasetNotValid = require('errors/datasetNotValid.error');
 const ConnectorUrlNotValid = require('errors/connectorUrlNotValid.error');
 const ctRegisterMicroservice = require('ct-register-microservice-node');
@@ -71,12 +72,17 @@ class DatasetRouter {
 
         const method = ctx.request.method === 'DELETE' ? 'DELETE' : 'POST';
 
-        return ctRegisterMicroservice.requestToMicroservice({
-            uri,
-            method,
-            json: true,
-            body: { connector: clonedDataset }
-        });
+        try {
+            return await ctRegisterMicroservice.requestToMicroservice({
+                uri,
+                method,
+                json: true,
+                body: { connector: clonedDataset }
+            });
+        } catch (err) {
+            logger.error('Error connecting to dataset adapter');
+            throw new MicroserviceConnection(`Error connecting to dataset adapter: ${err.message}`);
+        }
     }
 
     static async notifyAdapterCreate(ctx, dataset) {
