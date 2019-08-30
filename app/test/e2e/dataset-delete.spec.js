@@ -127,6 +127,7 @@ describe('Dataset delete tests', () => {
         deleteResponse.status.should.equal(200);
         deleteResponse.body.should.have.property('data').and.be.an('object');
         createdDataset.should.have.property('name').and.equal(cartoFakeDataset.name);
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(cartoFakeDataset.applicationConfig);
         createdDataset.should.have.property('connectorType').and.equal('rest');
         createdDataset.should.have.property('provider').and.equal('cartodb');
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
@@ -344,6 +345,7 @@ describe('Dataset delete tests', () => {
         createdDataset.should.have.property('name').and.equal(jsonFakeDataset.name);
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('json');
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(jsonFakeDataset.applicationConfig);
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('saved');
         createdDataset.should.have.property('overwrite').and.equal(true);

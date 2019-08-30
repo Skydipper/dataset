@@ -20,6 +20,7 @@ const Dataset = new Schema({
     application: [
         { type: String, required: true, trim: true }
     ],
+    applicationConfig: { type: Schema.Types.Mixed },
     dataPath: {
         type: String, required: false, trim: true, default: null
     },

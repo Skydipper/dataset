@@ -31,6 +31,11 @@ describe('Dataset create tests', () => {
         const dataset = {
             name: `Carto DB Dataset - ${timestamp}`,
             application: ['rw'],
+            applicationConfig: {
+                rw: {
+                    foo: 'bar'
+                }
+            },
             connectorType: 'rest',
             provider: 'cartodb',
             env: 'production',
@@ -70,6 +75,7 @@ describe('Dataset create tests', () => {
                 dataset,
                 loggedUser: ROLES.ADMIN
             });
+
         const createdDataset = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -83,6 +89,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(true);
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
         createdDataset.should.have.property('createdAt').and.be.a('string');
         createdDataset.should.have.property('updatedAt').and.be.a('string');
         createdDataset.should.have.property('dataLastUpdated');
@@ -97,6 +104,14 @@ describe('Dataset create tests', () => {
         const dataset = {
             name: `FeatureServer Dataset - ${timestamp}`,
             application: ['gfw', 'rw'],
+            applicationConfig: {
+                gfw: {
+                    foo: 'bar'
+                },
+                rw: {
+                    foo: 'bar'
+                }
+            },
             connectorType: 'rest',
             provider: 'featureservice',
             env: 'production',
@@ -139,6 +154,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('tableName').and.equal('Mineral_Development_Agreements');
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
         createdDataset.should.have.property('overwrite').and.equal(true);
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
@@ -149,6 +165,14 @@ describe('Dataset create tests', () => {
         const dataset = {
             name: `JSON Dataset - ${timestamp.getTime()}`,
             application: ['forest-atlas', 'rw'],
+            applicationConfig: {
+                'forest-atlas': {
+                    foo: 'bar',
+                },
+                rw: {
+                    foo: 'bar',
+                }
+            },
             connectorType: 'document',
             env: 'production',
             provider: 'json',
@@ -203,6 +227,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
         createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
@@ -213,6 +238,14 @@ describe('Dataset create tests', () => {
         const dataset = {
             name: `JSON Dataset - ${timestamp.getTime()}`,
             application: ['forest-atlas', 'rw'],
+            applicationConfig: {
+                'forest-atlas': {
+                    foo: 'bar',
+                },
+                rw: {
+                    foo: 'bar',
+                }
+            },
             connectorType: 'document',
             connectorUrl: 'https://fake-file.csv',
             env: 'production',
@@ -251,6 +284,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('json');
         createdDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
         createdDataset.should.have.property('tableName');
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
@@ -265,6 +299,14 @@ describe('Dataset create tests', () => {
         const dataset = {
             name: `JSON Dataset - ${timestamp.getTime()}`,
             application: ['forest-atlas', 'rw'],
+            applicationConfig: {
+                'forest-atlas': {
+                    foo: 'bar',
+                },
+                rw: {
+                    foo: 'bar',
+                }
+            },
             connectorType: 'document',
             sources: [
                 'https://fake-file-0.json',
@@ -313,6 +355,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
         createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
@@ -323,6 +366,14 @@ describe('Dataset create tests', () => {
         const dataset = {
             name: `CSV Dataset - ${timestamp.getTime()}`,
             application: ['forest-atlas', 'rw'],
+            applicationConfig: {
+                'forest-atlas': {
+                    foo: 'bar',
+                },
+                rw: {
+                    foo: 'bar',
+                }
+            },
             connectorType: 'document',
             sources: [
                 'https://fake-file-0.csv',
@@ -371,6 +422,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
         createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);

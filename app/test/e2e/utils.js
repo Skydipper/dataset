@@ -36,6 +36,7 @@ const expectedDataset = dataset => ({
             type: null,
             subtitle: dataset.subtitle,
             application: ['rw'],
+            applicationConfig: dataset.applicationConfig,
             dataPath: dataset.dataPath,
             attributesPath: dataset.attributesPath,
             connectorType: 'rest',
@@ -112,6 +113,11 @@ const createDataset = (provider) => {
         subtitle: `Fake dataset ${uuid} subtitle`,
         dataPath: `Fake dataset ${uuid} data path`,
         application: 'rw',
+        applicationConfig: {
+            rw: {
+                foo: 'bar',
+            }
+        },
         attributesPath: `Fake dataset ${uuid} attributes path`,
         connectorType,
         dataLastUpdated: (new Date().toISOString()),

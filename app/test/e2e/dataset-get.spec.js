@@ -5,7 +5,7 @@ const Dataset = require('models/dataset.model');
 const { createDataset, deserializeDataset } = require('./utils');
 
 const { getTestServer } = require('./test-server');
-const { getUUID } = require('./utils');
+const { getUUID, expectedDataset } = require('./utils');
 
 const should = chai.should();
 
@@ -48,6 +48,7 @@ describe('Get datasets tests', () => {
         const datasetOne = deserializeDataset(response)[0];
 
         datasetOne.attributes.should.have.property('dataLastUpdated').and.equal(cartoFakeDataset.dataLastUpdated.toISOString());
+        datasetOne.should.deep.equal(expectedDataset(cartoFakeDataset));
     });
 
     it('Get an existing dataset by ID should be successful', async () => {
@@ -57,6 +58,7 @@ describe('Get datasets tests', () => {
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('object');
         dataset.should.have.property('name').and.equal(cartoFakeDataset.name);
+        response.body.data.should.deep.equal(expectedDataset(cartoFakeDataset));
     });
 
     it('Get an non-existing dataset by ID should fail', async () => {
@@ -86,6 +88,7 @@ describe('Get datasets tests', () => {
         const datasetThree = deserializeDataset(response)[2];
 
         datasetThree.attributes.should.have.property('sources').and.eql(jsonFakeDatasetWithSources.sources);
+        response.body.data[0].should.deep.equal(expectedDataset(cartoFakeDataset));
     });
 
     it('Get the first page with one dataset using pagination', async () => {
