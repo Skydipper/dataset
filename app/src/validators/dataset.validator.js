@@ -232,6 +232,9 @@ class DatasetValidator {
         koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.checkSubscribable(subscribable), DatasetValidator.errorMessage('subscribable'));
         koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend), 'must be an object');
         koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies), 'must be an object');
+        koaObj.checkBody('applicationConfig')
+            .optional()
+            .check(applicationConfig => DatasetValidator.isObject(applicationConfig), 'must be an object');
         koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
         koaObj.checkBody('widgetRelevantProps').optional().check(widgetRelevantProps => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
         koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
@@ -251,6 +254,9 @@ class DatasetValidator {
         koaObj.checkBody('application').optional().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('dataPath').optional().check(dataPath => DatasetValidator.isString(dataPath), 'must be a string');
         koaObj.checkBody('attributesPath').optional().check(attributesPath => DatasetValidator.isString(attributesPath), 'must be a string');
+        koaObj.checkBody('applicationConfig')
+            .optional()
+            .check(applicationConfig => DatasetValidator.isObject(applicationConfig), 'must be an object');
         koaObj.checkBody('connectorType').optional().check(connectorType => DatasetValidator.isString(connectorType), 'must be a string');
         koaObj.checkBody('provider').optional().check(provider => DatasetValidator.isString(provider), 'must be a string');
         koaObj.checkBody('connectorUrl').optional().check(connectorUrl => DatasetValidator.notEmptyString(connectorUrl), 'can not be empty');
@@ -287,6 +293,9 @@ class DatasetValidator {
         logger.info('Validating Dataset Cloning');
         koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('datasetUrl').notEmpty().isAscii();
+        koaObj.checkBody('applicationConfig')
+            .optional()
+            .check(applicationConfig => DatasetValidator.isObject(applicationConfig), 'must be an object');
         if (koaObj.errors) {
             logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);

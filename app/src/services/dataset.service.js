@@ -228,6 +228,7 @@ class DatasetService {
             application: dataset.application,
             dataPath: dataset.dataPath,
             attributesPath: dataset.attributesPath,
+            applicationConfig: dataset.applicationConfig,
             connectorType: dataset.connectorType,
             provider: dataset.provider,
             userId: user.id,
@@ -367,6 +368,7 @@ class DatasetService {
         currentDataset.connectorType = dataset.connectorType || currentDataset.connectorType;
         currentDataset.provider = dataset.provider || currentDataset.provider;
         currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
+        currentDataset.applicationConfig = dataset.applicationConfig || currentDataset.applicationConfig;
         currentDataset.tableName = tableName || currentDataset.tableName;
         currentDataset.mainDateField = dataset.mainDateField || currentDataset.mainDateField;
         currentDataset.type = dataset.type || currentDataset.type;
@@ -643,6 +645,7 @@ class DatasetService {
         newDataset.tableName = currentDataset.tableName;
         newDataset.dataLastUpdated = currentDataset.dataLastUpdated;
         newDataset.overwrite = currentDataset.overwrite || currentDataset.dataOverwrite;
+        newDataset.applicationConfig = dataset.applicationConfig || currentDataset.applicationConfig;
         newDataset.published = user.role === 'ADMIN' ? dataset.published || currentDataset.published : false;
         newDataset.legend = dataset.legend;
         newDataset.clonedHost = {
