@@ -26,15 +26,14 @@ describe('Dataset delete tests', () => {
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
         const response = await requester
-            .delete(`/api/v1/dataset/${cartoFakeDataset._id}`)
-            .send();
+            .delete(`/api/v1/dataset/${cartoFakeDataset._id}`);
 
         response.status.should.equal(401);
     });
 
     it('Deleting a non-existing dataset should fail', async () => {
         const uuid = getUUID();
-        const response = await requester.delete(`/api/v1/dataset/${uuid}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+        const response = await requester.delete(`/api/v1/dataset/${uuid}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`);
 
         response.status.should.equal(404);
         response.body.should.have.property('errors').and.be.an('array');
@@ -119,7 +118,7 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
-        const deleteResponse = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+        const deleteResponse = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`);
 
         deleteResponse.status.should.equal(200);
         const createdDataset = deserializeDataset(deleteResponse);
@@ -136,7 +135,7 @@ describe('Dataset delete tests', () => {
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
 
-        const getResponse = await requester.get(`/api/v1/dataset/${cartoFakeDataset._id}`).send();
+        const getResponse = await requester.get(`/api/v1/dataset/${cartoFakeDataset._id}`);
 
         getResponse.status.should.equal(404);
         getResponse.body.should.have.property('errors').and.be.an('array');
@@ -144,10 +143,24 @@ describe('Dataset delete tests', () => {
     });
 
     it('Delete an document dataset with missing tableName should delete (happy case)', async () => {
-        const cartoFakeDataset = await new Dataset(createDataset('json', { tableName: null, connectorType: 'document' })).save();
+        const jsonFakeDataset = await new Dataset(createDataset('json', {
+            tableName: null,
+            connectorType: 'document'
+        })).save();
 
         nock(`${process.env.CT_URL}`)
-            .get(`/v1/dataset/${cartoFakeDataset._id}/layer?protected=true`)
+            .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`, (request) => {
+                const requestDataset = request.connector;
+
+                requestDataset.attributesPath.should.deep.equal(jsonFakeDataset.attributesPath);
+                requestDataset.connectorType.should.deep.equal(jsonFakeDataset.connectorType);
+                requestDataset.connectorUrl.should.deep.equal(jsonFakeDataset.connectorUrl);
+                requestDataset.name.should.deep.equal(jsonFakeDataset.name);
+                requestDataset.overwrite.should.deep.equal(jsonFakeDataset.overwrite);
+                requestDataset.slug.should.deep.equal(jsonFakeDataset.slug);
+                requestDataset.should.have.property('tableName').and.equal(jsonFakeDataset.tableName);
+                return true;
+            })
             .once()
             .reply(200, {
                 status: 200,
@@ -155,7 +168,7 @@ describe('Dataset delete tests', () => {
             });
 
         nock(`${process.env.CT_URL}`)
-            .get(`/v1/dataset/${cartoFakeDataset._id}/widget?protected=true`)
+            .get(`/v1/dataset/${jsonFakeDataset._id}/layer?protected=true`)
             .once()
             .reply(200, {
                 status: 200,
@@ -163,7 +176,7 @@ describe('Dataset delete tests', () => {
             });
 
         nock(`${process.env.CT_URL}`)
-            .delete(`/v1/dataset/${cartoFakeDataset._id}/vocabulary/knowledge_graph?application=rw`)
+            .get(`/v1/dataset/${jsonFakeDataset._id}/widget?protected=true`)
             .once()
             .reply(200, {
                 status: 200,
@@ -171,7 +184,7 @@ describe('Dataset delete tests', () => {
             });
 
         nock(`${process.env.CT_URL}`)
-            .delete(`/v1/dataset/${cartoFakeDataset._id}/layer`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/vocabulary/knowledge_graph?application=rw`)
             .once()
             .reply(200, {
                 status: 200,
@@ -179,7 +192,7 @@ describe('Dataset delete tests', () => {
             });
 
         nock(`${process.env.CT_URL}`)
-            .delete(`/v1/dataset/${cartoFakeDataset._id}/widget`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/layer`)
             .once()
             .reply(200, {
                 status: 200,
@@ -187,7 +200,7 @@ describe('Dataset delete tests', () => {
             });
 
         nock(`${process.env.CT_URL}`)
-            .delete(`/v1/dataset/${cartoFakeDataset._id}/metadata`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/widget`)
             .once()
             .reply(200, {
                 status: 200,
@@ -195,22 +208,30 @@ describe('Dataset delete tests', () => {
             });
 
         nock(`${process.env.CT_URL}`)
-            .delete(`/v1/dataset/${cartoFakeDataset._id}/vocabulary`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/metadata`)
             .once()
             .reply(200, {
                 status: 200,
                 data: []
             });
 
-        const deleteResponse = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/dataset/${jsonFakeDataset._id}/vocabulary`)
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        const deleteResponse = await requester.delete(`/api/v1/dataset/${jsonFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`);
 
         deleteResponse.status.should.equal(200);
         const createdDataset = deserializeDataset(deleteResponse);
 
         deleteResponse.status.should.equal(200);
         deleteResponse.body.should.have.property('data').and.be.an('object');
-        createdDataset.should.have.property('name').and.equal(cartoFakeDataset.name);
-        createdDataset.should.have.property('applicationConfig').and.deep.equal(cartoFakeDataset.applicationConfig);
+        createdDataset.should.have.property('name').and.equal(jsonFakeDataset.name);
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(jsonFakeDataset.applicationConfig);
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('json');
         createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
@@ -219,11 +240,11 @@ describe('Dataset delete tests', () => {
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
 
-        const getResponse = await requester.get(`/api/v1/dataset/${cartoFakeDataset._id}`).send();
+        const getResponse = await requester.get(`/api/v1/dataset/${jsonFakeDataset._id}`)
 
         getResponse.status.should.equal(404);
         getResponse.body.should.have.property('errors').and.be.an('array');
-        getResponse.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${cartoFakeDataset._id}' doesn't exist`);
+        getResponse.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${jsonFakeDataset._id}' doesn't exist`);
     });
 
     it('Deleting an existing carto dataset with missing layer MS should fail with a meaningful error', async () => {
@@ -256,7 +277,7 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
-        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
 
         response.status.should.equal(500);
         response.body.should.have.property('errors').and.be.an('array');
@@ -301,7 +322,7 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
-        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
 
         response.status.should.equal(500);
         response.body.should.have.property('errors').and.be.an('array');
@@ -330,7 +351,7 @@ describe('Dataset delete tests', () => {
                 detail: 'Endpoint not found'
             });
 
-        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send();
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
 
         response.status.should.equal(500);
         response.body.should.have.property('errors').and.be.an('array');
@@ -418,7 +439,7 @@ describe('Dataset delete tests', () => {
 
         const deleteResponse = await requester
             .delete(`/api/v1/dataset/${jsonFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
-            .send();
+
 
         deleteResponse.status.should.equal(200);
         const createdDataset = deserializeDataset(deleteResponse);
@@ -437,7 +458,7 @@ describe('Dataset delete tests', () => {
 
         const getResponse = await requester
             .get(`/api/v1/dataset/${jsonFakeDataset._id}`)
-            .send();
+
 
         getResponse.status.should.equal(404);
         getResponse.body.should.have.property('errors').and.be.an('array');
