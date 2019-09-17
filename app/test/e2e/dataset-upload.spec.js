@@ -44,8 +44,7 @@ describe('Upload raw data', () => {
         const response = await requester.post(`${BASE_URL}/upload`)
             .field('loggedUser', JSON.stringify(ROLES.USER))
             .field('provider', 'csv')
-            .attach('dataset', fileData, filename)
-            .send();
+            .attach('dataset', fileData, filename);
 
         response.status.should.equal(400);
         ensureCorrectError(response.body, '- dataset: file too large - ');
@@ -69,7 +68,7 @@ describe('Upload raw data', () => {
             .field('loggedUser', JSON.stringify(ROLES.USER))
             .field('provider', 'csv')
             .attach('dataset', fileData, filename)
-            .send();
+
 
         response.status.should.equal(400);
         ensureCorrectError(response.body, '- dataset: file dataset_1.json is bad file type. - ');

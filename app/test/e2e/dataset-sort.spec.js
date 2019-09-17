@@ -30,7 +30,7 @@ describe('Sort datasets tests', () => {
     });
 
     it('Sort datasets by non-existent field (implicit order)', async () => {
-        const responseOne = await requester.get(`/api/v1/dataset?sort=potato`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?sort=potato`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(200);
@@ -44,7 +44,7 @@ describe('Sort datasets tests', () => {
     });
 
     it('Sort datasets by provider (implicit order)', async () => {
-        const responseOne = await requester.get(`/api/v1/dataset?sort=provider`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?sort=provider`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(200);
@@ -58,7 +58,7 @@ describe('Sort datasets tests', () => {
     });
 
     it('Sort datasets by provider (explicit asc order)', async () => {
-        const responseOne = await requester.get(`/api/v1/dataset?sort=+provider`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?sort=+provider`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(200);
@@ -72,7 +72,7 @@ describe('Sort datasets tests', () => {
     });
 
     it('Sort datasets by provider (explicit desc order)', async () => {
-        const responseOne = await requester.get(`/api/v1/dataset?sort=-provider`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?sort=-provider`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(200);
@@ -86,7 +86,7 @@ describe('Sort datasets tests', () => {
     });
 
     it('Sort datasets by relevance with no search criteria should return invalid query error', async () => {
-        const responseOne = await requester.get(`/api/v1/dataset?sort=-relevance`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?sort=-relevance`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(400);
