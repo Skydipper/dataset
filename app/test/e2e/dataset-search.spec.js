@@ -45,7 +45,7 @@ describe('Search datasets tests', () => {
                 data: []
             });
 
-        const response = await requester.get(`/api/v1/dataset?search=fake%20dataset`).send();
+        const response = await requester.get(`/api/v1/dataset?search=fake%20dataset`)
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -73,7 +73,7 @@ describe('Search datasets tests', () => {
                 data: []
             });
 
-        const response = await requester.get(`/api/v1/dataset?search=${encodeURIComponent(cartoFakeDataset.name)}`).send();
+        const response = await requester.get(`/api/v1/dataset?search=${encodeURIComponent(cartoFakeDataset.name)}`)
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -106,7 +106,7 @@ describe('Search datasets tests', () => {
                 data: []
             });
 
-        const responseOne = await requester.get(`/api/v1/dataset?search=keyword`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?search=keyword`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(200);
@@ -147,7 +147,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        const responseOne = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-viewed`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-viewed`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(200);
@@ -170,7 +170,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-viewed`).send();
+        const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-viewed`)
         const datasetsTwo = deserializeDataset(responseTwo);
 
         responseTwo.status.should.equal(200);
@@ -211,7 +211,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        const responseOne = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-favorited`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-favorited`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(200);
@@ -234,7 +234,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-favorited`).send();
+        const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=-most-favorited`)
         const datasetsTwo = deserializeDataset(responseTwo);
 
         responseTwo.status.should.equal(200);
@@ -266,7 +266,7 @@ describe('Search datasets tests', () => {
             });
 
 
-        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=relevance`).send();
+        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=relevance`)
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -298,7 +298,7 @@ describe('Search datasets tests', () => {
             });
 
 
-        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=${encodeURIComponent('-')}relevance`).send();
+        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=${encodeURIComponent('-')}relevance`)
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -325,7 +325,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=${encodeURIComponent('+')}relevance`).send();
+        const response = await requester.get(`/api/v1/dataset?search=keyword&sort=${encodeURIComponent('+')}relevance`)
 
         response.status.should.equal(400);
         response.body.should.have.property('errors').and.be.an('array');
@@ -350,7 +350,7 @@ describe('Search datasets tests', () => {
                 data: []
             });
 
-        const responseOne = await requester.get(`/api/v1/dataset?search=keyword&sort=metadata`).send();
+        const responseOne = await requester.get(`/api/v1/dataset?search=keyword&sort=metadata`)
         const datasetsOne = deserializeDataset(responseOne);
 
         responseOne.status.should.equal(200);
@@ -372,7 +372,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=metadata`).send();
+        const responseTwo = await requester.get(`/api/v1/dataset?search=keyword&sort=metadata`)
         const datasetsTwo = deserializeDataset(responseTwo);
 
         responseTwo.status.should.equal(200);

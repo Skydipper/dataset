@@ -90,7 +90,7 @@ const ensureCorrectError = (body, errMessage) => {
     body.errors[0].should.have.property('detail').and.equal(errMessage);
 };
 
-const createDataset = (provider) => {
+const createDataset = (provider, anotherData = {}) => {
     let connectorType = '';
 
     // CONNECTOR_TYPES.{keys, values, entries};
@@ -106,7 +106,7 @@ const createDataset = (provider) => {
 
     const uuid = getUUID();
 
-    return {
+    return Object.assign({}, {
         name: `Fake dataset ${uuid}`,
         slug: `fake-carto-${uuid}`,
         type: null,
@@ -133,7 +133,7 @@ const createDataset = (provider) => {
         status: 'saved',
         sandbox: true,
         published: true
-    };
+    }, anotherData);
 };
 
 const mapDatasetToMetadataSearchResult = dataset => ({

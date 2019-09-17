@@ -8,7 +8,8 @@ const { getTestServer } = require('./test-server');
 
 const requester = getTestServer();
 
-let jsonFakeDataset; let
+let jsonFakeDataset;
+let
     blockchainFakeDataset;
 
 const BASE_URL = '/api/v1/dataset';
@@ -33,7 +34,7 @@ describe('Upload raw data', () => {
 
     it('Return `Not verification data` if there\'s no blockchain info', async () => {
         const response = await requester.get(`${BASE_URL}/${jsonFakeDataset.id}/verification`)
-            .send();
+
 
         response.status.should.equal(200);
         response.body.should.have.property('message').and.equal('Not verification data');
@@ -49,7 +50,7 @@ describe('Upload raw data', () => {
             });
 
         const response = await requester.get(`${BASE_URL}/${blockchainFakeDataset.id}/verification`)
-            .send();
+
 
         response.status.should.equal(200);
         response.body[0].should.have.property('id').and.equal(BLOCKCHAIN_FAKE_INFO.blockchain.id);

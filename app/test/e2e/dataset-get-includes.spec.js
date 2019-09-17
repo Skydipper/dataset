@@ -633,7 +633,7 @@ describe('Get datasets with includes tests', () => {
             });
 
 
-        const response = await requester.get(`/api/v1/dataset?application=rw&env=production&includes=layer,metadata,vocabulary,widget,graph,user&language=en&page[number]=1&page[size]=12&published=true&search=human&page[size]=12&page[number]=1`).send();
+        const response = await requester.get(`/api/v1/dataset?application=rw&env=production&includes=layer,metadata,vocabulary,widget,graph,user&language=en&page[number]=1&page[size]=12&published=true&search=human&page[size]=12&page[number]=1`)
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
