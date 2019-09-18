@@ -53,7 +53,7 @@
     "@auth0/s3": "^1.0.0",
     "bunyan": "^1.8.5",
     "config": "^1.21.0",
-    "cron-parser": "^2.3.1",
+    "cron-parser": "^2.13.0",
     "ct-register-microservice-node": "^2.1.7",
     "firstline": "^1.2.1",
     "koa": "^2.0.0",
