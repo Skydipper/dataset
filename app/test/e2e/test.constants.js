@@ -1,4 +1,4 @@
-const ROLES = {
+const USERS = {
     USER: {
         id: '1a10d7c6e0a37126611fd7a7',
         role: 'USER',
@@ -38,6 +38,7 @@ const ROLES = {
         role: 'ADMIN',
         provider: 'local',
         email: 'user@control-tower.org',
+        name: 'John Admin',
         extraUserData: {
             apps: [
                 'rw',
@@ -127,7 +128,7 @@ const STAMPERY_RESPONSE_OBJECT = {
 };
 
 module.exports = {
-    ROLES,
+    USERS,
     STAMPERY_RESPONSE_OBJECT,
     BLOCKCHAIN_FAKE_INFO,
     ERRORS,

@@ -2,7 +2,7 @@
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
-const { ROLES } = require('./test.constants');
+const { USERS } = require('./test.constants');
 const { createDataset, getUUID, deserializeDataset } = require('./utils');
 
 const should = chai.should();
@@ -33,7 +33,7 @@ describe('Dataset delete tests', () => {
 
     it('Deleting a non-existing dataset should fail', async () => {
         const uuid = getUUID();
-        const response = await requester.delete(`/api/v1/dataset/${uuid}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`);
+        const response = await requester.delete(`/api/v1/dataset/${uuid}?loggedUser=${JSON.stringify(USERS.ADMIN)}`);
 
         response.status.should.equal(404);
         response.body.should.have.property('errors').and.be.an('array');
@@ -118,7 +118,7 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
-        const deleteResponse = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`);
+        const deleteResponse = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(USERS.ADMIN)}`);
 
         deleteResponse.status.should.equal(200);
         const createdDataset = deserializeDataset(deleteResponse);
@@ -129,7 +129,7 @@ describe('Dataset delete tests', () => {
         createdDataset.should.have.property('applicationConfig').and.deep.equal(cartoFakeDataset.applicationConfig);
         createdDataset.should.have.property('connectorType').and.equal('rest');
         createdDataset.should.have.property('provider').and.equal('cartodb');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('saved');
         createdDataset.should.have.property('overwrite').and.equal(true);
         createdDataset.legend.should.be.an.instanceOf(Object);
@@ -223,7 +223,7 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
-        const deleteResponse = await requester.delete(`/api/v1/dataset/${jsonFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`);
+        const deleteResponse = await requester.delete(`/api/v1/dataset/${jsonFakeDataset._id}?loggedUser=${JSON.stringify(USERS.ADMIN)}`);
 
         deleteResponse.status.should.equal(200);
         const createdDataset = deserializeDataset(deleteResponse);
@@ -234,13 +234,13 @@ describe('Dataset delete tests', () => {
         createdDataset.should.have.property('applicationConfig').and.deep.equal(jsonFakeDataset.applicationConfig);
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('json');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('saved');
         createdDataset.should.have.property('overwrite').and.equal(true);
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
 
-        const getResponse = await requester.get(`/api/v1/dataset/${jsonFakeDataset._id}`)
+        const getResponse = await requester.get(`/api/v1/dataset/${jsonFakeDataset._id}`);
 
         getResponse.status.should.equal(404);
         getResponse.body.should.have.property('errors').and.be.an('array');
@@ -277,7 +277,7 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
-        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(USERS.ADMIN)}`);
 
         response.status.should.equal(500);
         response.body.should.have.property('errors').and.be.an('array');
@@ -322,7 +322,7 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
-        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(USERS.ADMIN)}`);
 
         response.status.should.equal(500);
         response.body.should.have.property('errors').and.be.an('array');
@@ -351,7 +351,7 @@ describe('Dataset delete tests', () => {
                 detail: 'Endpoint not found'
             });
 
-        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
+        const response = await requester.delete(`/api/v1/dataset/${cartoFakeDataset._id}?loggedUser=${JSON.stringify(USERS.ADMIN)}`);
 
         response.status.should.equal(500);
         response.body.should.have.property('errors').and.be.an('array');
@@ -438,7 +438,7 @@ describe('Dataset delete tests', () => {
             });
 
         const deleteResponse = await requester
-            .delete(`/api/v1/dataset/${jsonFakeDataset._id}?loggedUser=${JSON.stringify(ROLES.ADMIN)}`)
+            .delete(`/api/v1/dataset/${jsonFakeDataset._id}?loggedUser=${JSON.stringify(USERS.ADMIN)}`);
 
 
         deleteResponse.status.should.equal(200);
@@ -450,14 +450,14 @@ describe('Dataset delete tests', () => {
         createdDataset.should.have.property('connectorType').and.equal('document');
         createdDataset.should.have.property('provider').and.equal('json');
         createdDataset.should.have.property('applicationConfig').and.deep.equal(jsonFakeDataset.applicationConfig);
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('saved');
         createdDataset.should.have.property('overwrite').and.equal(true);
         createdDataset.legend.should.be.an.instanceOf(Object);
         createdDataset.clonedHost.should.be.an.instanceOf(Object);
 
         const getResponse = await requester
-            .get(`/api/v1/dataset/${jsonFakeDataset._id}`)
+            .get(`/api/v1/dataset/${jsonFakeDataset._id}`);
 
 
         getResponse.status.should.equal(404);

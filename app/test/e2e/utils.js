@@ -1,5 +1,5 @@
 const { CONNECTOR_TYPES } = require('app.constants');
-const { ROLES } = require('./test.constants');
+const { USERS } = require('./test.constants');
 
 
 function isArray(element) {
@@ -124,7 +124,7 @@ const createDataset = (provider, anotherData = {}) => {
         sourceApplication: `Fake dataset ${uuid} source application`,
         sourceLanguage: 'en',
         provider,
-        userId: ROLES.ADMIN.id,
+        userId: USERS.ADMIN.id,
         env: 'production',
         geoInfo: false,
         connectorUrl: `Fake dataset ${uuid} connector URL`,

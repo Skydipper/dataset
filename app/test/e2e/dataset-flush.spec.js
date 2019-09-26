@@ -2,7 +2,7 @@ const nock = require('nock');
 
 const Dataset = require('models/dataset.model');
 
-const { ROLES } = require('./test.constants');
+const { USERS } = require('./test.constants');
 const { createDataset, ensureCorrectError } = require('./utils');
 const { getTestServer } = require('./test-server');
 
@@ -27,7 +27,7 @@ describe('Upload raw data', () => {
     });
 
     it('Return 401 error if no user provided', async () => {
-        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`);
 
         response.status.should.equal(401);
         ensureCorrectError(response.body, 'Unauthorized');
@@ -35,7 +35,7 @@ describe('Upload raw data', () => {
 
     it('Return 403 error if role USER tries to flush a dataset', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
-            .field('loggedUser', JSON.stringify(ROLES.USER))
+            .field('loggedUser', JSON.stringify(USERS.USER));
 
 
         response.status.should.equal(403);
@@ -44,7 +44,7 @@ describe('Upload raw data', () => {
 
     it('Return 403 error if the dataset doesn\'t exit', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
-            .field('loggedUser', JSON.stringify(ROLES.USER))
+            .field('loggedUser', JSON.stringify(USERS.USER));
 
 
         response.status.should.equal(403);
@@ -53,7 +53,7 @@ describe('Upload raw data', () => {
 
     it('Successfully flush a dataset as a MANAGER', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
-            .field('loggedUser', JSON.stringify(ROLES.MANAGER))
+            .field('loggedUser', JSON.stringify(USERS.MANAGER));
 
 
         response.status.should.equal(200);
@@ -61,7 +61,7 @@ describe('Upload raw data', () => {
 
     it('Successfully flush a dataset as an ADMIN', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
-            .field('loggedUser', JSON.stringify(ROLES.ADMIN))
+            .field('loggedUser', JSON.stringify(USERS.ADMIN));
 
 
         response.status.should.equal(200);

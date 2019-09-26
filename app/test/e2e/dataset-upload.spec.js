@@ -3,7 +3,7 @@ const nock = require('nock');
 
 const Dataset = require('models/dataset.model');
 
-const { ROLES, ERRORS } = require('./test.constants');
+const { USERS, ERRORS } = require('./test.constants');
 const { getTestServer } = require('./test-server');
 const { ensureCorrectError } = require('./utils');
 
@@ -42,7 +42,7 @@ describe('Upload raw data', () => {
         const fileData = fs.readFileSync(`${__dirname}/upload-data/${filename}`);
 
         const response = await requester.post(`${BASE_URL}/upload`)
-            .field('loggedUser', JSON.stringify(ROLES.USER))
+            .field('loggedUser', JSON.stringify(USERS.USER))
             .field('provider', 'csv')
             .attach('dataset', fileData, filename);
 
@@ -53,7 +53,7 @@ describe('Upload raw data', () => {
     it('Return error if no data provided at all', async () => {
         const response = await requester
             .post(`${BASE_URL}/upload`)
-            .field('loggedUser', JSON.stringify(ROLES.USER));
+            .field('loggedUser', JSON.stringify(USERS.USER));
 
         response.status.should.equal(400);
         ensureCorrectError(response.body, ERRORS.UPLOAD_EMPTY_FILE);
@@ -65,9 +65,9 @@ describe('Upload raw data', () => {
         const fileData = fs.readFileSync(`${__dirname}/upload-data/${filename}`);
 
         const response = await requester.post(`${BASE_URL}/upload`)
-            .field('loggedUser', JSON.stringify(ROLES.USER))
+            .field('loggedUser', JSON.stringify(USERS.USER))
             .field('provider', 'csv')
-            .attach('dataset', fileData, filename)
+            .attach('dataset', fileData, filename);
 
 
         response.status.should.equal(400);
@@ -89,7 +89,7 @@ describe('Upload raw data', () => {
             });
 
         const response = await requester.post(`${BASE_URL}/upload`)
-            .field('loggedUser', JSON.stringify(ROLES.USER))
+            .field('loggedUser', JSON.stringify(USERS.USER))
             .field('provider', 'csv')
             .attach('dataset', fileData, filename);
 
