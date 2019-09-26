@@ -2,7 +2,7 @@
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
-const { ROLES } = require('./test.constants');
+const { USERS } = require('./test.constants');
 const { createDataset, deserializeDataset } = require('./utils');
 const { getTestServer } = require('./test-server');
 
@@ -106,7 +106,7 @@ describe('Dataset clone tests', () => {
             .send({
                 datasetUrl: 'http://other.dataset.url',
                 application: ['gfw', 'rw'],
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
         const dataset = deserializeDataset(response);
 
@@ -122,7 +122,7 @@ describe('Dataset clone tests', () => {
         dataset.should.have.property('connectorUrl').and.equal('http://other.dataset.url');
         dataset.should.have.property('tableName').and.equal(cartoFakeDataset.tableName);
         dataset.should.have.property('applicationConfig').and.deep.equal(cartoFakeDataset.applicationConfig);
-        dataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        dataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         dataset.should.have.property('status').and.equal('pending');
         dataset.should.have.property('overwrite').and.equal(true);
         dataset.legend.should.be.an.instanceOf(Object);

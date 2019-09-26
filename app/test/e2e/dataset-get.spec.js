@@ -39,7 +39,7 @@ describe('Get datasets tests', () => {
 
     /* Get All Datasets */
     it('Get all datasets with no arguments should be successful', async () => {
-        const response = await requester.get(`/api/v1/dataset`)
+        const response = await requester.get(`/api/v1/dataset`);
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array');
@@ -52,7 +52,7 @@ describe('Get datasets tests', () => {
     });
 
     it('Get an existing dataset by ID should be successful', async () => {
-        const response = await requester.get(`/api/v1/dataset/${cartoFakeDataset._id}`)
+        const response = await requester.get(`/api/v1/dataset/${cartoFakeDataset._id}`);
         const dataset = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -63,7 +63,7 @@ describe('Get datasets tests', () => {
 
     it('Get an non-existing dataset by ID should fail', async () => {
         const uuid = getUUID();
-        const response = await requester.get(`/api/v1/dataset/${uuid}`)
+        const response = await requester.get(`/api/v1/dataset/${uuid}`);
 
         response.status.should.equal(404);
         response.body.should.have.property('errors').and.be.an('array');
@@ -72,7 +72,7 @@ describe('Get datasets tests', () => {
 
     /* Pagination */
     it('Get a page with 3 datasets using pagination', async () => {
-        const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=3`)
+        const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=3`);
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -92,7 +92,7 @@ describe('Get datasets tests', () => {
     });
 
     it('Get the first page with one dataset using pagination', async () => {
-        const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=1`)
+        const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=1`);
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -105,7 +105,7 @@ describe('Get datasets tests', () => {
     });
 
     it('Get the second page with one dataset using pagination', async () => {
-        const response = await requester.get(`/api/v1/dataset?page[number]=2&page[size]=1`)
+        const response = await requester.get(`/api/v1/dataset?page[number]=2&page[size]=1`);
         const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
@@ -118,7 +118,7 @@ describe('Get datasets tests', () => {
     });
 
     it('Get an existing dataset by ID should be successful - With `sources` field', async () => {
-        const response = await requester.get(`/api/v1/dataset/${jsonFakeDatasetWithSources._id}`)
+        const response = await requester.get(`/api/v1/dataset/${jsonFakeDatasetWithSources._id}`);
         const dataset = deserializeDataset(response);
 
         response.status.should.equal(200);

@@ -2,7 +2,7 @@
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
-const { ROLES } = require('./test.constants');
+const { USERS } = require('./test.constants');
 const { createDataset, deserializeDataset } = require('./utils');
 
 const should = chai.should();
@@ -32,7 +32,7 @@ describe('Dataset update tests', () => {
             .send({
                 name: 'other name',
                 application: ['gfw', 'rw'],
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
         const dataset = deserializeDataset(response);
 
@@ -43,7 +43,7 @@ describe('Dataset update tests', () => {
         dataset.should.have.property('provider').and.equal('cartodb');
         dataset.should.have.property('connectorUrl').and.equal(cartoFakeDataset.connectorUrl);
         dataset.should.have.property('tableName').and.equal(cartoFakeDataset.tableName);
-        dataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        dataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         dataset.should.have.property('applicationConfig').and.deep.equal(cartoFakeDataset.applicationConfig);
         dataset.should.have.property('status').and.equal('saved');
         dataset.should.have.property('overwrite').and.equal(true);
@@ -59,7 +59,7 @@ describe('Dataset update tests', () => {
             .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
             .send({
                 dataLastUpdated: timestamp,
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
         const dataset = deserializeDataset(response);
 
@@ -75,7 +75,7 @@ describe('Dataset update tests', () => {
             .patch(`/api/v1/dataset/${cartoFakeDataset._id}`)
             .send({
                 dataLastUpdated: 'potato',
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
 
         response.status.should.equal(400);
@@ -89,7 +89,7 @@ describe('Dataset update tests', () => {
             .send({
                 status: 'pending',
                 application: ['gfw', 'rw'],
-                loggedUser: ROLES.MANAGER
+                loggedUser: USERS.MANAGER
             });
 
         response.status.should.equal(403);
@@ -103,7 +103,7 @@ describe('Dataset update tests', () => {
             .send({
                 status: 'fail',
                 application: ['gfw', 'rw'],
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
 
         response.status.should.equal(400);
@@ -117,7 +117,7 @@ describe('Dataset update tests', () => {
             .send({
                 status: 78,
                 application: ['gfw', 'rw'],
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
 
         response.status.should.equal(400);
@@ -131,7 +131,7 @@ describe('Dataset update tests', () => {
             .send({
                 status: 'pending',
                 application: ['gfw', 'rw'],
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
         const dataset = deserializeDataset(response);
 
@@ -148,7 +148,7 @@ describe('Dataset update tests', () => {
             .send({
                 status: 2,
                 application: ['gfw', 'rw'],
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
         const dataset = deserializeDataset(response);
 

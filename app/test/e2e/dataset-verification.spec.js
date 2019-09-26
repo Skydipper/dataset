@@ -33,7 +33,7 @@ describe('Upload raw data', () => {
     });
 
     it('Return `Not verification data` if there\'s no blockchain info', async () => {
-        const response = await requester.get(`${BASE_URL}/${jsonFakeDataset.id}/verification`)
+        const response = await requester.get(`${BASE_URL}/${jsonFakeDataset.id}/verification`);
 
 
         response.status.should.equal(200);
@@ -49,7 +49,7 @@ describe('Upload raw data', () => {
                 Via: '1.1 vegur'
             });
 
-        const response = await requester.get(`${BASE_URL}/${blockchainFakeDataset.id}/verification`)
+        const response = await requester.get(`${BASE_URL}/${blockchainFakeDataset.id}/verification`);
 
 
         response.status.should.equal(200);
