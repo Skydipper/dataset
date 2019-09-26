@@ -64,7 +64,7 @@ describe('Find by ids datasets', () => {
     });
 
     it('Return 400 error if no data provided at all', async () => {
-        const response = await requester.post(`${BASE_URL}/find-by-ids`)
+        const response = await requester.post(`${BASE_URL}/find-by-ids`);
         response.status.should.equal(400);
         ensureCorrectError(response.body, '- ids: ids can not be empty. - ');
     });

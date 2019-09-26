@@ -2,7 +2,7 @@
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
-const { ROLES } = require('./test.constants');
+const { USERS } = require('./test.constants');
 const { deserializeDataset } = require('./utils');
 const { getTestServer } = require('./test-server');
 
@@ -73,7 +73,7 @@ describe('Dataset create tests', () => {
             .post(`/api/v1/dataset`)
             .send({
                 dataset,
-                loggedUser: ROLES.ADMIN
+                loggedUser: USERS.ADMIN
             });
 
         const createdDataset = deserializeDataset(response);
@@ -86,7 +86,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('provider').and.equal('cartodb');
         createdDataset.should.have.property('connectorUrl').and.equal('https://wri-01.carto.com/tables/wdpa_protected_areas/table');
         createdDataset.should.have.property('tableName').and.equal('wdpa_protected_areas');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(true);
         createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
@@ -140,7 +140,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -152,7 +152,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('provider').and.equal('featureservice');
         createdDataset.should.have.property('connectorUrl').and.equal('http://services6.arcgis.com/bIipaUHHcz1GaAsv/arcgis/rest/services/Mineral_Development_Agreements/FeatureServer/0?f=pjson');
         createdDataset.should.have.property('tableName').and.equal('Mineral_Development_Agreements');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
         createdDataset.should.have.property('overwrite').and.equal(true);
@@ -213,7 +213,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -224,7 +224,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('provider').and.equal('json');
         createdDataset.should.have.property('connectorUrl').and.equal(null);
         createdDataset.should.have.property('tableName');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
         createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
@@ -274,7 +274,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -286,7 +286,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
         createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
         createdDataset.should.have.property('tableName');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
         createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
@@ -340,7 +340,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -352,7 +352,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('connectorUrl').and.equal(null);
         createdDataset.should.have.property('sources').and.eql(dataset.sources);
         createdDataset.should.have.property('tableName');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
         createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
@@ -407,7 +407,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -419,7 +419,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('connectorUrl').and.equal(null);
         createdDataset.should.have.property('sources').and.eql(dataset.sources);
         createdDataset.should.have.property('tableName');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
         createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
@@ -448,7 +448,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -484,7 +484,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -524,7 +524,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -566,7 +566,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
         const createdDataset = deserializeDataset(response);
 
@@ -577,7 +577,7 @@ describe('Dataset create tests', () => {
         createdDataset.should.have.property('provider').and.equal('csv');
         createdDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
         createdDataset.should.have.property('tableName');
-        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
         createdDataset.should.have.property('status').and.equal('pending');
         createdDataset.should.have.property('overwrite').and.equal(false);
         createdDataset.should.have.property('dataLastUpdated').and.equal(timestamp.toISOString());
@@ -600,7 +600,7 @@ describe('Dataset create tests', () => {
 
         const response = await requester.post(`/api/v1/dataset`).send({
             dataset,
-            loggedUser: ROLES.ADMIN
+            loggedUser: USERS.ADMIN
         });
 
         response.status.should.equal(403);

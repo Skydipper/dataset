@@ -1,7 +1,7 @@
 const nock = require('nock');
 const Dataset = require('models/dataset.model');
 
-const { ROLES } = require('./test.constants');
+const { USERS } = require('./test.constants');
 const { createDataset, ensureCorrectError } = require('./utils');
 const { getTestServer } = require('./test-server');
 
@@ -26,7 +26,7 @@ describe('Upload raw data', () => {
     });
 
     it('Return 401 error if no user provided', async () => {
-        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
+        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`);
 
 
         response.status.should.equal(401);
@@ -35,7 +35,7 @@ describe('Upload raw data', () => {
 
     it('Return 401 error if role is USER', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
-            .field('loggedUser', JSON.stringify(ROLES.USER))
+            .field('loggedUser', JSON.stringify(USERS.USER));
 
 
         response.status.should.equal(401);
@@ -44,7 +44,7 @@ describe('Upload raw data', () => {
 
     it('Return 401 error if role is MANAGER', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
-            .field('loggedUser', JSON.stringify(ROLES.MANAGER))
+            .field('loggedUser', JSON.stringify(USERS.MANAGER));
 
 
         response.status.should.equal(401);
@@ -53,7 +53,7 @@ describe('Upload raw data', () => {
 
     it('Return 404 error if the dataset doesn\'t exist', async () => {
         const response = await requester.post(`${BASE_URL}/fake-id/recover`)
-            .field('loggedUser', JSON.stringify(ROLES.ADMIN))
+            .field('loggedUser', JSON.stringify(USERS.ADMIN));
 
 
         response.status.should.equal(404);
@@ -62,7 +62,7 @@ describe('Upload raw data', () => {
 
     it('Successfully recover a dataset', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
-            .field('loggedUser', JSON.stringify(ROLES.ADMIN))
+            .field('loggedUser', JSON.stringify(USERS.ADMIN));
 
 
         response.status.should.equal(200);
