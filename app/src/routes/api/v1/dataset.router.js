@@ -264,7 +264,7 @@ class DatasetRouter {
                 ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
                 logger.debug('Ids from vocabulary-tag', ctx.query.ids);
             }
-            if (Object.keys(query).find(el => el.indexOf('user.role') >= 0)) {
+            if (Object.keys(query).find(el => el.indexOf('user.role') >= 0) && user && user.role === 'ADMIN') {
                 logger.debug('Obtaining users with role');
                 ctx.query.usersRole = await UserService.getUsersWithRole(ctx.query['user.role']);
                 logger.debug('Ids from users with role', ctx.query.usersRole);
