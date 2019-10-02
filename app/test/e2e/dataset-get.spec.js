@@ -2,6 +2,7 @@
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
+const { USERS } = require('./test.constants');
 const { createDataset, deserializeDataset } = require('./utils');
 
 const { getTestServer } = require('./test-server');
@@ -14,7 +15,6 @@ const requester = getTestServer();
 let cartoFakeDataset;
 let jsonFakeDataset;
 let jsonFakeDatasetWithSources;
-
 
 describe('Get datasets tests', () => {
 
@@ -49,6 +49,28 @@ describe('Get datasets tests', () => {
 
         datasetOne.attributes.should.have.property('dataLastUpdated').and.equal(cartoFakeDataset.dataLastUpdated.toISOString());
         datasetOne.should.deep.equal(expectedDataset(cartoFakeDataset));
+    });
+
+    it('Get datasets only with owner ADMIN should be successful', async () => {
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
+        nock(process.env.CT_URL).get('/auth/user/ids/ADMIN').reply(200, { data: [USERS.ADMIN.id] });
+
+        const response = await requester.get(`/api/v1/dataset`).query({ 'user.role': 'ADMIN' });
+        response.body.data.length.should.equal(5);
+        response.body.data.map(dataset => dataset.attributes.userId.should.equal(USERS.ADMIN.id));
+    });
+
+    it('Get datasets only with owner USER should be successful', async () => {
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
+        nock(process.env.CT_URL).get('/auth/user/ids/USER').reply(200, { data: [USERS.USER.id] });
+
+        const response = await requester.get(`/api/v1/dataset`).query({ 'user.role': 'USER' });
+        response.body.data.length.should.equal(2);
+        response.body.data.map(dataset => dataset.attributes.userId.should.equal(USERS.USER.id));
     });
 
     it('Get an existing dataset by ID should be successful', async () => {
