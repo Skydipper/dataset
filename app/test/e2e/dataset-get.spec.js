@@ -12,10 +12,6 @@ const should = chai.should();
 
 const requester = getTestServer();
 
-let cartoFakeDataset;
-let jsonFakeDataset;
-let jsonFakeDatasetWithSources;
-
 describe('Get datasets tests', () => {
 
     before(async () => {
@@ -24,21 +20,12 @@ describe('Get datasets tests', () => {
         }
 
         nock.cleanAll();
-
-        Dataset.remove({}).exec();
-
-        cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
-        jsonFakeDataset = await new Dataset(createDataset('json')).save();
-
-        const datasetWithSources = createDataset('json');
-        datasetWithSources.sources = [datasetWithSources.connectorUrl];
-        delete datasetWithSources.connectorUrl;
-
-        jsonFakeDatasetWithSources = await new Dataset(datasetWithSources).save();
     });
 
     /* Get All Datasets */
     it('Get all datasets with no arguments should be successful', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+
         const response = await requester.get(`/api/v1/dataset`);
 
         response.status.should.equal(200);
@@ -51,29 +38,58 @@ describe('Get datasets tests', () => {
         datasetOne.should.deep.equal(expectedDataset(cartoFakeDataset));
     });
 
-    it('Get datasets only with owner ADMIN should be successful', async () => {
+    it('Get datasets filtered by owner\'s role = ADMIN as an ADMIN should be successful and filter by the given role', async () => {
         await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
         await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
         await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
         nock(process.env.CT_URL).get('/auth/user/ids/ADMIN').reply(200, { data: [USERS.ADMIN.id] });
 
-        const response = await requester.get(`/api/v1/dataset`).query({ 'user.role': 'ADMIN' });
-        response.body.data.length.should.equal(5);
+        const response = await requester.get(`/api/v1/dataset?loggedUser=${JSON.stringify(USERS.ADMIN)}`).query({ 'user.role': 'ADMIN' });
+        response.body.data.length.should.equal(2);
         response.body.data.map(dataset => dataset.attributes.userId.should.equal(USERS.ADMIN.id));
     });
 
-    it('Get datasets only with owner USER should be successful', async () => {
+    it('Get datasets filtered by owner\'s role = USER as an ADMIN should be successful and filter by the given role', async () => {
         await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
         await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
         await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
         nock(process.env.CT_URL).get('/auth/user/ids/USER').reply(200, { data: [USERS.USER.id] });
 
-        const response = await requester.get(`/api/v1/dataset`).query({ 'user.role': 'USER' });
-        response.body.data.length.should.equal(2);
+        const response = await requester.get(`/api/v1/dataset?loggedUser=${JSON.stringify(USERS.ADMIN)}`).query({ 'user.role': 'USER' });
+        response.body.data.length.should.equal(1);
         response.body.data.map(dataset => dataset.attributes.userId.should.equal(USERS.USER.id));
     });
 
+    it('Get datasets filtered by owner\'s as a MANAGER should be successful but not filter by the given role', async () => {
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
+
+        const response = await requester.get(`/api/v1/dataset?loggedUser=${JSON.stringify(USERS.MANAGER)}`).query({ 'user.role': 'USER' });
+        response.body.data.length.should.equal(3);
+    });
+
+    it('Get datasets filtered by owner\'s as a USER should be successful but not filter by the given role', async () => {
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
+
+        const response = await requester.get(`/api/v1/dataset?loggedUser=${JSON.stringify(USERS.USER)}`).query({ 'user.role': 'USER' });
+        response.body.data.length.should.equal(3);
+    });
+
+    it('Get datasets filtered by owner\'s as an anonymous user should be successful but not filter by the given role', async () => {
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+        await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
+
+        const response = await requester.get(`/api/v1/dataset`).query({ 'user.role': 'USER' });
+        response.body.data.length.should.equal(3);
+    });
+
     it('Get an existing dataset by ID should be successful', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
+
         const response = await requester.get(`/api/v1/dataset/${cartoFakeDataset._id}`);
         const dataset = deserializeDataset(response);
 
@@ -94,6 +110,10 @@ describe('Get datasets tests', () => {
 
     /* Pagination */
     it('Get a page with 3 datasets using pagination', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+        const jsonFakeDataset = await new Dataset(createDataset('json')).save();
+        const csvFakeDataset = await new Dataset(createDataset('csv')).save();
+
         const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=3`);
         const datasets = deserializeDataset(response);
 
@@ -105,15 +125,19 @@ describe('Get datasets tests', () => {
 
         datasetIds.should.contain(cartoFakeDataset._id);
         datasetIds.should.contain(jsonFakeDataset._id);
-        datasetIds.should.contain(jsonFakeDatasetWithSources._id);
+        datasetIds.should.contain(csvFakeDataset._id);
 
         const datasetThree = deserializeDataset(response)[2];
 
-        datasetThree.attributes.should.have.property('sources').and.eql(jsonFakeDatasetWithSources.sources);
+        datasetThree.attributes.should.have.property('sources').and.eql(csvFakeDataset.sources);
         response.body.data[0].should.deep.equal(expectedDataset(cartoFakeDataset));
     });
 
     it('Get the first page with one dataset using pagination', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+        const jsonFakeDataset = await new Dataset(createDataset('json')).save();
+        const csvFakeDataset = await new Dataset(createDataset('csv')).save();
+
         const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=1`);
         const datasets = deserializeDataset(response);
 
@@ -127,6 +151,10 @@ describe('Get datasets tests', () => {
     });
 
     it('Get the second page with one dataset using pagination', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+        const jsonFakeDataset = await new Dataset(createDataset('json')).save();
+        const csvFakeDataset = await new Dataset(createDataset('csv')).save();
+
         const response = await requester.get(`/api/v1/dataset?page[number]=2&page[size]=1`);
         const datasets = deserializeDataset(response);
 
@@ -140,23 +168,25 @@ describe('Get datasets tests', () => {
     });
 
     it('Get an existing dataset by ID should be successful - With `sources` field', async () => {
-        const response = await requester.get(`/api/v1/dataset/${jsonFakeDatasetWithSources._id}`);
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+        const jsonFakeDataset = await new Dataset(createDataset('json')).save();
+        const csvFakeDataset = await new Dataset(createDataset('csv')).save();
+
+        const response = await requester.get(`/api/v1/dataset/${csvFakeDataset._id}`);
         const dataset = deserializeDataset(response);
 
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('object');
-        dataset.should.have.property('name').and.equal(jsonFakeDatasetWithSources.name);
-        dataset.should.have.property('sources').and.eql(jsonFakeDatasetWithSources.sources);
-        dataset.should.have.property('connectorUrl').and.equal(null);
+        dataset.should.have.property('name').and.equal(csvFakeDataset.name);
+        dataset.should.have.property('sources').and.eql(csvFakeDataset.sources);
+        dataset.should.have.property('connectorUrl').and.equal(csvFakeDataset.connectorUrl);
     });
 
     afterEach(() => {
         if (!nock.isDone()) {
             throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`);
         }
-    });
 
-    after(() => {
         Dataset.remove({}).exec();
     });
 });
