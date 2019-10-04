@@ -8,8 +8,6 @@ const { getTestServer } = require('./test-server');
 
 const requester = getTestServer();
 
-let jsonFakeDataset;
-
 const BASE_URL = '/api/v1/dataset';
 
 describe('Upload raw data', () => {
@@ -20,21 +18,21 @@ describe('Upload raw data', () => {
         }
 
         nock.cleanAll();
-
-        Dataset.remove({}).exec();
-
-        jsonFakeDataset = await new Dataset(createDataset('json')).save();
     });
 
     it('Return 401 error if no user provided', async () => {
-        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`);
+        const fakeDataset = await new Dataset(createDataset('json')).save();
+
+        const response = await requester.post(`${BASE_URL}/${fakeDataset.id}/flush`);
 
         response.status.should.equal(401);
         ensureCorrectError(response.body, 'Unauthorized');
     });
 
     it('Return 403 error if role USER tries to flush a dataset', async () => {
-        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+        const fakeDataset = await new Dataset(createDataset('json')).save();
+
+        const response = await requester.post(`${BASE_URL}/${fakeDataset.id}/flush`)
             .field('loggedUser', JSON.stringify(USERS.USER));
 
 
@@ -43,7 +41,9 @@ describe('Upload raw data', () => {
     });
 
     it('Return 403 error if the dataset doesn\'t exit', async () => {
-        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+        const fakeDataset = await new Dataset(createDataset('json')).save();
+
+        const response = await requester.post(`${BASE_URL}/${fakeDataset.id}/flush`)
             .field('loggedUser', JSON.stringify(USERS.USER));
 
 
@@ -51,30 +51,53 @@ describe('Upload raw data', () => {
         ensureCorrectError(response.body, 'Forbidden');
     });
 
-    it('Successfully flush a dataset as a MANAGER', async () => {
-        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+    it('Flush a dataset as a USER that the requesting user owns should fail', async () => {
+        const fakeDataset = await new Dataset(createDataset('json', { userId: USERS.USER.id })).save();
+
+        const response = await requester.post(`${BASE_URL}/${fakeDataset.id}/flush`)
+            .field('loggedUser', JSON.stringify(USERS.USER));
+
+
+        response.status.should.equal(403);
+    });
+
+    it('Successfully flush a dataset as a MANAGER that the requesting user owns', async () => {
+        const fakeDataset = await new Dataset(createDataset('json', { userId: USERS.MANAGER.id })).save();
+
+        const response = await requester.post(`${BASE_URL}/${fakeDataset.id}/flush`)
             .field('loggedUser', JSON.stringify(USERS.MANAGER));
 
 
         response.status.should.equal(200);
     });
 
+    it('Flush a dataset as a MANAGER that the requesting user does not own should fail', async () => {
+        const fakeDataset = await new Dataset(createDataset('json', { userId: USERS.USER.id })).save();
+
+        const response = await requester.post(`${BASE_URL}/${fakeDataset.id}/flush`)
+            .field('loggedUser', JSON.stringify(USERS.MANAGER));
+
+
+        response.status.should.equal(403);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Forbidden`);
+    });
+
     it('Successfully flush a dataset as an ADMIN', async () => {
-        const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/flush`)
+        const fakeDataset = await new Dataset(createDataset('json')).save();
+
+        const response = await requester.post(`${BASE_URL}/${fakeDataset.id}/flush`)
             .field('loggedUser', JSON.stringify(USERS.ADMIN));
 
 
         response.status.should.equal(200);
     });
 
-    afterEach(() => {
+    afterEach(async () => {
+        await Dataset.remove({}).exec();
+
         if (!nock.isDone()) {
             throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`);
         }
     });
-
-    after(() => {
-        Dataset.remove({}).exec();
-    });
-
 });

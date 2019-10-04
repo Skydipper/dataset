@@ -17,7 +17,7 @@ const USERS = {
         }
     },
     MANAGER: {
-        id: '1a10d7c6e0a37126611fd7a7',
+        id: '1a10d7c6e0a37126611fd7a6',
         role: 'MANAGER',
         provider: 'local',
         email: 'user@control-tower.org',
