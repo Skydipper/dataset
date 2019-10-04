@@ -14,7 +14,7 @@ const requester = getTestServer();
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-const runStandardTestCase = async (provider, fakeDataset) => {
+const runStandardTestCase = async (provider, fakeDataset, requestingUser = USERS.ADMIN) => {
     nock(`${process.env.CT_URL}`)
         .get(`/v1/dataset/${fakeDataset._id}/layer?protected=true`)
         .once()
@@ -71,7 +71,7 @@ const runStandardTestCase = async (provider, fakeDataset) => {
             data: []
         });
 
-    const deleteResponse = await requester.delete(`/api/v1/dataset/${fakeDataset._id}?loggedUser=${JSON.stringify(USERS.ADMIN)}`).send();
+    const deleteResponse = await requester.delete(`/api/v1/dataset/${fakeDataset._id}?loggedUser=${JSON.stringify(requestingUser)}`).send();
 
     deleteResponse.status.should.equal(200);
     const createdDataset = deserializeDataset(deleteResponse);
@@ -82,7 +82,7 @@ const runStandardTestCase = async (provider, fakeDataset) => {
     createdDataset.should.have.property('applicationConfig').and.deep.equal(fakeDataset.applicationConfig);
     createdDataset.should.have.property('connectorType').and.equal(fakeDataset.connectorType);
     createdDataset.should.have.property('provider').and.equal(provider);
-    createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
+    createdDataset.should.have.property('userId').and.equal(fakeDataset.userId);
     createdDataset.should.have.property('status').and.equal('saved');
     createdDataset.should.have.property('overwrite').and.equal(true);
     createdDataset.legend.should.be.an.instanceOf(Object);
@@ -122,7 +122,76 @@ describe('Dataset delete tests', () => {
         response.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${uuid}' doesn't exist`);
     });
 
-    it('Deleting an existing carto dataset should be successful and return the dataset', async () => {
+    it('Deleting a dataset owned by a different user as a USER should return a 403 error', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        const deleteResponse = await requester.delete(`/api/v1/dataset/${fakeDataset._id}?loggedUser=${JSON.stringify(USERS.USER)}`).send();
+
+        deleteResponse.status.should.equal(403);
+        deleteResponse.body.should.have.property('errors').and.be.an('array');
+        deleteResponse.body.errors[0].should.have.property('detail').and.equal(`Forbidden`);
+    });
+
+    it('Deleting a dataset owned by the user as a USER should return a 403 error', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', {
+            userId: USERS.USER.id,
+        })).save();
+
+        const deleteResponse = await requester.delete(`/api/v1/dataset/${fakeDataset._id}?loggedUser=${JSON.stringify(USERS.USER)}`).send();
+
+        deleteResponse.status.should.equal(403);
+        deleteResponse.body.should.have.property('errors').and.be.an('array');
+        deleteResponse.body.errors[0].should.have.property('detail').and.equal(`Forbidden`);
+    });
+
+    it('Deleting a dataset owned by a different user as a MANAGER should return a 403 error', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        const deleteResponse = await requester.delete(`/api/v1/dataset/${fakeDataset._id}?loggedUser=${JSON.stringify(USERS.MANAGER)}`).send();
+
+        deleteResponse.status.should.equal(403);
+        deleteResponse.body.should.have.property('errors').and.be.an('array');
+        deleteResponse.body.errors[0].should.have.property('detail').and.equal(`Forbidden`);
+    });
+
+    it('Deleting a dataset owned by the user as a MANAGER should be successful and return the dataset', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', {
+            userId: USERS.MANAGER.id,
+        })).save();
+
+        nock(`${process.env.CT_URL}`)
+            .delete(`/v1/rest-datasets/cartodb/${fakeDataset._id}`, (request) => {
+                const requestDataset = request.connector;
+
+                requestDataset.attributesPath.should.deep.equal(fakeDataset.attributesPath);
+                requestDataset.connectorType.should.deep.equal(fakeDataset.connectorType);
+                requestDataset.connectorUrl.should.deep.equal(fakeDataset.connectorUrl);
+                requestDataset.name.should.deep.equal(fakeDataset.name);
+                requestDataset.overwrite.should.deep.equal(fakeDataset.overwrite);
+                requestDataset.slug.should.deep.equal(fakeDataset.slug);
+                requestDataset.tableName.should.deep.equal(fakeDataset.tableName);
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        await runStandardTestCase('cartodb', fakeDataset, USERS.MANAGER);
+    });
+
+    it('Deleting a dataset as a USER should return a 403 error', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        const deleteResponse = await requester.delete(`/api/v1/dataset/${fakeDataset._id}?loggedUser=${JSON.stringify(USERS.USER)}`).send();
+
+        deleteResponse.status.should.equal(403);
+        deleteResponse.body.should.have.property('errors').and.be.an('array');
+        deleteResponse.body.errors[0].should.have.property('detail').and.equal(`Forbidden`);
+    });
+
+    it('Deleting an existing dataset should be successful and return the dataset (happy case)', async () => {
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
         nock(`${process.env.CT_URL}`)
@@ -375,10 +444,7 @@ describe('Dataset delete tests', () => {
                 return true;
             })
             .once()
-            .reply(200, {
-                status: 200,
-                data: []
-            });
+            .reply(204);
 
         await runStandardTestCase('gee', geeFakeDataset);
     });
@@ -509,7 +575,10 @@ describe('Dataset delete tests', () => {
     });
 
     it('Delete a document dataset with missing tableName should delete (happy case)', async () => {
-        const jsonFakeDataset = await new Dataset(createDataset('json', { tableName: null, connectorType: 'document' })).save();
+        const jsonFakeDataset = await new Dataset(createDataset('json', {
+            tableName: null,
+            connectorType: 'document'
+        })).save();
 
         nock(`${process.env.CT_URL}`)
             .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`, (request) => {
