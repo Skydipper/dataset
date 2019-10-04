@@ -49,6 +49,9 @@ class RelationshipsService {
                 const uriQuery = serializeObjToQuery(RelationshipsService.treatQuery(query));
 
                 try {
+                    logger.debug('test uriQuery => ', `${uri}/${include}/find-by-ids?${uriQuery}`);
+                    logger.debug('test payload length => ', ((payload || {}).ids || []).length);
+
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
                         uri: `${uri}/${include}/find-by-ids?${uriQuery}`,
                         method: 'POST',
