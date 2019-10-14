@@ -23,7 +23,11 @@
     "rw",
     "nodejs"
   ],
-  "author": "https://github.com/vizzuality",
+  "author": {
+    "name": "Vizzuality",
+    "email": "hello@vizzuality.com",
+    "url": "http://vizzuality.com/"
+  },
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.2.0",
