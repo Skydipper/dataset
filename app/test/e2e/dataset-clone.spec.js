@@ -12,8 +12,6 @@ const requester = getTestServer();
 nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
-let cartoFakeDataset = null;
-
 describe('Dataset clone tests', () => {
 
     before(async () => {
@@ -23,12 +21,12 @@ describe('Dataset clone tests', () => {
 
         Dataset.remove({}).exec();
 
-        cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
-
         nock.cleanAll();
     });
 
     it('Clone a dataset as an ADMIN should be successful', async () => {
+        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+
         nock(process.env.CT_URL)
             .post(/v1\/graph\/dataset\/(\w|-)*$/)
             .once()
