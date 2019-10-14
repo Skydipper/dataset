@@ -14,14 +14,16 @@ nock.enableNetConnect(process.env.HOST_IP);
 
 describe('Dataset clone tests', () => {
 
-    before(async () => {
+    before(() => {
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
 
-        Dataset.remove({}).exec();
-
         nock.cleanAll();
+    });
+
+    beforeEach(async () => {
+        await Dataset.remove({}).exec();
     });
 
     it('Clone a dataset as an ADMIN should be successful', async () => {
@@ -127,13 +129,11 @@ describe('Dataset clone tests', () => {
         dataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
-    afterEach(() => {
+    afterEach(async () => {
+        await Dataset.remove({}).exec();
+
         if (!nock.isDone()) {
             throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`);
         }
-    });
-
-    after(() => {
-        Dataset.remove({}).exec();
     });
 });
