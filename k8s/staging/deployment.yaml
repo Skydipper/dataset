@@ -87,7 +87,7 @@ spec:
           httpGet:
             scheme: HTTP
             path: /healthcheck
-            port: 9000
+            port: 3000
           initialDelaySeconds: 30
           timeoutSeconds: 5
           periodSeconds: 15
@@ -95,7 +95,7 @@ spec:
           httpGet:
             scheme: HTTP
             path: /healthcheck
-            port: 9000
+            port: 3000
           failureThreshold: 3
           initialDelaySeconds: 30
           timeoutSeconds: 5
