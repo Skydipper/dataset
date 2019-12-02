@@ -212,7 +212,7 @@ class DatasetRouter {
             const dataset = await DatasetService.get(id);
 
             // Delete adapter-specific things before deleting the actual dataset. If adapter fails, bail
-            await DatasetRouter.notifyAdapter(ctx, dataset);
+            // await DatasetRouter.notifyAdapter(ctx, dataset);
 
             const user = DatasetRouter.getUser(ctx);
             await DatasetService.delete(id, user);
