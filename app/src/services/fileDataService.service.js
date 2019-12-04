@@ -5,6 +5,9 @@ const firstline = require('firstline');
 
 const { S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY } = process.env;
 
+console.log("just test---", S3_ACCESS_KEY_ID);
+console.log("just test--- 2", S3_SECRET_ACCESS_KEY);
+
 const S3Client = s3.createClient({
     maxAsyncS3: 20, // this is the default
     s3RetryCount: 3, // this is the default
