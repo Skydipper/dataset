@@ -27,7 +27,7 @@ class FileDataService {
             const params = {
                 localFile: filePath,
                 s3Params: {
-                    Bucket: 'wri-api-backups',
+                    Bucket: 'skydipper-api',
                     Key: key,
                     ACL: 'public-read'
                 }
