@@ -50,8 +50,8 @@ class FileDataService {
             const name = fileName.split('/')[1];
 
             const params = {
-                Bucket: 'wri-api-backups',
-                CopySource: `wri-api-backups/temp/${name}`,
+                Bucket: 'skydipper-api',
+                CopySource: `skydipper-api/temp/${name}`,
                 Key: `raw/${name}`,
                 ACL: 'public-read'
             };
