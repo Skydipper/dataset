@@ -69,6 +69,11 @@ class DatasetService {
                 if (dataset.connectorUrl.indexOf('/tables/') >= 0) {
                     return new URL(dataset.connectorUrl).pathname.split('/tables/')[1].split('/')[0];
                 }
+
+                if (dataset.connectorUrl.indexOf('/dataset/') >= 0) {
+                    return new URL(dataset.connectorUrl).pathname.split('/dataset/')[1];
+                }
+
                 return decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split('from ')[1].split(' ')[0];
             }
             if (dataset.provider === 'featureservice' && dataset.connectorUrl) {
@@ -79,6 +84,8 @@ class DatasetService {
             }
             return dataset.tableName;
         } catch (err) {
+            console.log("test---", decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split);
+            console.log("errr-rooropr", err);
             throw new ConnectorUrlNotValid('Invalid connectorUrl format');
         }
     }
