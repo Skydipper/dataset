@@ -99,6 +99,8 @@ const Dataset = new Schema({
     widgetRelevantProps: [{ type: String, required: false, trim: true }],
     layerRelevantProps: [{ type: String, required: false, trim: true }],
     dataLastUpdated: { type: Date },
+    userRole: { type: String, default: null, select: false },
+    userName: { type: String, default: null, select: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

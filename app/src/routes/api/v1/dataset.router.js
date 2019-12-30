@@ -18,6 +18,7 @@ const ctRegisterMicroservice = require('ct-register-microservice-node');
 const { USER_ROLES } = require('app.constants');
 const InvalidRequest = require('errors/invalidRequest.error');
 const ForbiddenRequest = require('errors/forbiddenRequest.error');
+const DatasetModel = require('models/dataset.model');
 
 const router = new Router({
     prefix: '/dataset',
@@ -260,6 +261,20 @@ class DatasetRouter {
         }
 
         try {
+            if (query.sort && (query.sort.includes('user.role') || query.sort.includes('user.name'))) {
+                logger.debug('Detected sorting by user role or name');
+                if (!user || !['ADMIN', 'SUPERADMIN'].includes(user && user.role)) {
+                    ctx.throw(403, 'Sorting by user name or role not authorized.');
+                    return;
+                }
+                const ids = await DatasetService.getAllDatasetUserIds();
+                const users = await RelationshipsService.getUsersInfoByIds(ids);
+                await Promise.all(users.map(u => DatasetModel.updateMany(
+                    { userId: u._id },
+                    { userRole: u.role, userName: u.name },
+                )));
+            }
+
             if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
                 ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
                 logger.debug('Ids from vocabulary-tag', ctx.query.ids);
