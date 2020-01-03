@@ -183,6 +183,25 @@ describe('GET datasets sorted by user fields', () => {
         response.body.data.map(dataset => dataset.attributes.user.name).should.be.deep.equal(['Anthony', 'bernard', 'Carlos']);
     });
 
+    it('Sorting datasets by user.name is deterministic, applying an implicit sort by id after sorting by user.name', async () => {
+        const spoofedUser = { ...USER, name: 'AAA' };
+        const spoofedManager = { ...MANAGER, name: 'AAA' };
+        const spoofedAdmin = { ...ADMIN, name: 'AAA' };
+        await new Dataset(createDataset('cartodb', { _id: '2', userId: spoofedManager.id })).save();
+        await new Dataset(createDataset('cartodb', { _id: '3', userId: spoofedUser.id })).save();
+        await new Dataset(createDataset('cartodb', { _id: '1', userId: spoofedAdmin.id })).save();
+        mockUsersForSort([spoofedUser, spoofedManager, spoofedAdmin]);
+
+        const response = await requester.get('/api/v1/dataset').query({
+            includes: 'user',
+            sort: 'user.name',
+            loggedUser: JSON.stringify(ADMIN),
+        });
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('array').and.length(3);
+        response.body.data.map(dataset => dataset.id).should.be.deep.equal(['1', '2', '3']);
+    });
+
     afterEach(async () => {
         await Dataset.deleteMany({}).exec();
 

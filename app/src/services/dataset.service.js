@@ -192,7 +192,7 @@ class DatasetService {
     }
 
     static processSortParam(sort) {
-        return sort.replace(/user.role/g, 'userRole').replace(/user.name/g, 'userName');
+        return sort.replace(/user.role/g, 'userRole,_id').replace(/user.name/g, 'userName,_id');
     }
 
     static getFilteredSort(sort) {
