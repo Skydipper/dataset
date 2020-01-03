@@ -279,6 +279,10 @@ class DatasetRouter {
                 )));
             }
 
+            if (query['page[size]'] && query['page[size]'] > 100) {
+                ctx.throw(400, 'Invalid page size');
+            }
+
             if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
                 ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
                 logger.debug('Ids from vocabulary-tag', ctx.query.ids);
