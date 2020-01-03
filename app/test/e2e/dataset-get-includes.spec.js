@@ -265,7 +265,6 @@ describe('Get datasets with includes tests', () => {
         const fakeDatasetThree = await new Dataset(createDataset('cartodb')).save();
 
         createMockUser([{
-            id: fakeDatasetOne.userId,
             _id: fakeDatasetOne.userId,
             provider: 'local',
             name: 'test user',
@@ -282,7 +281,6 @@ describe('Get datasets with includes tests', () => {
                 ]
             }
         }, {
-            id: fakeDatasetTwo.userId,
             _id: fakeDatasetTwo.userId,
             role: 'MANAGER',
             provider: 'local',
@@ -298,7 +296,6 @@ describe('Get datasets with includes tests', () => {
                 ]
             }
         }, {
-            id: fakeDatasetThree.userId,
             _id: fakeDatasetThree.userId,
             role: 'MANAGER',
             provider: 'local',
