@@ -1,6 +1,7 @@
 const nock = require('nock');
 const Dataset = require('models/dataset.model');
 const chai = require('chai');
+const mongoose = require('mongoose');
 const { getTestServer } = require('./test-server');
 const { createDataset } = require('./utils');
 const { createMockUser } = require('./mocks');
@@ -26,14 +27,16 @@ const mockUsersForSort = (users) => {
     createMockUser(allUsers);
 };
 
-const mockFourDatasetsForSorting = async () => {
+const mockDatasetsForSorting = async () => {
+    const id = mongoose.Types.ObjectId();
     await new Dataset(createDataset('cartodb', { userId: USER.id })).save();
     await new Dataset(createDataset('cartodb', { userId: MANAGER.id })).save();
     await new Dataset(createDataset('cartodb', { userId: ADMIN.id })).save();
     await new Dataset(createDataset('cartodb', { userId: SUPERADMIN.id })).save();
+    await new Dataset(createDataset('cartodb', { userId: id })).save();
 
     mockUsersForSort([
-        USER, MANAGER, ADMIN, SUPERADMIN
+        USER, MANAGER, ADMIN, SUPERADMIN, { id }
     ]);
 };
 
@@ -68,51 +71,51 @@ describe('GET datasets sorted by user fields', () => {
     });
 
     it('Getting datasets sorted by user.role ASC should return a list of datasets ordered by the role of the user who created the dataset (happy case)', async () => {
-        await mockFourDatasetsForSorting();
+        await mockDatasetsForSorting();
         const response = await requester.get('/api/v1/dataset').query({
             includes: 'user',
             sort: 'user.role',
             loggedUser: JSON.stringify(ADMIN),
         });
         response.status.should.equal(200);
-        response.body.should.have.property('data').and.be.an('array').and.length(4);
-        response.body.data.map(dataset => dataset.attributes.user.role).should.be.deep.equal(['ADMIN', 'MANAGER', 'SUPERADMIN', 'USER']);
+        response.body.should.have.property('data').and.be.an('array').and.length(5);
+        response.body.data.map(dataset => dataset.attributes.user.role).should.be.deep.equal([undefined, 'ADMIN', 'MANAGER', 'SUPERADMIN', 'USER']);
     });
 
     it('Getting datasets sorted by user.role DESC should return a list of datasets ordered by the role of the user who created the dataset (happy case)', async () => {
-        await mockFourDatasetsForSorting();
+        await mockDatasetsForSorting();
         const response = await requester.get('/api/v1/dataset').query({
             includes: 'user',
             sort: '-user.role',
             loggedUser: JSON.stringify(ADMIN),
         });
         response.status.should.equal(200);
-        response.body.should.have.property('data').and.be.an('array').and.length(4);
-        response.body.data.map(dataset => dataset.attributes.user.role).should.be.deep.equal(['USER', 'SUPERADMIN', 'MANAGER', 'ADMIN']);
+        response.body.should.have.property('data').and.be.an('array').and.length(5);
+        response.body.data.map(dataset => dataset.attributes.user.role).should.be.deep.equal(['USER', 'SUPERADMIN', 'MANAGER', 'ADMIN', undefined]);
     });
 
     it('Getting datasets sorted by user.name ASC should return a list of datasets ordered by the name of the user who created the dataset (happy case)', async () => {
-        await mockFourDatasetsForSorting();
+        await mockDatasetsForSorting();
         const response = await requester.get('/api/v1/dataset').query({
             includes: 'user',
             sort: 'user.name',
             loggedUser: JSON.stringify(ADMIN),
         });
         response.status.should.equal(200);
-        response.body.should.have.property('data').and.be.an('array').and.length(4);
-        response.body.data.map(dataset => dataset.attributes.user.name).should.be.deep.equal(['test admin', 'test manager', 'test super admin', 'test user']);
+        response.body.should.have.property('data').and.be.an('array').and.length(5);
+        response.body.data.map(dataset => dataset.attributes.user.name).should.be.deep.equal([undefined, 'test admin', 'test manager', 'test super admin', 'test user']);
     });
 
     it('Getting datasets sorted by user.name DESC should return a list of datasets ordered by the name of the user who created the dataset (happy case)', async () => {
-        await mockFourDatasetsForSorting();
+        await mockDatasetsForSorting();
         const response = await requester.get('/api/v1/dataset').query({
             includes: 'user',
             sort: '-user.name',
             loggedUser: JSON.stringify(ADMIN),
         });
         response.status.should.equal(200);
-        response.body.should.have.property('data').and.be.an('array').and.length(4);
-        response.body.data.map(dataset => dataset.attributes.user.name).should.be.deep.equal(['test user', 'test super admin', 'test manager', 'test admin']);
+        response.body.should.have.property('data').and.be.an('array').and.length(5);
+        response.body.data.map(dataset => dataset.attributes.user.name).should.be.deep.equal(['test user', 'test super admin', 'test manager', 'test admin', undefined]);
     });
 
     it('Sorting datasets by user role ASC puts datasets without valid users in the beginning of the list', async () => {
