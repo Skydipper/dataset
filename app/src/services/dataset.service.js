@@ -187,8 +187,8 @@ class DatasetService {
     static async getAllDatasetUserIds() {
         logger.debug(`[DatasetService]: Getting the user ids of all datasets`);
         const datasets = await Dataset.find({}, 'userId').lean();
-        const userIds = datasets.map(d => d.userId);
-        return userIds.filter((item, idx) => userIds.indexOf(item) === idx && item !== 'legacy');
+        const userIds = datasets.map(dataset => dataset.userId);
+        return userIds.filter((item, idx) => userIds.indexOf(item) === idx);
     }
 
     static processSortParam(sort) {

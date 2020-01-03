@@ -263,7 +263,8 @@ class DatasetRouter {
         try {
             if (query.sort && (query.sort.includes('user.role') || query.sort.includes('user.name'))) {
                 logger.debug('Detected sorting by user role or name');
-                if (!user || !['ADMIN', 'SUPERADMIN'].includes(user && user.role)) {
+                const isAdmin = ['ADMIN', 'SUPERADMIN'].includes(user && user.role);
+                if (!user || !isAdmin) {
                     ctx.throw(403, 'Sorting by user name or role not authorized.');
                     return;
                 }

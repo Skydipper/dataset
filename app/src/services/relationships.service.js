@@ -58,11 +58,6 @@ class RelationshipsService {
                 try {
                     logger.debug('test uriQuery => ', `${uri}/${include}/find-by-ids?${uriQuery}`);
                     logger.debug('test payload length => ', ((payload || {}).ids || []).length);
-
-                    if (payload.ids) {
-                        payload.ids = payload.ids.filter(id => id && id !== 'legacy').sort();
-                    }
-
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
                         uri: `${uri}/${include}/find-by-ids${uriQuery}`,
                         method: 'POST',

@@ -123,7 +123,7 @@ describe('GET datasets sorted by user fields', () => {
         const noUserDataset = await new Dataset(createDataset('cartodb', { userId: 'legacy' })).save();
 
         mockUsersForSort([
-            USER, MANAGER, ADMIN, SUPERADMIN
+            USER, MANAGER, ADMIN, SUPERADMIN, { id: 'legacy' }
         ]);
 
         const response = await requester.get('/api/v1/dataset').query({
@@ -146,7 +146,7 @@ describe('GET datasets sorted by user fields', () => {
         const noUserDataset = await new Dataset(createDataset('cartodb', { userId: 'legacy' })).save();
 
         mockUsersForSort([
-            USER, MANAGER, ADMIN, SUPERADMIN
+            USER, MANAGER, ADMIN, SUPERADMIN, { id: 'legacy' }
         ]);
 
         const response = await requester.get('/api/v1/dataset').query({
