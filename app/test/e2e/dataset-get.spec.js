@@ -234,11 +234,11 @@ describe('Get datasets tests', () => {
         datasetIds.should.not.contain(ds4._id);
     });
 
-    it('Getting datasets with page size over 100 should return 400 Bad Request', async () => {
-        const list = await requester.get('/api/v1/dataset?page[size]=101');
-        list.status.should.equal(400);
-        list.body.errors[0].should.have.property('detail').and.equal('Invalid page size');
-    });
+    // it('Getting datasets with page size over 100 should return 400 Bad Request', async () => {
+    //     const list = await requester.get('/api/v1/dataset?page[size]=101');
+    //     list.status.should.equal(400);
+    //     list.body.errors[0].should.have.property('detail').and.equal('Invalid page size');
+    // });
 
     afterEach(async () => {
         if (!nock.isDone()) {
