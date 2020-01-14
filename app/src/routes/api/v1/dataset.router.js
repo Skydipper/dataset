@@ -279,6 +279,10 @@ class DatasetRouter {
                 )));
             }
 
+            /**
+             * We'll want to limit the maximum page size in the future
+             * However, as this will cause a production BC break, we can't enforce it just now
+             */
             // if (query['page[size]'] && query['page[size]'] > 100) {
             //     ctx.throw(400, 'Invalid page size');
             // }
