@@ -1,5 +1,10 @@
-# 04/12/2019   
-- Allow microservices to update the dataset's `errorMessage` field
+# v1.0.0
 
-# 26/11/2019
-- Added `subscribable` boolean filter in GET /datasets endpoint.
+## 14/01/2020
+
+- Add filter for querying subscribable datasets.
+- Fix bug removing dataset applications by admins who can manage the removed applications.
+
+# Previous
+
+- Allow microservices to update the dataset's `errorMessage` field.
