@@ -268,13 +268,18 @@ class DatasetRouter {
                     ctx.throw(403, 'Sorting by user name or role not authorized.');
                     return;
                 }
+
+                // Reset all datasets' sorting columns
+                await DatasetModel.updateMany({}, { userRole: '', userName: '' });
+
+                // Fetch info to sort again
                 const ids = await DatasetService.getAllDatasetUserIds();
                 const users = await RelationshipsService.getUsersInfoByIds(ids);
                 await Promise.all(users.map(u => DatasetModel.updateMany(
                     { userId: u._id },
                     {
-                        userRole: u.role ? u.role.toLowerCase() : '',
-                        userName: u.name ? u.name.toLowerCase() : '',
+                        userRole: u.role ? u.role.toLowerCase() : '',
+                        userName: u.name ? u.name.toLowerCase() : '',
                     },
                 )));
             }
