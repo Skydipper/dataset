@@ -58,7 +58,6 @@ class RelationshipsService {
                 try {
                     logger.debug('test uriQuery => ', `${uri}/${include}/find-by-ids?${uriQuery}`);
                     logger.debug('test payload length => ', ((payload || {}).ids || []).length);
-
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
                         uri: `${uri}/${include}/find-by-ids${uriQuery}`,
                         method: 'POST',
@@ -307,6 +306,19 @@ class RelationshipsService {
         } catch (e) {
             throw new Error(`Error searching by label synonyms: ${e}`);
         }
+    }
+
+    static async getUsersInfoByIds(ids) {
+        logger.debug('Fetching all users\' information');
+        const body = await ctRegisterMicroservice.requestToMicroservice({
+            uri: `/auth/user/find-by-ids`,
+            method: 'POST',
+            json: true,
+            version: false,
+            body: { ids }
+        });
+
+        return body.data;
     }
 
 }

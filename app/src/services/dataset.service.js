@@ -184,8 +184,19 @@ class DatasetService {
         return query;
     }
 
+    static async getAllDatasetUserIds() {
+        logger.debug(`[DatasetService]: Getting the user ids of all datasets`);
+        const datasets = await Dataset.find({}, 'userId').lean();
+        const userIds = datasets.map(dataset => dataset.userId);
+        return userIds.filter((item, idx) => userIds.indexOf(item) === idx);
+    }
+
+    static processSortParam(sort) {
+        return sort.replace(/user.role/g, 'userRole,_id').replace(/user.name/g, 'userName,_id');
+    }
+
     static getFilteredSort(sort) {
-        const sortParams = sort.split(',');
+        const sortParams = DatasetService.processSortParam(sort).split(',');
         const filteredSort = {};
         const datasetAttributes = Object.keys(Dataset.schema.obj);
         sortParams.forEach((param) => {

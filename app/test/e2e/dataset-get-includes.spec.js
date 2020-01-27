@@ -5,6 +5,7 @@ const Dataset = require('models/dataset.model');
 const fs = require('fs');
 const path = require('path');
 const { createDataset, deserializeDataset } = require('./utils');
+const { createMockUser } = require('./mocks');
 
 const metadataGetWithSearchForHuman = require('./dataset-get-includes-responses/metadata-get-search-human');
 const widgetsFindById = require('./dataset-get-includes-responses/widget-find-by-ids');
@@ -29,8 +30,6 @@ describe('Get datasets with includes tests', () => {
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
-
-        nock.cleanAll();
 
         await Dataset.deleteMany({}).exec();
     });
@@ -265,54 +264,48 @@ describe('Get datasets with includes tests', () => {
         const fakeDatasetTwo = await new Dataset(createDataset('cartodb')).save();
         const fakeDatasetThree = await new Dataset(createDataset('cartodb')).save();
 
-        nock(process.env.CT_URL)
-            .post(`/auth/user/find-by-ids`, {
-                ids: [fakeDatasetOne.userId, fakeDatasetTwo.userId, fakeDatasetThree.userId]
-            })
-            .reply(200, {
-                data: [{
-                    _id: fakeDatasetOne.userId,
-                    provider: 'local',
-                    name: 'test user',
-                    email: 'user-one@control-tower.org',
-                    role: 'USER',
-                    extraUserData: {
-                        apps: [
-                            'rw',
-                            'gfw',
-                            'gfw-climate',
-                            'prep',
-                            'aqueduct',
-                            'forest-atlas'
-                        ]
-                    }
-                }, {
-                    _id: fakeDatasetTwo.userId,
-                    role: 'MANAGER',
-                    provider: 'local',
-                    email: 'user-two@control-tower.org',
-                    extraUserData: {
-                        apps: [
-                            'rw',
-                            'gfw',
-                            'gfw-climate',
-                            'prep',
-                            'aqueduct',
-                            'forest-atlas'
-                        ]
-                    }
-                }, {
-                    _id: fakeDatasetThree.userId,
-                    role: 'MANAGER',
-                    provider: 'local',
-                    name: 'user three',
-                    extraUserData: {
-                        apps: [
-                            'rw'
-                        ]
-                    }
-                }]
-            });
+        createMockUser([{
+            _id: fakeDatasetOne.userId,
+            provider: 'local',
+            name: 'test user',
+            email: 'user-one@control-tower.org',
+            role: 'USER',
+            extraUserData: {
+                apps: [
+                    'rw',
+                    'gfw',
+                    'gfw-climate',
+                    'prep',
+                    'aqueduct',
+                    'forest-atlas'
+                ]
+            }
+        }, {
+            _id: fakeDatasetTwo.userId,
+            role: 'MANAGER',
+            provider: 'local',
+            email: 'user-two@control-tower.org',
+            extraUserData: {
+                apps: [
+                    'rw',
+                    'gfw',
+                    'gfw-climate',
+                    'prep',
+                    'aqueduct',
+                    'forest-atlas'
+                ]
+            }
+        }, {
+            _id: fakeDatasetThree.userId,
+            role: 'MANAGER',
+            provider: 'local',
+            name: 'user three',
+            extraUserData: {
+                apps: [
+                    'rw'
+                ]
+            }
+        }]);
 
         const response = await requester
             .get(`/api/v1/dataset`)
