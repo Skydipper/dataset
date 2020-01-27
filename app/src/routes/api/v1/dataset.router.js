@@ -1,6 +1,7 @@
 const Router = require('koa-router');
 const koaMulter = require('koa-multer');
 const logger = require('logger');
+const xor = require('lodash/xor');
 const DatasetService = require('services/dataset.service');
 const VerificationService = require('services/verification.service');
 const RelationshipsService = require('services/relationships.service');
@@ -34,6 +35,27 @@ const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
 const arrayIntersection = (arr1, arr2) => arr1.filter(n => arr2.indexOf(n) !== -1);
 
 class DatasetRouter {
+
+    /**
+     * Fetch the applications being manipulated in the current request.
+     * In the case of POST, PUT, GET or DELETE, the applications being manipulated are the ones provided in the request.
+     * In the case of PATCH, the applications manipulated are the concat of the added and removed applications.
+     *
+     * Example: I am an admin who managers application 'A'. An existing dataset is assigned to applications ['A', 'B', 'C'].
+     * I want to remove my application ('A') from array of applications of the dataset. So I provide ['B', 'C'] in the body
+     * of the request. In this case, the return from this function is ['A'], the only application being manipulated.
+     *
+     * Returns an array with the applications that should be considered for permission management.
+     */
+    static async getDatasetApplications(ctx) {
+        const requestApps = ctx.request.query.application ? ctx.request.query.application : ctx.request.body.application;
+        if (requestApps && ctx.request.method === 'PATCH') {
+            const dataset = await DatasetService.get(ctx.params.dataset);
+            return xor(dataset.application || [], requestApps);
+        }
+
+        return requestApps;
+    }
 
     static getUser(ctx) {
         const { query, body } = ctx.request;
@@ -512,18 +534,17 @@ const authorizationMiddleware = async (ctx, next) => {
             return;
         }
     }
-    const application = ctx.request.query.application ? ctx.request.query.application : ctx.request.body.application;
-    if (application) {
-        const appPermission = application.find(app => user.extraUserData.apps.find(userApp => userApp === app));
-        if (!appPermission) {
-            ctx.throw(403, 'Forbidden - User does not have access to this dataset\'s application'); // if manager or admin but no application -> out
-            return;
-        }
+
+    const datasetApps = await DatasetRouter.getDatasetApplications(ctx);
+    if (datasetApps && datasetApps.length > 0 && !DatasetService.validateAppPermission(user, datasetApps)) {
+        ctx.throw(403, 'Forbidden - User does not have access to this dataset\'s application'); // if manager or admin but no application -> out
+        return;
     }
+
     const allowedOperations = newDatasetCreation || uploadDataset;
     if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !allowedOperations) {
         try {
-            const permission = await DatasetService.hasPermission(ctx.params.dataset, user);
+            const permission = await DatasetService.hasPermission(ctx.params.dataset, user, datasetApps);
             if (!permission) {
                 ctx.throw(403, 'Forbidden');
                 return;

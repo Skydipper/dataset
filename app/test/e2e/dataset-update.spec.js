@@ -19,7 +19,7 @@ describe('Dataset update tests', () => {
         }
     });
 
-    it('Update a dataset as an ADMIN should be sucessful (happy case)', async () => {
+    it('Update a dataset as an ADMIN should be successful (happy case)', async () => {
         const fakeDataset = await new Dataset(createDataset('cartodb')).save();
 
         const response = await requester
@@ -46,7 +46,7 @@ describe('Dataset update tests', () => {
         dataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
-    it('Update a dataset as a MICROSERVICE should be sucessful (happy case)', async () => {
+    it('Update a dataset as a MICROSERVICE should be successful (happy case)', async () => {
         const fakeDataset = await new Dataset(createDataset('cartodb')).save();
 
         const response = await requester
@@ -328,6 +328,91 @@ describe('Dataset update tests', () => {
 
         dataset.should.have.property('name').and.equal('Updated dataset name');
         dataset.should.have.property('errorMessage').and.eql('');
+    });
+
+    it('As an USER with a single app, removing my app from the array of apps of the dataset should return 403 Forbidden', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', {
+            userId: USERS.RW_USER.id, application: ['rw', 'gfw']
+        })).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({ application: ['gfw'], loggedUser: USERS.RW_USER });
+
+        response.status.should.equal(403);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal('Forbidden');
+    });
+
+    it('As a MANAGER with a single app, removing my app from the array of apps of the dataset (that I own) should return 200 OK with the updated dataset', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', {
+            userId: USERS.RW_MANAGER.id, application: ['rw', 'gfw']
+        })).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({ application: ['gfw'], loggedUser: USERS.RW_MANAGER });
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        const dataset = deserializeDataset(response);
+        dataset.should.have.property('status').and.equal('saved');
+        dataset.should.have.property('application').and.eql(['gfw']);
+    });
+
+    it('As an ADMIN with a single app, removing apps not managed by me from the array of apps of the dataset should return 403 Forbidden', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', {
+            application: ['rw', 'prep', 'sdg4data', 'ng', 'aqueduct', 'gfw']
+        })).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({
+                application: ['rw', 'sdg4data', 'ng', 'aqueduct', 'gfw'],
+                loggedUser: USERS.RW_ADMIN,
+            });
+
+        response.status.should.equal(403);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal('Forbidden - User does not have access to this dataset\'s application');
+    });
+
+    it('As an ADMIN with a single app, removing my app from the array of apps of the dataset should return 200 OK with the updated dataset', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', { application: ['rw', 'gfw'] })).save();
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({ application: ['gfw'], loggedUser: USERS.RW_ADMIN });
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        const dataset = deserializeDataset(response);
+        dataset.should.have.property('application').and.eql(['gfw']);
+    });
+
+    it('As an ADMIN with a single app, adding my app to the array of apps of the dataset should return 200 OK with the updated dataset', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', { application: null })).save();
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({ application: ['rw'], loggedUser: USERS.RW_ADMIN });
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        const dataset = deserializeDataset(response);
+        dataset.should.have.property('status').and.equal('saved');
+        dataset.should.have.property('application').and.eql(['rw']);
+    });
+
+    it('As an ADMIN, editing the dataset without changing the dataset apps should return 200 OK with the updated dataset', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', { application: ['rw'] })).save();
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({ application: ['rw'], loggedUser: USERS.RW_ADMIN });
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        const dataset = deserializeDataset(response);
+        dataset.should.have.property('status').and.equal('saved');
+        dataset.should.have.property('application').and.eql(['rw']);
     });
 
     afterEach(async () => {
