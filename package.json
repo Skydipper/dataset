@@ -7,6 +7,7 @@
   "scripts": {
     "test": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js e2eTest",
     "start": "NODE_PATH=app/src node $NODE_DEBUG_OPTION app/index.js",
+    "dev": "export $(cat ./dev.env.sample | xargs) && NODE_PATH=app/src DEBUG=oauth-plugin,statistics-plugin,redis-cache-plugin grunt --gruntfile app/Gruntfile.js | bunyan",
     "coverage": "NODE_PATH=app/src node $NODE_DEBUG_OPTION ./node_modules/.bin/grunt --gruntfile app/Gruntfile.js nyc",
     "eslint": "eslint 'app/**/*.js' --fix",
     "precommit": "lint-staged"

@@ -126,7 +126,6 @@ class DatasetRouter {
         logger.info(`[DatasetRouter] Getting dataset with id: ${id}`);
         const user = DatasetRouter.getUser(ctx);
         const { query } = ctx;
-        delete query.loggedUser;
         try {
             const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
             const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [];
