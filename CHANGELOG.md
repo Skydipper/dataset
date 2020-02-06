@@ -1,3 +1,10 @@
+# v1.1.0
+
+## 27/01/2020
+
+- Add possibility of sorting datasets by user fields (such as name or role).
+- Fix bug patching dataset without changing dataset apps.
+
 # v1.0.0
 
 ## 14/01/2020

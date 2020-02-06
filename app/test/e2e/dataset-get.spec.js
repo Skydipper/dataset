@@ -18,8 +18,6 @@ describe('Get datasets tests', () => {
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
-
-        nock.cleanAll();
     });
 
     /* Get All Datasets */
@@ -235,6 +233,17 @@ describe('Get datasets tests', () => {
         datasetIds.should.contain(ds3._id);
         datasetIds.should.not.contain(ds4._id);
     });
+
+
+    /**
+     * We'll want to limit the maximum page size in the future
+     * However, as this will cause a production BC break, we can't enforce it just now
+     */
+    // it('Getting datasets with page size over 100 should return 400 Bad Request', async () => {
+    //     const list = await requester.get('/api/v1/dataset?page[size]=101');
+    //     list.status.should.equal(400);
+    //     list.body.errors[0].should.have.property('detail').and.equal('Invalid page size');
+    // });
 
     afterEach(async () => {
         if (!nock.isDone()) {
