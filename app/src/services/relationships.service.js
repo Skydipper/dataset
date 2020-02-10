@@ -50,7 +50,7 @@ class RelationshipsService {
 
                 try {
                     obj[include] = await ctRegisterMicroservice.requestToMicroservice({
-                        uri: `${uri}/${include}/find-by-ids?${uriQuery}`,
+                        uri: `/v1${uri}/${include}/find-by-ids?${uriQuery}`,
                         method: 'POST',
                         json: true,
                         body: payload,
