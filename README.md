@@ -33,7 +33,7 @@ After that, follow one of the instructions below:
 
 2 - Install node dependencies using yarn:
 ```
-yarn install
+yarn
 ```
 
 3 - Start the application server:

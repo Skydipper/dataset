@@ -2,14 +2,14 @@ const nock = require('nock');
 const Dataset = require('models/dataset.model');
 const chai = require('chai');
 const mongoose = require('mongoose');
-const { getTestServer } = require('./test-server');
-const { createDataset } = require('./utils');
-const { createMockUser } = require('./mocks');
+const { getTestServer } = require('./utils/test-server');
+const { createDataset } = require('./utils/helpers');
+const { createMockUser } = require('./utils/mocks');
 const {
     USERS: {
         USER, MANAGER, ADMIN, SUPERADMIN
     }
-} = require('./test.constants');
+} = require('./utils/test.constants');
 
 chai.should();
 

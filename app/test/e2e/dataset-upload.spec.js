@@ -3,9 +3,9 @@ const nock = require('nock');
 
 const Dataset = require('models/dataset.model');
 
-const { USERS, ERRORS } = require('./test.constants');
-const { getTestServer } = require('./test-server');
-const { ensureCorrectError } = require('./utils');
+const { USERS, ERRORS } = require('./utils/test.constants');
+const { getTestServer } = require('./utils/test-server');
+const { ensureCorrectError } = require('./utils/helpers');
 
 const requester = getTestServer();
 

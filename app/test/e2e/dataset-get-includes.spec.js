@@ -4,8 +4,8 @@ const chai = require('chai');
 const Dataset = require('models/dataset.model');
 const fs = require('fs');
 const path = require('path');
-const { createDataset, deserializeDataset } = require('./utils');
-const { createMockUser } = require('./mocks');
+const { createDataset, deserializeDataset } = require('./utils/helpers');
+const { createMockUser } = require('./utils/mocks');
 
 const metadataGetWithSearchForHuman = require('./dataset-get-includes-responses/metadata-get-search-human');
 const widgetsFindById = require('./dataset-get-includes-responses/widget-find-by-ids');
@@ -16,9 +16,9 @@ const graphFindById = require('./dataset-get-includes-responses/graph-find-by-id
 const datasetGetIncludeAllAnonymous = require('./dataset-get-includes-responses/dataset-get-include-all-anonymous');
 const datasetGetIncludeUserAdmin = require('./dataset-get-includes-responses/dataset-get-include-user-admin');
 const datasetGetIncludeAllAdmin = require('./dataset-get-includes-responses/dataset-get-include-all-admin');
-const { getTestServer } = require('./test-server');
-const { getUUID } = require('./utils');
-const { USERS } = require('./test.constants');
+const { getTestServer } = require('./utils/test-server');
+const { getUUID } = require('./utils/helpers');
+const { USERS } = require('./utils/test.constants');
 
 const should = chai.should();
 

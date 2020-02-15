@@ -1,4 +1,4 @@
-const { USERS } = require('../test.constants');
+const { USERS } = require('../utils/test.constants');
 
 const datasetGetIncludeUserAdmin = dataset => ({
     id: dataset.id,

@@ -2,9 +2,9 @@
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
-const { createDataset, deserializeDataset, mapDatasetToMetadataSearchResult } = require('./utils');
+const { createDataset, deserializeDataset, mapDatasetToMetadataSearchResult } = require('./utils/helpers');
 
-const { getTestServer } = require('./test-server');
+const { getTestServer } = require('./utils/test-server');
 
 const should = chai.should();
 
