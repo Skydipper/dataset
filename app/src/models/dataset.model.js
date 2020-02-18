@@ -17,6 +17,7 @@ const Dataset = new Schema({
     subtitle: {
         type: String, required: false, trim: true, default: null
     },
+    isPrivate: { type: Boolean, required: false, default: false },
     application: [
         { type: String, required: true, trim: true }
     ],

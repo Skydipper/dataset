@@ -3,7 +3,7 @@ const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
 const { ROLES } = require('./test.constants');
-const { createDataset, deserializeDataset } = require('./utils');
+const { createDataset, deserializeDataset, ensureCorrectError } = require('./utils');
 
 const should = chai.should();
 
@@ -51,6 +51,47 @@ describe('Dataset update tests', () => {
         dataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
+    it('Update a private dataset as owner (happy case)', async () => {
+        const privateCartoFakeDataset = await new Dataset(createDataset('cartodb', { isPrivate: true })).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${privateCartoFakeDataset._id}`)
+            .send({
+                name: 'other name',
+                application: ['gfw', 'rw'],
+                loggedUser: ROLES.ADMIN
+            });
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        dataset.should.have.property('name').and.equal('other name');
+        dataset.should.have.property('connectorType').and.equal('rest');
+        dataset.should.have.property('provider').and.equal('cartodb');
+        dataset.should.have.property('connectorUrl').and.equal(privateCartoFakeDataset.connectorUrl);
+        dataset.should.have.property('tableName').and.equal(privateCartoFakeDataset.tableName);
+        dataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        dataset.should.have.property('applicationConfig').and.deep.equal(privateCartoFakeDataset.applicationConfig);
+        dataset.should.have.property('status').and.equal('saved');
+        dataset.should.have.property('isPrivate').and.equal(true);
+        dataset.should.have.property('overwrite').and.equal(true);
+        dataset.legend.should.be.an.instanceOf(Object);
+        dataset.clonedHost.should.be.an.instanceOf(Object);
+    });
+
+    it('Update a private dataset as not owner should return not found', async () => {
+        const privateCartoFakeDataset = await new Dataset(createDataset('cartodb', { isPrivate: true })).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${privateCartoFakeDataset._id}`)
+            .send({
+                name: 'other name',
+                application: ['gfw', 'rw'],
+                loggedUser: ROLES.ADMIN2
+            });
+        response.status.should.equal(404);
+        ensureCorrectError(response.body, `Dataset with id '${privateCartoFakeDataset._id}' doesn't exist`);
+    });
 
     it('Update a dataset with a valid dataLastUpdated value should work correctly', async () => {
         const timestamp = new Date().toISOString();

@@ -5,6 +5,7 @@ const Dataset = require('models/dataset.model');
 const { createDataset, deserializeDataset, mapDatasetToMetadataSearchResult } = require('./utils');
 
 const { getTestServer } = require('./test-server');
+const { ROLES } = require('./test.constants');
 
 const should = chai.should();
 
@@ -27,6 +28,72 @@ describe('Search datasets tests', () => {
 
         cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
         jsonFakeDataset = await new Dataset(createDataset('json')).save();
+    });
+
+    it('Search for common elements with one private dataset as owner of the dataset in name and description should return 3 results (no synonyms)', async () => {
+        const privateCartoFakeDataset = await new Dataset(createDataset('json', { isPrivate: true })).save();
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/metadata?search=fake%20dataset`)
+            .reply(200, {
+                data: [
+                    mapDatasetToMetadataSearchResult(privateCartoFakeDataset),
+                    mapDatasetToMetadataSearchResult(cartoFakeDataset),
+                    mapDatasetToMetadataSearchResult(jsonFakeDataset)
+                ]
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/graph/query/search-by-label-synonyms?search=fake%20dataset`)
+            .reply(200, {
+                data: []
+            });
+
+        const response = await requester.get(`/api/v1/dataset?search=fake%20dataset`).query({ loggedUser: JSON.stringify(ROLES.ADMIN) }).send();
+
+        const datasets = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(3);
+        response.body.should.have.property('links').and.be.an('object');
+
+        const datasetIds = datasets.map(dataset => dataset.id);
+
+        datasetIds.should.contain(jsonFakeDataset._id);
+        datasetIds.should.contain(cartoFakeDataset._id);
+        datasetIds.should.contain(privateCartoFakeDataset._id);
+    });
+
+    it('Search for common elements with one private dataset as not owner of the dataset in name and description should return 2 results expect private dataset(no synonyms)', async () => {
+        await new Dataset(createDataset('json', { isPrivate: true })).save();
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/metadata?search=fake%20dataset`)
+            .reply(200, {
+                data: [
+                    mapDatasetToMetadataSearchResult(cartoFakeDataset),
+                    mapDatasetToMetadataSearchResult(jsonFakeDataset)
+                ]
+            });
+
+        nock(`${process.env.CT_URL}`)
+            .get(`/v1/graph/query/search-by-label-synonyms?search=fake%20dataset`)
+            .reply(200, {
+                data: []
+            });
+
+        const response = await requester.get(`/api/v1/dataset?search=fake%20dataset`).query({ loggedUser: JSON.stringify(ROLES.ADMIN2) }).send();
+
+        const datasets = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(2);
+        response.body.should.have.property('links').and.be.an('object');
+
+        const datasetIds = datasets.map(dataset => dataset.id);
+
+        datasetIds.should.contain(jsonFakeDataset._id);
+        datasetIds.should.contain(cartoFakeDataset._id);
     });
 
     it('Search for common elements in name and description should return 2 results (no synonyms)', async () => {

@@ -60,6 +60,27 @@ describe('Upload raw data', () => {
         ensureCorrectError(response.body, 'Dataset with id \'fake-id\' doesn\'t exist');
     });
 
+    it('Recover a private dataset as not owner should be failed', async () => {
+        const privateJsonFakeDataset = await new Dataset(createDataset('json', { isPrivate: true })).save();
+
+        const response = await requester.post(`${BASE_URL}/${privateJsonFakeDataset.id}/recover`)
+            .field('loggedUser', JSON.stringify(ROLES.ADMIN2))
+            .send();
+
+        response.status.should.equal(404);
+        ensureCorrectError(response.body, `Dataset with id '${privateJsonFakeDataset.id}' doesn't exist`);
+    });
+
+    it('Recover a private dataset as owner should be successful', async () => {
+        const privateJsonFakeDataset = await new Dataset(createDataset('json', { isPrivate: true })).save();
+
+        const response = await requester.post(`${BASE_URL}/${privateJsonFakeDataset.id}/recover`)
+            .field('loggedUser', JSON.stringify(ROLES.ADMIN))
+            .send();
+
+        response.status.should.equal(200);
+    });
+
     it('Successfully recover a dataset', async () => {
         const response = await requester.post(`${BASE_URL}/${jsonFakeDataset.id}/recover`)
             .field('loggedUser', JSON.stringify(ROLES.ADMIN))

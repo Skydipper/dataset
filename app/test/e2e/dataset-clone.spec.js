@@ -28,6 +28,20 @@ describe('Dataset clone tests', () => {
         nock.cleanAll();
     });
 
+    it('Clone a private dataset as an ADMIN should be failed', async () => {
+        const cartoFakeDataset2 = await new Dataset(createDataset('cartodb', { isPrivate: true, userId: 'test' })).save();
+
+        const response = await requester
+            .post(`/api/v1/dataset/${cartoFakeDataset2._id}/clone`)
+            .send({
+                datasetUrl: 'http://other.dataset.url',
+                application: ['gfw', 'rw'],
+                loggedUser: ROLES.ADMIN
+            });
+
+        response.status.should.equal(404);
+    });
+
     it('Clone a dataset as an ADMIN should be successful', async () => {
         nock(process.env.CT_URL)
             .post(/v1\/graph\/dataset\/(\w|-)*$/)

@@ -63,6 +63,19 @@ class DatasetService {
         }
     }
 
+    static getDataset(id, userId) {
+        return Dataset.findOne({
+            $or: [{ slug: id }, { _id: id }],
+            $and: [{
+                $or: [{
+                    isPrivate: false,
+                }, {
+                    $and: [{ isPrivate: true }, { userId }],
+                }]
+            }]
+        }).exec();
+    }
+
     static getTableName(dataset) {
         try {
             if (dataset.provider === 'cartodb' && dataset.connectorUrl) {
@@ -84,13 +97,11 @@ class DatasetService {
             }
             return dataset.tableName;
         } catch (err) {
-            console.log("test---", decodeURI(new URL(dataset.connectorUrl)).toLowerCase().split);
-            console.log("errr-rooropr", err);
             throw new ConnectorUrlNotValid('Invalid connectorUrl format');
         }
     }
 
-    static getFilteredQuery(query, ids = []) {
+    static getFilteredQuery(query, ids = [], userId) {
         const { collection, favourite } = query;
         if (!query.application && query.app) {
             query.application = query.app;
@@ -179,6 +190,13 @@ class DatasetService {
         //     };
         //     query = tempQuery;
         // }
+        query.$and = [{
+            $or: [{
+                isPrivate: false,
+            }, {
+                $and: [{ isPrivate: true }, { userId }]
+            }],
+        }];
         logger.debug(query);
         return query;
     }
@@ -201,12 +219,10 @@ class DatasetService {
         return filteredSort;
     }
 
-    static async get(id, query = {}, isAdmin = false) {
+    static async get(id, query = {}, isAdmin = false, userId) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({
-            slug: id
-        }).exec();
+        let dataset = await this.getDataset(id, userId);
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
         if (!dataset) {
             logger.info(`[DatasetService]: Dataset with id ${id} doesn't exist`);
@@ -238,6 +254,7 @@ class DatasetService {
             applicationConfig: dataset.applicationConfig,
             connectorType: dataset.connectorType,
             provider: dataset.provider,
+            isPrivate: dataset.isPrivate,
             userId: user.id,
             env: dataset.env || 'production',
             geoInfo: dataset.geoInfo || false,
@@ -337,9 +354,7 @@ class DatasetService {
     static async update(id, dataset, user) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
-            slug: id
-        }).exec();
+        const currentDataset = await this.getDataset(id, user.id);
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
@@ -374,6 +389,7 @@ class DatasetService {
         currentDataset.attributesPath = dataset.attributesPath || currentDataset.attributesPath;
         currentDataset.connectorType = dataset.connectorType || currentDataset.connectorType;
         currentDataset.provider = dataset.provider || currentDataset.provider;
+        currentDataset.isPrivate = dataset.isPrivate || currentDataset.isPrivate;
         currentDataset.connectorUrl = dataset.connectorUrl || currentDataset.connectorUrl;
         currentDataset.applicationConfig = dataset.applicationConfig || currentDataset.applicationConfig;
         currentDataset.tableName = tableName || currentDataset.tableName;
@@ -520,9 +536,7 @@ class DatasetService {
     static async delete(id, user) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
-            slug: id
-        }).exec();
+        const currentDataset = await this.getDataset(id, user.id);
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
@@ -584,14 +598,14 @@ class DatasetService {
         return deletedDataset;
     }
 
-    static async getAll(query = {}, isAdmin = false) {
+    static async getAll(query = {}, isAdmin = false, userId) {
         logger.debug(`[DatasetService]: Getting all datasets`);
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
         const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
-        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids);
+        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids, userId);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
             page,
@@ -633,9 +647,7 @@ class DatasetService {
     static async clone(id, dataset, user, fullCloning = false) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
-        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
-            slug: id
-        }).exec();
+        const currentDataset = await this.getDataset(id, user.id);
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
@@ -673,7 +685,7 @@ class DatasetService {
 
     static async hasPermission(id, user) {
         let permission = true;
-        const dataset = await DatasetService.get(id);
+        const dataset = await DatasetService.get(id, {}, user.role === 'ADMIN', user.id);
         const appPermission = dataset.application.find(datasetApp => user.extraUserData.apps.find(app => app === datasetApp));
         if (!appPermission) {
             permission = false;
@@ -684,22 +696,29 @@ class DatasetService {
         return permission;
     }
 
-    static async getDatasetIdsBySearch(search) {
+    static async getDatasetIdsBySearch(search, userId) {
         // are we sure?
         const searchQuery = [
             { name: new RegExp(search.map(w => `(?=.*${w})`).join(''), 'i') },
             { subtitle: new RegExp(search.map(w => `(?=.*${w})`).join(''), 'i') }
         ];
-        const query = { $or: searchQuery };
+        const query = {
+            $or: searchQuery,
+            $and: [{
+                $or: [{
+                    isPrivate: false,
+                }, {
+                    $and: [{ isPrivate: true }, { userId }],
+                }]
+            }]
+        };
         const datasets = await Dataset.find(query);
         const datasetIds = datasets.map(el => el._id);
         return datasetIds;
     }
 
-    static async recover(id) {
-        const currentDataset = await Dataset.findById(id).exec() || await Dataset.findOne({
-            slug: id
-        }).exec();
+    static async recover(id, userId) {
+        const currentDataset = await this.getDataset(id, userId);
         if (!currentDataset) {
             logger.error(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);

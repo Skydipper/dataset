@@ -663,6 +663,7 @@ describe('Get datasets with includes tests', () => {
                 status: 'saved',
                 published: true,
                 overwrite: true,
+                isPrivate: false,
                 verified: false,
                 blockchain: {},
                 mainDateField: null,

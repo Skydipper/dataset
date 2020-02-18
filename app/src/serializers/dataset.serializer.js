@@ -22,6 +22,7 @@ class DatasetSerializer {
                 published: el.published,
                 overwrite: el.overwrite,
                 verified: el.verified,
+                isPrivate: el.isPrivate,
                 blockchain: el.blockchain,
                 subscribable: el.subscribable,
                 mainDateField: el.mainDateField,

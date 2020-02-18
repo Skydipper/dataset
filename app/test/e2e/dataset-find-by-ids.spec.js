@@ -5,6 +5,7 @@ const {
     createDataset, deserializeDataset, expectedDataset, ensureCorrectError
 } = require('./utils');
 const { getTestServer } = require('./test-server');
+const { ROLES } = require('./test.constants');
 
 const requester = getTestServer();
 
@@ -33,6 +34,30 @@ describe('Find by ids datasets', () => {
             .send({
                 ids: ['non-existing-id']
             });
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(0);
+    });
+
+    it('Return private dataset when getting them by ids and it\'s mine', async () => {
+        const privateCartoFakeDataset = await new Dataset(createDataset('cartodb', { isPrivate: true })).save();
+
+        const ids = [privateCartoFakeDataset.id];
+        const response = await requester.post(`${BASE_URL}/find-by-ids?loggedUser=${JSON.stringify(ROLES.ADMIN)}`).send({ ids });
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(1);
+
+        const datasetsIds = deserializeDataset(response).map(_ => _.id);
+
+        datasetsIds.should.contain(privateCartoFakeDataset.id);
+    });
+
+    it('Return empty array when trying to getting private dataset which not is yours', async () => {
+        const privateCartoFakeDataset = await new Dataset(createDataset('cartodb', { isPrivate: true })).save();
+
+        const ids = [privateCartoFakeDataset.id];
+        const response = await requester.post(`${BASE_URL}/find-by-ids?loggedUser=${JSON.stringify(ROLES.USER)}`).send({ ids });
 
         response.status.should.equal(200);
         response.body.should.have.property('data').with.lengthOf(0);

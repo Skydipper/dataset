@@ -127,7 +127,7 @@ class DatasetRouter {
         const user = DatasetRouter.getUser(ctx);
         const { query } = ctx;
         try {
-            const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
+            const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN', user.id);
             const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [];
             const datasetId = dataset.id || dataset[0].id;
             const datasetSlug = dataset.slug || dataset[0].slug;
@@ -208,12 +208,12 @@ class DatasetRouter {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Deleting dataset with id: ${id}`);
         try {
-            const dataset = await DatasetService.get(id);
+            const user = DatasetRouter.getUser(ctx);
+            const dataset = await DatasetService.get(id, {}, user.role, user.id);
 
             // Delete adapter-specific things before deleting the actual dataset. If adapter fails, bail
             // await DatasetRouter.notifyAdapter(ctx, dataset);
 
-            const user = DatasetRouter.getUser(ctx);
             await DatasetService.delete(id, user);
 
             ctx.set('uncache', `dataset ${dataset.id} ${dataset.slug}`);
@@ -319,6 +319,7 @@ class DatasetRouter {
                 ) {
                     conceptIds = await RelationshipsService.filterByConcepts(serializeObjToQuery(query));
                 }
+
                 if ((searchIds && searchIds.length === 0) || (conceptIds && conceptIds.length === 0)) {
                     ctx.body = DatasetSerializer.serialize([], null);
                     return;
@@ -335,7 +336,7 @@ class DatasetRouter {
             const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
             const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
             const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
-            const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN');
+            const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN', userId);
             ctx.set('cache', `dataset ${query.includes ? query.includes.split(',').map(elem => elem.trim()).join(' ') : ''}`);
             ctx.body = DatasetSerializer.serialize(datasets, link);
         } catch (err) {
@@ -388,7 +389,7 @@ class DatasetRouter {
     static async recover(ctx) {
         logger.info(`[DatasetRouter] Recovering dataset status`);
         try {
-            await DatasetService.recover(ctx.params.dataset);
+            await DatasetService.recover(ctx.params.dataset, DatasetRouter.getUser(ctx).id);
             ctx.body = 'OK';
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -403,9 +404,9 @@ class DatasetRouter {
         const id = ctx.params.dataset;
         logger.info(`[DatasetRouter] Getting verification with id: ${id}`);
         const { query } = ctx;
-        delete query.loggedUser;
+        const user = DatasetRouter.getUser(ctx);
         try {
-            const dataset = await DatasetService.get(id, query);
+            const dataset = await DatasetService.get(id, query, user.role === 'ADMIN', user.id);
             let verificationData = { message: 'Not verification data' };
             if (dataset.verified && dataset.blockchain && dataset.blockchain.id) {
                 verificationData = await VerificationService.getVerificationData(dataset.blockchain.id);
@@ -413,13 +414,18 @@ class DatasetRouter {
             logger.debug(verificationData);
             ctx.body = verificationData;
         } catch (err) {
+            if (err instanceof DatasetNotFound) {
+                ctx.throw(404, err.message);
+                return;
+            }
             ctx.throw(500, 'Error getting verification data');
         }
     }
 
     static async flushDataset(ctx) {
         const datasetId = ctx.params.dataset;
-        const dataset = await DatasetService.get(datasetId);
+        const user = DatasetRouter.getUser(ctx);
+        const dataset = await DatasetService.get(datasetId, {}, user.role === 'ADMIN', user.id);
         ctx.set('uncache', `${dataset._id} ${dataset.slug} query-${dataset._id} query-${dataset.slug} fields-${dataset._id} fields-${dataset.slug}`);
         ctx.body = 'OK';
     }

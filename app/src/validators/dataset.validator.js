@@ -13,17 +13,15 @@ class DatasetValidator {
     }
 
     static isString(property) {
-        if (typeof property === 'string' && property.length >= 0) {
-            return true;
-        }
-        return false;
+        return typeof property === 'string' && property.length >= 0;
+    }
+
+    static isBoolean(property) {
+        return typeof property === 'boolean';
     }
 
     static notEmptyString(property) {
-        if (typeof property === 'string' && property.length > 0) {
-            return true;
-        }
-        return false;
+        return typeof property === 'string' && property.length > 0;
     }
 
     static validUrl(property) {
@@ -38,10 +36,7 @@ class DatasetValidator {
     }
 
     static isArray(property) {
-        if (property instanceof Array) {
-            return true;
-        }
-        return false;
+        return property instanceof Array;
     }
 
     static isISOString(property) {
@@ -60,17 +55,11 @@ class DatasetValidator {
     }
 
     static isObject(property) {
-        if (property instanceof Object && property.length === undefined) {
-            return true;
-        }
-        return false;
+        return property instanceof Object && property.length === undefined;
     }
 
     static checkConnectorType(connectorType) {
-        if (Object.keys(CONNECTOR_TYPES).indexOf(connectorType) >= 0) {
-            return true;
-        }
-        return false;
+        return Object.keys(CONNECTOR_TYPES).indexOf(connectorType) >= 0;
     }
 
     static checkProvider(provider, koaObj = {}) {
@@ -198,6 +187,7 @@ class DatasetValidator {
         koaObj.checkBody('name').notEmpty().check(name => DatasetValidator.notEmptyString(name), 'can not be empty');
         koaObj.checkBody('type').optional().check(type => DatasetValidator.isString(type), 'must be a string');
         koaObj.checkBody('subtitle').optional().check(subtitle => DatasetValidator.isString(subtitle), 'must be a string');
+        koaObj.checkBody('isPrivate').optional().check(isPrivate => DatasetValidator.isBoolean(isPrivate), 'must be a boolean');
         koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('dataPath').optional().check(dataPath => DatasetValidator.isString(dataPath), 'must be a string');
         koaObj.checkBody('attributesPath').optional().check(attributesPath => DatasetValidator.isString(attributesPath), 'must be a string');
@@ -251,6 +241,7 @@ class DatasetValidator {
         koaObj.checkBody('name').optional().check(name => DatasetValidator.notEmptyString(name), 'can not be empty');
         koaObj.checkBody('type').optional().check(type => DatasetValidator.isString(type), 'must be a string');
         koaObj.checkBody('subtitle').optional().check(subtitle => DatasetValidator.isString(subtitle), 'must be a string');
+        koaObj.checkBody('isPrivate').optional().check(isPrivate => DatasetValidator.isBoolean(isPrivate), 'must be a boolean');
         koaObj.checkBody('application').optional().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('dataPath').optional().check(dataPath => DatasetValidator.isString(dataPath), 'must be a string');
         koaObj.checkBody('attributesPath').optional().check(attributesPath => DatasetValidator.isString(attributesPath), 'must be a string');

@@ -26,6 +26,81 @@ describe('Dataset create tests', () => {
     });
 
     /* Create a Carto Dataset */
+    it('Create a private CARTO DB dataset should be successful', async () => {
+        const timestamp = new Date().getTime();
+        const dataset = {
+            name: `Carto DB Dataset - ${timestamp}`,
+            application: ['rw'],
+            applicationConfig: {
+                rw: {
+                    foo: 'bar'
+                }
+            },
+            connectorType: 'rest',
+            provider: 'cartodb',
+            env: 'production',
+            connectorUrl: 'https://wri-01.carto.com/tables/wdpa_protected_areas/table',
+            overwrite: true,
+            isPrivate: true,
+        };
+
+        nock(process.env.CT_URL)
+            .post(/v1\/graph\/dataset\/(\w|-)*$/)
+            .once()
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+
+        nock(`${process.env.CT_URL}/v1`)
+            .post('/rest-datasets/cartodb', (request) => {
+                request.should.have.property('connector').and.be.an('object');
+                const requestDataset = request.connector;
+
+                requestDataset.should.have.property('name').and.equal(dataset.name);
+                requestDataset.should.have.property('connectorType').and.equal(dataset.connectorType);
+                requestDataset.should.have.property('application').and.eql(dataset.application);
+                requestDataset.should.have.property('sources').and.eql([]);
+                requestDataset.should.have.property('connectorUrl').and.equal(dataset.connectorUrl);
+
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                detail: 'Ok'
+            });
+        const response = await requester
+            .post(`/api/v1/dataset`)
+            .send({
+                dataset,
+                loggedUser: ROLES.ADMIN
+            });
+
+        const createdDataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        createdDataset.should.have.property('name').and.equal(`Carto DB Dataset - ${timestamp}`);
+        // createdDataset.application.should.be.an.instanceOf(Array).and.have.lengthOf(1);
+        createdDataset.should.have.property('connectorType').and.equal('rest');
+        createdDataset.should.have.property('provider').and.equal('cartodb');
+        createdDataset.should.have.property('connectorUrl').and.equal('https://wri-01.carto.com/tables/wdpa_protected_areas/table');
+        createdDataset.should.have.property('tableName').and.equal('wdpa_protected_areas');
+        createdDataset.should.have.property('userId').and.equal(ROLES.ADMIN.id);
+        createdDataset.should.have.property('status').and.equal('pending');
+        createdDataset.should.have.property('overwrite').and.equal(true);
+        createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
+        createdDataset.should.have.property('createdAt').and.be.a('string');
+        createdDataset.should.have.property('updatedAt').and.be.a('string');
+        createdDataset.should.have.property('isPrivate').and.equal(true);
+        createdDataset.should.have.property('dataLastUpdated');
+        new Date(createdDataset.updatedAt).should.equalDate(new Date(createdDataset.createdAt));
+        createdDataset.legend.should.be.an.instanceOf(Object);
+        createdDataset.clonedHost.should.be.an.instanceOf(Object);
+    });
+
+    /* Create a Carto Dataset */
     it('Create a CARTO DB dataset should be successful', async () => {
         const timestamp = new Date().getTime();
         const dataset = {

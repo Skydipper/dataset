@@ -80,7 +80,7 @@ describe('Upload raw data', () => {
 
         const fileData = fs.readFileSync(`${__dirname}/upload-data/${filename}`);
 
-        nock('https://wri-api-backups.s3.amazonaws.com:443')
+        nock('https://skydipper-api.s3.eu-west-3.amazonaws.com:443')
             .put(() => true)
             .once()
             .reply(200, '', {

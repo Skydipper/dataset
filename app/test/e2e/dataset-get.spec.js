@@ -5,7 +5,9 @@ const Dataset = require('models/dataset.model');
 const { createDataset, deserializeDataset } = require('./utils');
 
 const { getTestServer } = require('./test-server');
-const { getUUID, expectedDataset } = require('./utils');
+const { getUUID, expectedDataset, ensureCorrectError } = require('./utils');
+
+const { ROLES } = require('./test.constants');
 
 const should = chai.should();
 
@@ -59,6 +61,33 @@ describe('Get datasets tests', () => {
         response.body.should.have.property('data').and.be.an('object');
         dataset.should.have.property('name').and.equal(cartoFakeDataset.name);
         response.body.data.should.deep.equal(expectedDataset(cartoFakeDataset));
+    });
+
+    it('Getting an existing private dataset as owner of dataset should be successful', async () => {
+        const privateCartoFakeDataset = await new Dataset(createDataset('cartodb', { isPrivate: true })).save();
+
+        const response = await requester
+            .get(`/api/v1/dataset/${privateCartoFakeDataset._id}`)
+            .query({ loggedUser: JSON.stringify(ROLES.ADMIN) })
+            .send();
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        dataset.should.have.property('name').and.equal(privateCartoFakeDataset.name);
+        response.body.data.should.deep.equal(expectedDataset(privateCartoFakeDataset));
+    });
+
+    it('Getting an existing private dataset as not owner of dataset should be failed with 404 error', async () => {
+        const privateCartoFakeDataset = await new Dataset(createDataset('cartodb', { isPrivate: true })).save();
+
+        const response = await requester
+            .get(`/api/v1/dataset/${privateCartoFakeDataset._id}`)
+            .query({ loggedUser: JSON.stringify(ROLES.USER) })
+            .send();
+
+        response.status.should.equal(404);
+        ensureCorrectError(response.body, `Dataset with id '${privateCartoFakeDataset.id}' doesn't exist`);
     });
 
     it('Get an non-existing dataset by ID should fail', async () => {

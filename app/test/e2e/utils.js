@@ -48,6 +48,7 @@ const expectedDataset = dataset => ({
             status: 'saved',
             published: true,
             overwrite: true,
+            isPrivate: dataset.isPrivate || false,
             verified: false,
             blockchain: {},
             mainDateField: null,
@@ -90,7 +91,7 @@ const ensureCorrectError = (body, errMessage) => {
     body.errors[0].should.have.property('detail').and.equal(errMessage);
 };
 
-const createDataset = (provider) => {
+const createDataset = (provider, additionalData = {}) => {
     let connectorType = '';
 
     // CONNECTOR_TYPES.{keys, values, entries};
@@ -132,7 +133,8 @@ const createDataset = (provider) => {
         overwrite: true,
         status: 'saved',
         sandbox: true,
-        published: true
+        published: true,
+        ...additionalData,
     };
 };
 

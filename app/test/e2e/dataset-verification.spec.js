@@ -2,9 +2,10 @@ const nock = require('nock');
 
 const Dataset = require('models/dataset.model');
 
-const { createDataset } = require('./utils');
+const { createDataset, ensureCorrectError } = require('./utils');
 const { BLOCKCHAIN_FAKE_INFO, STAMPERY_RESPONSE_OBJECT } = require('./test.constants');
 const { getTestServer } = require('./test-server');
+const { ROLES } = require('./test.constants');
 
 const requester = getTestServer();
 
@@ -55,6 +56,45 @@ describe('Upload raw data', () => {
         response.body[0].should.have.property('id').and.equal(BLOCKCHAIN_FAKE_INFO.blockchain.id);
         response.body[0].should.have.property('hash').and.equal(BLOCKCHAIN_FAKE_INFO.blockchain.hash);
 
+    });
+
+    it('Return blockchain info in a private dataset as owner of dataset', async () => {
+        const privateDlockchainFakeDataset = await new Dataset({
+            ...createDataset('json', { isPrivate: true }),
+            ...BLOCKCHAIN_FAKE_INFO
+        }).save();
+
+        nock(`https://api-prod.stampery.com:443`)
+            .get(`/stamps/${BLOCKCHAIN_FAKE_INFO.blockchain.id}`)
+            .once()
+            .reply(200, STAMPERY_RESPONSE_OBJECT, {
+                Server: 'Stampery/6.0.0',
+                Via: '1.1 vegur'
+            });
+
+        const response = await requester
+            .get(`${BASE_URL}/${privateDlockchainFakeDataset.id}/verification`)
+            .query({ loggedUser: JSON.stringify(ROLES.ADMIN) })
+            .send();
+
+        response.status.should.equal(200);
+        response.body[0].should.have.property('id').and.equal(BLOCKCHAIN_FAKE_INFO.blockchain.id);
+        response.body[0].should.have.property('hash').and.equal(BLOCKCHAIN_FAKE_INFO.blockchain.hash);
+    });
+
+    it('Return not found error when trying to get the blockchain info in the private dataset as not owner', async () => {
+        const privateDlockchainFakeDataset = await new Dataset({
+            ...createDataset('json', { isPrivate: true }),
+            ...BLOCKCHAIN_FAKE_INFO
+        }).save();
+
+        const response = await requester
+            .get(`${BASE_URL}/${privateDlockchainFakeDataset.id}/verification`)
+            .query({ loggedUser: JSON.stringify(ROLES.ADMIN2) })
+            .send();
+
+        response.status.should.equal(404);
+        ensureCorrectError(response.body, `Dataset with id '${privateDlockchainFakeDataset._id}' doesn't exist`);
     });
 
     afterEach(() => {

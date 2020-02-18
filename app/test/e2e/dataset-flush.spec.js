@@ -12,7 +12,7 @@ let jsonFakeDataset;
 
 const BASE_URL = '/api/v1/dataset';
 
-describe('Upload raw data', () => {
+describe('Dataset flush', () => {
 
     before(async () => {
         if (process.env.NODE_ENV !== 'test') {
@@ -57,6 +57,26 @@ describe('Upload raw data', () => {
             .send();
 
         response.status.should.equal(200);
+    });
+
+    it('Successfully flush a private dataset as owner of dataset', async () => {
+        const privateJsonFakeData = await new Dataset(createDataset('json', { isPrivate: true })).save();
+
+        const response = await requester.post(`${BASE_URL}/${privateJsonFakeData.id}/flush`)
+            .field('loggedUser', JSON.stringify(ROLES.ADMIN))
+            .send();
+
+        response.status.should.equal(200);
+    });
+
+    it('Flushing the private dataset which is not yours', async () => {
+        const privateJsonFakeData = await new Dataset(createDataset('json', { isPrivate: true })).save();
+
+        const response = await requester.post(`${BASE_URL}/${privateJsonFakeData.id}/flush`)
+            .field('loggedUser', JSON.stringify(ROLES.USER))
+            .send();
+
+        response.status.should.equal(403);
     });
 
     it('Successfully flush a dataset as an ADMIN', async () => {
