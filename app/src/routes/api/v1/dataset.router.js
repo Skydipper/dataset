@@ -251,7 +251,6 @@ class DatasetRouter {
         const { search } = query;
         const sort = ctx.query.sort || '';
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
-        delete query.loggedUser;
 
         if (!search && sort.indexOf('relevance') >= 0) {
             ctx.throw(400, 'Cannot sort by relevance without search criteria');
@@ -306,7 +305,7 @@ class DatasetRouter {
                     ) {
                         metadataSort = sort;
                     }
-
+                    console.log("uwery----", query);
                     const metadataIds = await RelationshipsService.filterByMetadata(search, metadataSort);
                     const searchBySynonymsIds = await RelationshipsService.searchBySynonyms(serializeObjToQuery(query));
                     const datasetBySearchIds = await DatasetService.getDatasetIdsBySearch(search.split(' '));

@@ -44,7 +44,7 @@ describe('Search datasets tests', () => {
             });
 
         nock(`${process.env.CT_URL}`)
-            .get(`/v1/graph/query/search-by-label-synonyms?search=fake%20dataset`)
+            .get(`/v1/graph/query/search-by-label-synonyms?search=fake%20dataset&loggedUser=${encodeURIComponent(JSON.stringify(ROLES.ADMIN))}`)
             .reply(200, {
                 data: []
             });
@@ -77,7 +77,7 @@ describe('Search datasets tests', () => {
             });
 
         nock(`${process.env.CT_URL}`)
-            .get(`/v1/graph/query/search-by-label-synonyms?search=fake%20dataset`)
+            .get(`/v1/graph/query/search-by-label-synonyms?search=fake%20dataset&loggedUser=${encodeURIComponent(JSON.stringify(ROLES.ADMIN2))}`)
             .reply(200, {
                 data: []
             });
