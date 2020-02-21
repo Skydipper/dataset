@@ -8,7 +8,7 @@ const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
     return a;
 }, []).join('&');
 
-const allowedHeaders = ['authorization'];
+const allowedHeaders = ['authorization', 'authorizationMS'];
 
 class RelationshipsService {
 
