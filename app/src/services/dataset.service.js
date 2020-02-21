@@ -280,9 +280,7 @@ class DatasetService {
                 await GraphService.createDataset(newDataset._id);
             } catch (err) {
                 newDataset.errorMessage = err.message;
-                const result = await DatasetService.update(newDataset._id, newDataset, {
-                    id: 'microservice'
-                });
+                const result = await DatasetService.update(newDataset._id, newDataset, user);
                 [newDataset] = result;
             }
         }
