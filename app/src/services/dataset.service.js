@@ -219,7 +219,7 @@ class DatasetService {
         return filteredSort;
     }
 
-    static async get(id, query = {}, isAdmin = false, userId) {
+    static async get(id, query = {}, isAdmin = false, userId, headers) {
         logger.debug(`[DatasetService]: Getting dataset with id:  ${id}`);
         logger.info(`[DBACCESS-FIND]: dataset.id: ${id}`);
         let dataset = await this.getDataset(id, userId);
@@ -229,7 +229,7 @@ class DatasetService {
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         if (includes.length > 0) {
-            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query), isAdmin);
+            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query), isAdmin, headers);
         }
         return dataset;
     }
@@ -598,7 +598,7 @@ class DatasetService {
         return deletedDataset;
     }
 
-    static async getAll(query = {}, isAdmin = false, userId) {
+    static async getAll(query = {}, isAdmin = false, userId, headers) {
         logger.debug(`[DatasetService]: Getting all datasets`);
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
@@ -639,7 +639,7 @@ class DatasetService {
             pages.pages = Math.ceil(pages.total / pages.limit);
         }
         if (includes.length > 0) {
-            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query), isAdmin);
+            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query), isAdmin, headers);
         }
         return pages;
     }

@@ -127,7 +127,7 @@ class DatasetRouter {
         const user = DatasetRouter.getUser(ctx);
         const { query } = ctx;
         try {
-            const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN', user.id);
+            const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN', user.id, ctx.request.headers);
             const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [];
             const datasetId = dataset.id || dataset[0].id;
             const datasetSlug = dataset.slug || dataset[0].slug;
@@ -251,7 +251,6 @@ class DatasetRouter {
         const { search } = query;
         const sort = ctx.query.sort || '';
         const userId = ctx.query.loggedUser && ctx.query.loggedUser !== 'null' ? JSON.parse(ctx.query.loggedUser).id : null;
-
         if (!search && sort.indexOf('relevance') >= 0) {
             ctx.throw(400, 'Cannot sort by relevance without search criteria');
             return;
@@ -335,7 +334,7 @@ class DatasetRouter {
             const serializedQuery = serializeObjToQuery(clonedQuery) ? `?${serializeObjToQuery(clonedQuery)}&` : '?';
             const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
             const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
-            const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN', userId);
+            const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN', userId, ctx.request.headers);
             ctx.set('cache', `dataset ${query.includes ? query.includes.split(',').map(elem => elem.trim()).join(' ') : ''}`);
             ctx.body = DatasetSerializer.serialize(datasets, link);
         } catch (err) {
@@ -405,7 +404,7 @@ class DatasetRouter {
         const { query } = ctx;
         const user = DatasetRouter.getUser(ctx);
         try {
-            const dataset = await DatasetService.get(id, query, user.role === 'ADMIN', user.id);
+            const dataset = await DatasetService.get(id, query, user.role === 'ADMIN', user.id, ctx.request.headers);
             let verificationData = { message: 'Not verification data' };
             if (dataset.verified && dataset.blockchain && dataset.blockchain.id) {
                 verificationData = await VerificationService.getVerificationData(dataset.blockchain.id);
@@ -424,7 +423,7 @@ class DatasetRouter {
     static async flushDataset(ctx) {
         const datasetId = ctx.params.dataset;
         const user = DatasetRouter.getUser(ctx);
-        const dataset = await DatasetService.get(datasetId, {}, user.role === 'ADMIN', user.id);
+        const dataset = await DatasetService.get(datasetId, {}, user.role === 'ADMIN', user.id, ctx.request.headers);
         ctx.set('uncache', `${dataset._id} ${dataset.slug} query-${dataset._id} query-${dataset.slug} fields-${dataset._id} fields-${dataset.slug}`);
         ctx.body = 'OK';
     }

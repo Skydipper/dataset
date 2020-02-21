@@ -8,6 +8,8 @@ const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
     return a;
 }, []).join('&');
 
+const allowedHeaders = ['authorization'];
+
 class RelationshipsService {
 
     static treatQuery(query) {
@@ -18,9 +20,13 @@ class RelationshipsService {
         return query;
     }
 
-    static async getResources(ids, includes, query = '', users = [], isAdmin = false) {
+    static async getResources(ids, includes, query = '', users = [], isAdmin = false, headers = {}) {
         logger.info(`Getting resources of ids: ${ids}`);
         delete query.ids;
+        const parsedHeaders = {};
+
+        Object.keys(headers).map(key => allowedHeaders.includes(key) && (parsedHeaders[key] = headers[key]));
+
         let resources = includes.map(async (include) => {
             const obj = {};
             if (INCLUDES.indexOf(include) >= 0) {
@@ -54,7 +60,8 @@ class RelationshipsService {
                         method: 'POST',
                         json: true,
                         body: payload,
-                        version
+                        version,
+                        headers
                     });
                 } catch (e) {
                     logger.error(`Error loading '${include}' resources for dataset: ${e}`);
@@ -99,7 +106,7 @@ class RelationshipsService {
         return resources;
     }
 
-    static async getRelationships(datasets, includes, query = '', isAdmin = false) {
+    static async getRelationships(datasets, includes, query = '', isAdmin = false, headers) {
         logger.info(`Getting relationships of datasets`, isAdmin);
         datasets.unshift({});
         const map = datasets.reduce((acc, val) => {
@@ -108,7 +115,7 @@ class RelationshipsService {
         });
         const users = datasets.map(el => el.userId);
         const ids = Object.keys(map);
-        const resources = await RelationshipsService.getResources(ids, includes, query, users, isAdmin);
+        const resources = await RelationshipsService.getResources(ids, includes, query, users, isAdmin, headers);
         ids.forEach((id) => {
             includes.forEach((include) => {
                 if (include !== 'user') {
