@@ -1,3 +1,7 @@
+# 09/03/2020
+
+- Remove `usersRole` query param which generated huge pagination links.
+
 # 27/01/2020
 
 - Add possibility of sorting datasets by user fields (such as name or role).
