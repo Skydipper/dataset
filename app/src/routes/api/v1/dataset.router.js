@@ -149,7 +149,7 @@ class DatasetRouter {
             const user = DatasetRouter.getUser(ctx);
             const dataset = await DatasetService.create(ctx.request.body, user);
             try {
-                DatasetRouter.notifyAdapterCreate(ctx, dataset);
+                await DatasetRouter.notifyAdapterCreate(ctx, dataset);
             } catch (error) {
                 logger.error(error);
                 ctx.throw(error.status || 500, error.message || `[${generateRandomString()}] Something went wrong`);
