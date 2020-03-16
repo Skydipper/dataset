@@ -19,6 +19,7 @@ const { USER_ROLES } = require('app.constants');
 const InvalidRequest = require('errors/invalidRequest.error');
 const ForbiddenRequest = require('errors/forbiddenRequest.error');
 const { generateRandomString } = require('utils');
+const { NOT_FOUND_ERROR } = require('app.constants');
 
 const router = new Router({
     prefix: '/dataset',
@@ -151,8 +152,14 @@ class DatasetRouter {
             try {
                 await DatasetRouter.notifyAdapterCreate(ctx, dataset);
             } catch (error) {
+                let message = error.message || `[${generateRandomString()}] Something went wrong`;
+                let status = error.status || 500;
+                if (message === NOT_FOUND_ERROR) {
+                    status = 501;
+                    message = 'Current connectorUrl or provider is not supported';
+                }
                 logger.error(error);
-                ctx.throw(error.status || 500, error.message || `[${generateRandomString()}] Something went wrong`);
+                ctx.throw(status, message);
             }
             ctx.set('uncache', 'dataset graph-dataset');
             ctx.body = DatasetSerializer.serialize(dataset);
@@ -305,7 +312,7 @@ class DatasetRouter {
                     ) {
                         metadataSort = sort;
                     }
-                    console.log("uwery----", query);
+                    console.log('uwery----', query);
                     const metadataIds = await RelationshipsService.filterByMetadata(search, metadataSort);
                     const searchBySynonymsIds = await RelationshipsService.searchBySynonyms(serializeObjToQuery(query));
                     const datasetBySearchIds = await DatasetService.getDatasetIdsBySearch(search.split(' '));
@@ -471,7 +478,7 @@ const authorizationMiddleware = async (ctx, next) => {
         return;
     }
     if (user.id === 'microservice') {
-        await next();   
+        await next();
         return;
     }
     if (!user || USER_ROLES.indexOf(user.role) === -1) {

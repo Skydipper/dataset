@@ -13,6 +13,7 @@ const CONNECTOR_TYPES = {
     }
 };
 const RASDAMAN_TYPES = ['tif', 'tiff', 'geo.tiff'];
+const NOT_FOUND_ERROR = '404 - {"errors":[{"status":404,"detail":"Endpoint not found"}]}';
 
 module.exports = {
     USER_ROLES,
@@ -20,4 +21,5 @@ module.exports = {
     INCLUDES,
     CONNECTOR_TYPES,
     RASDAMAN_TYPES,
+    NOT_FOUND_ERROR
 };
