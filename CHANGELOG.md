@@ -1,3 +1,7 @@
+# 16/03/2020
+
+- Add support for nested filters in applicationConfig object.
+
 # 09/03/2020
 
 - Remove `usersRole` query param which generated huge pagination links.
