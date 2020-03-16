@@ -18,6 +18,7 @@ const ctRegisterMicroservice = require('ct-register-microservice-node');
 const { USER_ROLES } = require('app.constants');
 const InvalidRequest = require('errors/invalidRequest.error');
 const ForbiddenRequest = require('errors/forbiddenRequest.error');
+const { generateRandomString } = require('utils');
 
 const router = new Router({
     prefix: '/dataset',
@@ -150,8 +151,8 @@ class DatasetRouter {
             try {
                 DatasetRouter.notifyAdapterCreate(ctx, dataset);
             } catch (error) {
-                // do nothing
                 logger.error(error);
+                ctx.throw(error.status || 500, error.message || `[${generateRandomString()}] Something went wrong`);
             }
             ctx.set('uncache', 'dataset graph-dataset');
             ctx.body = DatasetSerializer.serialize(dataset);
@@ -470,7 +471,7 @@ const authorizationMiddleware = async (ctx, next) => {
         return;
     }
     if (user.id === 'microservice') {
-        await next();
+        await next();   
         return;
     }
     if (!user || USER_ROLES.indexOf(user.role) === -1) {
