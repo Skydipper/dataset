@@ -234,6 +234,24 @@ describe('Get datasets tests', () => {
         datasetIds.should.not.contain(ds4._id);
     });
 
+    it('Getting datasets filtering by custom fields (STRINGS only) in the applicationConfig field returns 200 OK response including only datasets that match the filter', async () => {
+        const ds1 = await new Dataset(createDataset('cartodb')).save();
+        const ds2 = await new Dataset(createDataset('cartodb', { applicationConfig: { rw: { highlighted: 'false' } } })).save();
+        const ds3 = await new Dataset(createDataset('cartodb', { applicationConfig: { rw: { highlighted: 'true' } } })).save();
+        const ds4 = await new Dataset(createDataset('cartodb', { applicationConfig: { rw: { highlighted: true } } })).save();
+
+        const response = await requester.get(`/api/v1/dataset?applicationConfig.rw.highlighted=true`);
+        response.status.should.equal(200);
+        response.body.should.have.property('data').with.lengthOf(1);
+
+        const datasets = deserializeDataset(response);
+        const datasetIds = datasets.map(dataset => dataset.id);
+        datasetIds.should.not.contain(ds1._id);
+        datasetIds.should.not.contain(ds2._id);
+        datasetIds.should.contain(ds3._id);
+        datasetIds.should.not.contain(ds4._id);
+    });
+
 
     /**
      * We'll want to limit the maximum page size in the future

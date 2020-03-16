@@ -41,6 +41,20 @@ const manualSortAndPaginate = (array, sortedIds, size, page) => {
     };
 };
 
+const buildCustomObject = (index, value) => {
+    const res = {};
+    res[index] = value;
+    return res;
+};
+
+const buildApplicationConfigFilter = (indexes, value) => {
+    if (indexes.length === 1) {
+        return buildCustomObject(indexes[0], value);
+    }
+
+    return buildCustomObject(indexes[0], buildApplicationConfigFilter(indexes.slice(1), value));
+};
+
 class DatasetService {
 
     // eslint-disable-next-line consistent-return
@@ -84,6 +98,19 @@ class DatasetService {
         }
     }
 
+    static isApplicationConfigFilter(filter) {
+        return /^applicationConfig\..*$/.test(filter);
+    }
+
+    static isFilterValid(filter) {
+        const datasetAttributes = Object.keys(Dataset.schema.paths);
+        return datasetAttributes.indexOf(filter) >= 0 || filter === 'usersRole' || DatasetService.isApplicationConfigFilter(filter);
+    }
+
+    static checkFilterInWhitelist(filter) {
+        return !['env', 'userId', 'usersRole', 'subscribable'].includes(filter) && !DatasetService.isApplicationConfigFilter(filter);
+    }
+
     static getFilteredQuery(query, ids = []) {
         const { collection, favourite } = query;
         if (!query.application && query.app) {
@@ -103,12 +130,12 @@ class DatasetService {
                 $eq: query.userId
             };
         }
-        const datasetAttributes = Object.keys(Dataset.schema.paths);
+
         logger.debug('Object.keys(query)', Object.keys(query));
         Object.keys(query).forEach((param) => {
-            if (datasetAttributes.indexOf(param) < 0 && param !== 'usersRole') {
+            if (!DatasetService.isFilterValid(param)) {
                 delete query[param];
-            } else if (param !== 'env' && param !== 'userId' && param !== 'usersRole' && param !== 'subscribable') {
+            } else if (DatasetService.checkFilterInWhitelist(param)) {
                 switch (Dataset.schema.paths[param].instance) {
 
                     case 'String':
@@ -156,6 +183,9 @@ class DatasetService {
                 } else if (query[param] === 'false') {
                     query.subscribable = { $in: [null, false, {}] };
                 }
+            } else if (DatasetService.isApplicationConfigFilter(param)) {
+                query.applicationConfig = buildApplicationConfigFilter(param.split('.').slice(1), query[param]);
+                delete query[param];
             }
         });
         if (ids.length > 0 || collection || favourite) {
