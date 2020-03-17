@@ -16,6 +16,7 @@ const GraphService = require('services/graph.service');
 const slug = require('slug');
 const { STATUS } = require('app.constants');
 const isUndefined = require('lodash/isUndefined');
+const lodashSet = require('lodash/set');
 
 const stage = process.env.NODE_ENV;
 
@@ -39,20 +40,6 @@ const manualSortAndPaginate = (array, sortedIds, size, page) => {
         total: totalElements,
         docs: manualPaginate(sortedArray, size, page)
     };
-};
-
-const buildCustomObject = (index, value) => {
-    const res = {};
-    res[index] = value;
-    return res;
-};
-
-const buildApplicationConfigFilter = (indexes, value) => {
-    if (indexes.length === 1) {
-        return buildCustomObject(indexes[0], value);
-    }
-
-    return buildCustomObject(indexes[0], buildApplicationConfigFilter(indexes.slice(1), value));
 };
 
 class DatasetService {
@@ -184,7 +171,8 @@ class DatasetService {
                     query.subscribable = { $in: [null, false, {}] };
                 }
             } else if (DatasetService.isApplicationConfigFilter(param)) {
-                query.applicationConfig = buildApplicationConfigFilter(param.split('.').slice(1), query[param]);
+                query.applicationConfig = {};
+                lodashSet(query.applicationConfig, param.split('.').slice(1).join('.'), query[param]);
                 delete query[param];
             }
         });
