@@ -1,6 +1,7 @@
-# 16/03/2020
+# 17/03/2020
 
 - Add support for nested filters in applicationConfig object.
+- Fix issue with sorting for ascending order.
 
 # 09/03/2020
 
