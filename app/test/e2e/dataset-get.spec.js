@@ -252,6 +252,32 @@ describe('Get datasets tests', () => {
         datasetIds.should.not.contain(ds4._id);
     });
 
+    it('Getting datasets filtering by dataset fields and by custom fields in the applicationConfig field returns 200 OK response including only datasets that match the filter', async () => {
+        const ds1 = await new Dataset(createDataset('gee')).save();
+        const ds2 = await new Dataset(createDataset('gee', { applicationConfig: { rw: { highlighted: 'false' } } })).save();
+        const ds3 = await new Dataset(createDataset('cartodb', { applicationConfig: { rw: { highlighted: 'true' } } })).save();
+        const ds4 = await new Dataset(createDataset('cartodb', { applicationConfig: { rw: { highlighted: true } } })).save();
+
+        const response1 = await requester.get(`/api/v1/dataset?provider=cartodb&applicationConfig.rw.highlighted=true`);
+        response1.status.should.equal(200);
+        response1.body.should.have.property('data').with.lengthOf(1);
+
+        const datasetIds1 = response1.body.data.map(dataset => dataset.id);
+        datasetIds1.should.not.contain(ds1._id);
+        datasetIds1.should.not.contain(ds2._id);
+        datasetIds1.should.contain(ds3._id);
+        datasetIds1.should.not.contain(ds4._id);
+
+        const response2 = await requester.get(`/api/v1/dataset?provider=gee&applicationConfig.rw.highlighted=false`);
+        response2.status.should.equal(200);
+        response2.body.should.have.property('data').with.lengthOf(1);
+
+        const datasetIds2 = response2.body.data.map(dataset => dataset.id);
+        datasetIds2.should.not.contain(ds1._id);
+        datasetIds2.should.contain(ds2._id);
+        datasetIds2.should.not.contain(ds3._id);
+        datasetIds2.should.not.contain(ds4._id);
+    });
 
     /**
      * We'll want to limit the maximum page size in the future
