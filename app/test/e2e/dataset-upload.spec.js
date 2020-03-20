@@ -112,29 +112,6 @@ describe('Upload raw data', () => {
         response.body.connectorUrl.should.match(regex);
     });
 
-    // // TODO: WTH is this?
-    // it('Uploading a dataset with the rw.dataset.raw thingy should... ????', async () => {
-    //     nock('https://wri-api-backups.s3.amazonaws.com:443')
-    //         .put(() => true)
-    //         .once()
-    //         .reply(200, '', {
-    //             ETag: '"7e3a0db8fad94dd0f51bd9c1b1b239d2"',
-    //             'Content-Length': '0',
-    //             Server: 'AmazonS3'
-    //         });
-    //
-    //     const response = await requester.post(`/api/v1/dataset/upload`)
-    //         .send({
-    //             loggedUser: USERS.USER,
-    //             provider: 'csv'
-    //         });
-    //
-    //     const regex = /rw.dataset.raw\/.+_dataset_1.csv/g;
-    //
-    //     response.status.should.equal(200);
-    //     response.body.connectorUrl.should.match(regex);
-    // });
-
     afterEach(() => {
         if (!nock.isDone()) {
             throw new Error(`Not all nock interceptors were used: ${nock.pendingMocks()}`);
