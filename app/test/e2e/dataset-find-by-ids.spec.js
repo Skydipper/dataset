@@ -43,7 +43,7 @@ describe('Find by ids datasets', () => {
         response.status.should.equal(200);
         response.body.should.have.property('data').with.lengthOf(2);
 
-        const datasetsIds = deserializeDataset(response).map(_ => _.id);
+        const datasetsIds = deserializeDataset(response).map((_) => _.id);
 
         datasetsIds.should.contain(cartoFakeDataset.id);
         datasetsIds.should.contain(jsonFakeDataset.id);

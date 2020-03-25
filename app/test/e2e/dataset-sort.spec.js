@@ -40,7 +40,7 @@ describe('Sort datasets tests', () => {
         responseOne.body.should.have.property('data').with.lengthOf(3);
         responseOne.body.should.have.property('links').and.be.an('object');
 
-        const datasetIds = datasetsOne.map(dataset => dataset.id);
+        const datasetIds = datasetsOne.map((dataset) => dataset.id);
 
         datasetIds.should.contain(datasetTwo._id);
         datasetIds.should.contain(datasetOne._id);
@@ -56,7 +56,7 @@ describe('Sort datasets tests', () => {
         responseOne.body.should.have.property('data').with.lengthOf(3);
         responseOne.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
+        const datasetIdsOne = datasetsOne.map((dataset) => dataset.id);
 
         datasetIdsOne[0].should.equal(datasetOne._id);
         datasetIdsOne[1].should.equal(datasetThree._id);
@@ -74,7 +74,7 @@ describe('Sort datasets tests', () => {
         responseOne.body.should.have.property('data').with.lengthOf(3);
         responseOne.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
+        const datasetIdsOne = datasetsOne.map((dataset) => dataset.id);
 
         datasetIdsOne[0].should.equal(datasetOne._id);
         datasetIdsOne[1].should.equal(datasetThree._id);
@@ -92,7 +92,7 @@ describe('Sort datasets tests', () => {
         responseOne.body.should.have.property('data').with.lengthOf(3);
         responseOne.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
+        const datasetIdsOne = datasetsOne.map((dataset) => dataset.id);
 
         datasetIdsOne[0].should.equal(datasetTwo._id);
         datasetIdsOne[1].should.equal(datasetThree._id);

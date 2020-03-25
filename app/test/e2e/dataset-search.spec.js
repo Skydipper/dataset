@@ -50,7 +50,7 @@ describe('Search datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(2);
         response.body.should.have.property('links').and.be.an('object');
 
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
 
         datasetIds.should.contain(jsonFakeDataset._id);
         datasetIds.should.contain(cartoFakeDataset._id);
@@ -78,7 +78,7 @@ describe('Search datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(1);
         response.body.should.have.property('links').and.be.an('object');
 
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
 
         datasetIds.should.contain(cartoFakeDataset._id);
     });
@@ -111,7 +111,7 @@ describe('Search datasets tests', () => {
         responseOne.body.should.have.property('data').with.lengthOf(2);
         responseOne.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
+        const datasetIdsOne = datasetsOne.map((dataset) => dataset.id);
 
         datasetIdsOne.should.contain(cartoFakeDataset._id);
         datasetIdsOne.should.contain(jsonFakeDataset._id);
@@ -152,7 +152,7 @@ describe('Search datasets tests', () => {
         responseOne.body.should.have.property('data').with.lengthOf(2);
         responseOne.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
+        const datasetIdsOne = datasetsOne.map((dataset) => dataset.id);
 
         datasetIdsOne[0].should.equal(jsonFakeDataset._id);
         datasetIdsOne[1].should.equal(cartoFakeDataset._id);
@@ -175,7 +175,7 @@ describe('Search datasets tests', () => {
         responseTwo.body.should.have.property('data').with.lengthOf(2);
         responseTwo.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsTwo = datasetsTwo.map(dataset => dataset.id);
+        const datasetIdsTwo = datasetsTwo.map((dataset) => dataset.id);
 
         datasetIdsTwo[0].should.equal(cartoFakeDataset._id);
         datasetIdsTwo[1].should.equal(jsonFakeDataset._id);
@@ -216,7 +216,7 @@ describe('Search datasets tests', () => {
         responseOne.body.should.have.property('data').with.lengthOf(2);
         responseOne.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
+        const datasetIdsOne = datasetsOne.map((dataset) => dataset.id);
 
         datasetIdsOne[0].should.equal(jsonFakeDataset._id);
         datasetIdsOne[1].should.equal(cartoFakeDataset._id);
@@ -239,7 +239,7 @@ describe('Search datasets tests', () => {
         responseTwo.body.should.have.property('data').with.lengthOf(2);
         responseTwo.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsTwo = datasetsTwo.map(dataset => dataset.id);
+        const datasetIdsTwo = datasetsTwo.map((dataset) => dataset.id);
 
         datasetIdsTwo[0].should.equal(cartoFakeDataset._id);
         datasetIdsTwo[1].should.equal(jsonFakeDataset._id);
@@ -271,7 +271,7 @@ describe('Search datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(2);
         response.body.should.have.property('links').and.be.an('object');
 
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
 
         datasetIds[0].should.equal(cartoFakeDataset._id);
         datasetIds[1].should.equal(jsonFakeDataset._id);
@@ -303,7 +303,7 @@ describe('Search datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(2);
         response.body.should.have.property('links').and.be.an('object');
 
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
 
         datasetIds[0].should.equal(cartoFakeDataset._id);
         datasetIds[1].should.equal(jsonFakeDataset._id);
@@ -355,7 +355,7 @@ describe('Search datasets tests', () => {
         responseOne.body.should.have.property('data').with.lengthOf(2);
         responseOne.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsOne = datasetsOne.map(dataset => dataset.id);
+        const datasetIdsOne = datasetsOne.map((dataset) => dataset.id);
 
         datasetIdsOne[0].should.equal(cartoFakeDataset._id);
         datasetIdsOne[1].should.equal(jsonFakeDataset._id);
@@ -377,7 +377,7 @@ describe('Search datasets tests', () => {
         responseTwo.body.should.have.property('data').with.lengthOf(2);
         responseTwo.body.should.have.property('links').and.be.an('object');
 
-        const datasetIdsTwo = datasetsTwo.map(dataset => dataset.id);
+        const datasetIdsTwo = datasetsTwo.map((dataset) => dataset.id);
 
         datasetIdsTwo[0].should.equal(jsonFakeDataset._id);
         datasetIdsTwo[1].should.equal(cartoFakeDataset._id);

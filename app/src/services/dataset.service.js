@@ -23,7 +23,7 @@ const stage = process.env.NODE_ENV;
 const manualSort = (array, sortedIds) => {
     const tempArray = [];
     sortedIds.forEach((id) => {
-        const dataset = array.find(el => el._id === id);
+        const dataset = array.find((el) => el._id === id);
         if (dataset) {
             tempArray.push(dataset);
         }
@@ -134,11 +134,11 @@ class DatasetService {
                     case 'Array':
                         if (query[param].indexOf('@') >= 0) {
                             query[param] = {
-                                $all: query[param].split('@').map(elem => elem.trim())
+                                $all: query[param].split('@').map((elem) => elem.trim())
                             };
                         } else {
                             query[param] = {
-                                $in: query[param].split(',').map(elem => elem.trim())
+                                $in: query[param].split(',').map((elem) => elem.trim())
                             };
                         }
                         break;
@@ -156,13 +156,11 @@ class DatasetService {
                 };
             } else if (param === 'usersRole') {
                 logger.debug('Params users roles');
-                query.userId = Object.assign({}, query.userId || {}, {
-                    $in: query[param]
-                });
+                query.userId = { ...query.userId || {}, $in: query[param] };
                 delete query.usersRole;
             } else if (param === 'userId') {
                 logger.debug('params userid', query[param]);
-                query.userId = Object.assign({}, query.userId || {}, query[param]);
+                query.userId = { ...query.userId || {}, ...query[param] };
             } else if (param === 'subscribable') {
                 logger.debug('Applying subscribable filter', query[param]);
                 if (query[param] === 'true') {
@@ -205,7 +203,7 @@ class DatasetService {
     static async getAllDatasetUserIds() {
         logger.debug(`[DatasetService]: Getting the user ids of all datasets`);
         const datasets = await Dataset.find({}, 'userId').lean();
-        const userIds = datasets.map(dataset => dataset.userId);
+        const userIds = datasets.map((dataset) => dataset.userId);
         return userIds.filter((item, idx) => userIds.indexOf(item) === idx);
     }
 
@@ -237,13 +235,13 @@ class DatasetService {
         let dataset = await Dataset.findById(id).exec() || await Dataset.findOne({
             slug: id
         }).exec();
-        const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
+        const includes = query.includes ? query.includes.split(',').map((elem) => elem.trim()) : [];
         if (!dataset) {
             logger.info(`[DatasetService]: Dataset with id ${id} doesn't exist`);
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         if (includes.length > 0) {
-            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query), isAdmin);
+            dataset = await RelationshipsService.getRelationships([dataset], includes, { ...query }, isAdmin);
         }
         return dataset;
     }
@@ -618,9 +616,9 @@ class DatasetService {
         const sort = query.sort || '';
         const page = query['page[number]'] ? parseInt(query['page[number]'], 10) : 1;
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
-        const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
-        const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
-        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids);
+        const ids = query.ids ? query.ids.split(',').map((elem) => elem.trim()) : [];
+        const includes = query.includes ? query.includes.split(',').map((elem) => elem.trim()) : [];
+        const filteredQuery = DatasetService.getFilteredQuery({ ...query }, ids);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
             page,
@@ -638,7 +636,7 @@ class DatasetService {
         }
         logger.info(`[DBACCESS-FIND]: dataset`);
         let pages = await Dataset.paginate(filteredQuery, options);
-        pages = Object.assign({}, pages);
+        pages = { ...pages };
         if (
             sort.indexOf('most-favorited') >= 0
             || sort.indexOf('most-viewed') >= 0
@@ -654,7 +652,7 @@ class DatasetService {
             pages.pages = Math.ceil(pages.total / pages.limit);
         }
         if (includes.length > 0) {
-            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query), isAdmin);
+            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, { ...query }, isAdmin);
         }
         return pages;
     }
@@ -701,7 +699,7 @@ class DatasetService {
     }
 
     static validateAppPermission(user, datasetApps) {
-        return datasetApps.find(datasetApp => user.extraUserData.apps.find(app => app === datasetApp));
+        return datasetApps.find((datasetApp) => user.extraUserData.apps.find((app) => app === datasetApp));
     }
 
     static async hasPermission(id, user, datasetApps) {
@@ -721,12 +719,12 @@ class DatasetService {
     static async getDatasetIdsBySearch(search) {
         // are we sure?
         const searchQuery = [
-            { name: new RegExp(search.map(w => `(?=.*${w})`).join(''), 'i') },
-            { subtitle: new RegExp(search.map(w => `(?=.*${w})`).join(''), 'i') }
+            { name: new RegExp(search.map((w) => `(?=.*${w})`).join(''), 'i') },
+            { subtitle: new RegExp(search.map((w) => `(?=.*${w})`).join(''), 'i') }
         ];
         const query = { $or: searchQuery };
         const datasets = await Dataset.find(query);
-        const datasetIds = datasets.map(el => el._id);
+        const datasetIds = datasets.map((el) => el._id);
         return datasetIds;
     }
 

@@ -24,7 +24,7 @@ const deserializeDataset = (response) => {
     return response;
 };
 
-const expectedDataset = dataset => ({
+const expectedDataset = (dataset) => ({
     id: dataset.id,
     type: 'dataset',
     attributes:
@@ -102,7 +102,7 @@ const createDataset = (provider, anotherData = {}) => {
 
     const uuid = getUUID();
 
-    return Object.assign({}, {
+    return {
         name: `Fake dataset ${uuid}`,
         slug: `fake-carto-${uuid}`,
         type: null,
@@ -128,11 +128,12 @@ const createDataset = (provider, anotherData = {}) => {
         overwrite: true,
         status: 'saved',
         sandbox: true,
-        published: true
-    }, anotherData);
+        published: true,
+        ...anotherData
+    };
 };
 
-const mapDatasetToMetadataSearchResult = dataset => ({
+const mapDatasetToMetadataSearchResult = (dataset) => ({
     id: getUUID(),
     type: 'metadata',
     attributes: {

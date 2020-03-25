@@ -317,9 +317,9 @@ describe('Get datasets with includes tests', () => {
         response.body.should.have.property('data').with.lengthOf(3);
         response.body.should.have.property('links').and.be.an('object');
 
-        const responseDatasetOne = response.body.data.find(dataset => dataset.id === fakeDatasetOne.id);
-        const responseDatasetTwo = response.body.data.find(dataset => dataset.id === fakeDatasetTwo.id);
-        const responseDatasetThree = response.body.data.find(dataset => dataset.id === fakeDatasetThree.id);
+        const responseDatasetOne = response.body.data.find((dataset) => dataset.id === fakeDatasetOne.id);
+        const responseDatasetTwo = response.body.data.find((dataset) => dataset.id === fakeDatasetTwo.id);
+        const responseDatasetThree = response.body.data.find((dataset) => dataset.id === fakeDatasetThree.id);
 
         responseDatasetOne.attributes.user.role.should.be.a('string').and.equal('USER');
         responseDatasetOne.attributes.user.email.should.be.a('string').and.equal('user-one@control-tower.org');

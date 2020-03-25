@@ -26,12 +26,12 @@ const router = new Router({
 
 koaMulter({ dest: 'uploads/' });
 
-const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
+const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
     return a;
 }, []).join('&');
 
-const arrayIntersection = (arr1, arr2) => arr1.filter(n => arr2.indexOf(n) !== -1);
+const arrayIntersection = (arr1, arr2) => arr1.filter((n) => arr2.indexOf(n) !== -1);
 
 class DatasetRouter {
 
@@ -59,7 +59,7 @@ class DatasetRouter {
     static getUser(ctx) {
         const { query, body } = ctx.request;
 
-        let user = Object.assign({}, query.loggedUser ? JSON.parse(query.loggedUser) : {}, ctx.request.body.loggedUser);
+        let user = { ...(query.loggedUser ? JSON.parse(query.loggedUser) : {}), ...ctx.request.body.loggedUser };
         if (body.fields && body.fields.loggedUser) {
             user = Object.assign(user, JSON.parse(body.fields.loggedUser));
         }
@@ -68,7 +68,7 @@ class DatasetRouter {
 
     static async notifyAdapter(ctx, dataset) {
         const { connectorType, provider } = dataset;
-        const clonedDataset = Object.assign({}, dataset.toObject());
+        const clonedDataset = { ...dataset.toObject() };
         clonedDataset.id = dataset._id;
         clonedDataset.connector_url = dataset.connectorUrl;
         clonedDataset.attributes_path = dataset.attributesPath;
@@ -111,7 +111,7 @@ class DatasetRouter {
 
     static async notifyAdapterCreate(ctx, dataset) {
         const { connectorType, provider } = dataset;
-        const clonedDataset = Object.assign({}, dataset.toObject());
+        const clonedDataset = { ...dataset.toObject() };
 
         clonedDataset.id = dataset._id;
         clonedDataset.connector_url = dataset.connectorUrl;
@@ -153,10 +153,10 @@ class DatasetRouter {
         delete query.loggedUser;
         try {
             const dataset = await DatasetService.get(id, query, user && user.role === 'ADMIN');
-            const includes = ctx.query.includes ? ctx.query.includes.split(',').map(elem => elem.trim()) : [];
+            const includes = ctx.query.includes ? ctx.query.includes.split(',').map((elem) => elem.trim()) : [];
             const datasetId = dataset.id || dataset[0].id;
             const datasetSlug = dataset.slug || dataset[0].slug;
-            ctx.set('cache', `${datasetId} ${includes.map(el => `${datasetId}-${el.trim()}`).join(' ')} ${datasetSlug} ${includes.map(el => `${datasetSlug}-${el.trim()}`).join(' ')}`);
+            ctx.set('cache', `${datasetId} ${includes.map((el) => `${datasetId}-${el.trim()}`).join(' ')} ${datasetSlug} ${includes.map((el) => `${datasetSlug}-${el.trim()}`).join(' ')}`);
             ctx.body = DatasetSerializer.serialize(dataset);
         } catch (err) {
             if (err instanceof DatasetNotFound) {
@@ -298,7 +298,7 @@ class DatasetRouter {
                 // Fetch info to sort again
                 const ids = await DatasetService.getAllDatasetUserIds();
                 const users = await RelationshipsService.getUsersInfoByIds(ids);
-                await Promise.all(users.map(u => DatasetModel.updateMany(
+                await Promise.all(users.map((u) => DatasetModel.updateMany(
                     { userId: u._id },
                     {
                         userRole: u.role ? u.role.toLowerCase() : '',
@@ -315,16 +315,16 @@ class DatasetRouter {
             //     ctx.throw(400, 'Invalid page size');
             // }
 
-            if (Object.keys(query).find(el => el.indexOf('vocabulary[') >= 0)) {
+            if (Object.keys(query).find((el) => el.indexOf('vocabulary[') >= 0)) {
                 ctx.query.ids = await RelationshipsService.filterByVocabularyTag(query);
                 logger.debug('Ids from vocabulary-tag', ctx.query.ids);
             }
-            if (Object.keys(query).find(el => el.indexOf('user.role') >= 0) && user && user.role === 'ADMIN') {
+            if (Object.keys(query).find((el) => el.indexOf('user.role') >= 0) && user && user.role === 'ADMIN') {
                 logger.debug('Obtaining users with role');
                 ctx.query.usersRole = await UserService.getUsersWithRole(ctx.query['user.role']);
                 logger.debug('Ids from users with role', ctx.query.usersRole);
             }
-            if (Object.keys(query).find(el => el.indexOf('collection') >= 0)) {
+            if (Object.keys(query).find((el) => el.indexOf('collection') >= 0)) {
                 if (!userId) {
                     ctx.throw(403, 'Collection filter not authorized');
                     return;
@@ -333,7 +333,7 @@ class DatasetRouter {
                 ctx.query.ids = ctx.query.ids.length > 0 ? ctx.query.ids.join(',') : '';
                 logger.debug('Ids from collections', ctx.query.ids);
             }
-            if (Object.keys(query).find(el => el.indexOf('favourite') >= 0)) {
+            if (Object.keys(query).find((el) => el.indexOf('favourite') >= 0)) {
                 if (!userId) {
                     ctx.throw(403, 'Fav filter not authorized');
                     return;
@@ -384,7 +384,7 @@ class DatasetRouter {
                 ctx.query.ids = [...uniqueIds].join(); // it has to be string
             }
             // Links creation
-            const clonedQuery = Object.assign({}, query);
+            const clonedQuery = { ...query };
             delete clonedQuery['page[size]'];
             delete clonedQuery['page[number]'];
             delete clonedQuery.ids;
@@ -393,7 +393,7 @@ class DatasetRouter {
             const apiVersion = ctx.mountPath.split('/')[ctx.mountPath.split('/').length - 1];
             const link = `${ctx.request.protocol}://${ctx.request.host}/${apiVersion}${ctx.request.path}${serializedQuery}`;
             const datasets = await DatasetService.getAll(query, user && user.role === 'ADMIN');
-            ctx.set('cache', `dataset ${query.includes ? query.includes.split(',').map(elem => elem.trim()).join(' ') : ''}`);
+            ctx.set('cache', `dataset ${query.includes ? query.includes.split(',').map((elem) => elem.trim()).join(' ') : ''}`);
             ctx.body = DatasetSerializer.serialize(datasets, link);
         } catch (err) {
             if (err instanceof InvalidRequest) {
@@ -527,14 +527,10 @@ const authorizationMiddleware = async (ctx, next) => {
 
     const allowedOperations = newDatasetCreation || uploadDataset;
     if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !allowedOperations) {
-        try {
-            const permission = await DatasetService.hasPermission(ctx.params.dataset, user, datasetApps);
-            if (!permission) {
-                ctx.throw(403, 'Forbidden');
-                return;
-            }
-        } catch (err) {
-            throw err;
+        const permission = await DatasetService.hasPermission(ctx.params.dataset, user, datasetApps);
+        if (!permission) {
+            ctx.throw(403, 'Forbidden');
+            return;
         }
     }
     await next(); // SUPERADMIN is included here
