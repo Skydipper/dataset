@@ -37,7 +37,7 @@ module.exports = (() => {
         });
         if (existIndexRouter) {
             // load indexRouter when finish other Router
-            const newPath = path ? (`${path}/indexRouter.js`) : 'indexRouter.js';
+            const newPath = path ? (`${path}/index.router.js`) : 'index.router.js';
             logger.debug('Loading route %s, in path %s', newPath, pathApi);
             if (pathApi) {
                 app.use(mount(pathApi, require(newPath).middleware()));
