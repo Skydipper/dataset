@@ -1,3 +1,12 @@
+# v1.2.0
+
+## 20/03/2020
+
+- Fix issue where dataset upload would fail.
+- Add support for nested filters in applicationConfig object.
+- Fix issue with sorting for ascending order.
+- Remove `usersRole` query param which generated huge pagination links.
+
 # v1.1.0
 
 ## 27/01/2020

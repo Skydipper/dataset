@@ -2,9 +2,9 @@ const nock = require('nock');
 
 const Dataset = require('models/dataset.model');
 
-const { createDataset } = require('./utils');
-const { BLOCKCHAIN_FAKE_INFO, STAMPERY_RESPONSE_OBJECT } = require('./test.constants');
-const { getTestServer } = require('./test-server');
+const { createDataset } = require('./utils/helpers');
+const { BLOCKCHAIN_FAKE_INFO, STAMPERY_RESPONSE_OBJECT } = require('./utils/test.constants');
+const { getTestServer } = require('./utils/test-server');
 
 const requester = getTestServer();
 

@@ -16,6 +16,7 @@ const GraphService = require('services/graph.service');
 const slug = require('slug');
 const { STATUS } = require('app.constants');
 const isUndefined = require('lodash/isUndefined');
+const lodashSet = require('lodash/set');
 
 const stage = process.env.NODE_ENV;
 
@@ -84,6 +85,19 @@ class DatasetService {
         }
     }
 
+    static isApplicationConfigFilter(filter) {
+        return /^applicationConfig\..*$/.test(filter);
+    }
+
+    static isFilterValid(filter) {
+        const datasetAttributes = Object.keys(Dataset.schema.paths);
+        return datasetAttributes.indexOf(filter) >= 0 || filter === 'usersRole' || DatasetService.isApplicationConfigFilter(filter);
+    }
+
+    static checkFilterInWhitelist(filter) {
+        return !['env', 'userId', 'usersRole', 'subscribable'].includes(filter) && !DatasetService.isApplicationConfigFilter(filter);
+    }
+
     static getFilteredQuery(query, ids = []) {
         const { collection, favourite } = query;
         if (!query.application && query.app) {
@@ -103,12 +117,12 @@ class DatasetService {
                 $eq: query.userId
             };
         }
-        const datasetAttributes = Object.keys(Dataset.schema.paths);
+
         logger.debug('Object.keys(query)', Object.keys(query));
         Object.keys(query).forEach((param) => {
-            if (datasetAttributes.indexOf(param) < 0 && param !== 'usersRole') {
+            if (!DatasetService.isFilterValid(param)) {
                 delete query[param];
-            } else if (param !== 'env' && param !== 'userId' && param !== 'usersRole' && param !== 'subscribable') {
+            } else if (DatasetService.checkFilterInWhitelist(param)) {
                 switch (Dataset.schema.paths[param].instance) {
 
                     case 'String':
@@ -156,6 +170,10 @@ class DatasetService {
                 } else if (query[param] === 'false') {
                     query.subscribable = { $in: [null, false, {}] };
                 }
+            } else if (DatasetService.isApplicationConfigFilter(param)) {
+                query.applicationConfig = {};
+                lodashSet(query.applicationConfig, param.split('.').slice(1).join('.'), query[param]);
+                delete query[param];
             }
         });
         if (ids.length > 0 || collection || favourite) {
@@ -201,13 +219,13 @@ class DatasetService {
         const datasetAttributes = Object.keys(Dataset.schema.obj);
         sortParams.forEach((param) => {
             let sign = param.substr(0, 1);
-            let realParam = param.substr(1);
-            if (sign !== '-') {
+            let signlessParam = param.substr(1);
+            if (sign !== '-' && sign !== '+') {
+                signlessParam = param;
                 sign = '+';
-                realParam = param;
             }
-            if (datasetAttributes.indexOf(realParam) >= 0) {
-                filteredSort[realParam] = parseInt(sign + 1, 10);
+            if (datasetAttributes.indexOf(signlessParam) >= 0) {
+                filteredSort[signlessParam] = parseInt(sign + 1, 10);
             }
         });
         return filteredSort;

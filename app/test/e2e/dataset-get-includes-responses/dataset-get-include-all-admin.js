@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-const { USERS } = require('../test.constants');
+const { USERS } = require('../utils/test.constants');
 
 const datasetGetIncludeAllAdmin = dataset => ({
     id: dataset.id,

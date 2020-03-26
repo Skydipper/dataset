@@ -1,5 +1,8 @@
 const nock = require('nock');
-const { getTestServer } = require('./test-server');
+const chai = require('chai');
+const { getTestServer } = require('./utils/test-server');
+
+chai.should();
 
 let requester;
 

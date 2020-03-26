@@ -3,8 +3,8 @@ const Dataset = require('models/dataset.model');
 
 const {
     createDataset, deserializeDataset, expectedDataset, ensureCorrectError
-} = require('./utils');
-const { getTestServer } = require('./test-server');
+} = require('./utils/helpers');
+const { getTestServer } = require('./utils/test-server');
 
 const requester = getTestServer();
 

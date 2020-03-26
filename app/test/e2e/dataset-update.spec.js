@@ -2,12 +2,12 @@
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
-const { USERS } = require('./test.constants');
-const { createDataset, deserializeDataset } = require('./utils');
+const { USERS } = require('./utils/test.constants');
+const { createDataset, deserializeDataset } = require('./utils/helpers');
 
 const should = chai.should();
 
-const { getTestServer } = require('./test-server');
+const { getTestServer } = require('./utils/test-server');
 
 const requester = getTestServer();
 
