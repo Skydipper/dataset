@@ -156,13 +156,11 @@ class DatasetService {
                 };
             } else if (param === 'usersRole') {
                 logger.debug('Params users roles');
-                query.userId = Object.assign({}, query.userId || {}, {
-                    $in: query[param]
-                });
+                query.userId = { ...query.userId || {}, $in: query[param] };
                 delete query.usersRole;
             } else if (param === 'userId') {
                 logger.debug('params userid', query[param]);
-                query.userId = Object.assign({}, query.userId || {}, query[param]);
+                query.userId = { ...query.userId || {}, ...query[param] };
             } else if (param === 'subscribable') {
                 logger.debug('Applying subscribable filter', query[param]);
                 if (query[param] === 'true') {
@@ -243,7 +241,7 @@ class DatasetService {
             throw new DatasetNotFound(`Dataset with id '${id}' doesn't exist`);
         }
         if (includes.length > 0) {
-            dataset = await RelationshipsService.getRelationships([dataset], includes, Object.assign({}, query), isAdmin);
+            dataset = await RelationshipsService.getRelationships([dataset], includes, { ...query }, isAdmin);
         }
         return dataset;
     }
@@ -280,7 +278,6 @@ class DatasetService {
             subscribable: dataset.subscribable,
             mainDateField: dataset.mainDateField,
             protected: dataset.protected,
-            verified: dataset.verified,
             legend: dataset.legend,
             clonedHost: dataset.clonedHost,
             widgetRelevantProps: dataset.widgetRelevantProps,
@@ -424,9 +421,6 @@ class DatasetService {
         if ((dataset.published === false || dataset.published === true) && user.role === 'ADMIN') {
             currentDataset.published = dataset.published;
         }
-        if ((dataset.verified === false || dataset.verified === true)) {
-            currentDataset.verified = dataset.verified;
-        }
         if ((dataset.protected === false || dataset.protected === true)) {
             currentDataset.protected = dataset.protected;
         }
@@ -449,9 +443,6 @@ class DatasetService {
                 currentDataset.status = 'failed';
                 currentDataset.errorMessage = dataset.errorMessage;
             }
-        }
-        if (user.id === 'microservice' && dataset.blockchain && dataset.blockchain.id && dataset.blockchain.hash) {
-            currentDataset.blockchain = dataset.blockchain;
         }
         if (user.id === 'microservice' && dataset.taskId) {
             currentDataset.taskId = dataset.taskId;
@@ -627,7 +618,7 @@ class DatasetService {
         const limit = query['page[size]'] ? parseInt(query['page[size]'], 10) : 10;
         const ids = query.ids ? query.ids.split(',').map(elem => elem.trim()) : [];
         const includes = query.includes ? query.includes.split(',').map(elem => elem.trim()) : [];
-        const filteredQuery = DatasetService.getFilteredQuery(Object.assign({}, query), ids);
+        const filteredQuery = DatasetService.getFilteredQuery({ ...query }, ids);
         const filteredSort = DatasetService.getFilteredSort(sort);
         const options = {
             page,
@@ -645,7 +636,7 @@ class DatasetService {
         }
         logger.info(`[DBACCESS-FIND]: dataset`);
         let pages = await Dataset.paginate(filteredQuery, options);
-        pages = Object.assign({}, pages);
+        pages = { ...pages };
         if (
             sort.indexOf('most-favorited') >= 0
             || sort.indexOf('most-viewed') >= 0
@@ -661,7 +652,7 @@ class DatasetService {
             pages.pages = Math.ceil(pages.total / pages.limit);
         }
         if (includes.length > 0) {
-            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, Object.assign({}, query), isAdmin);
+            pages.docs = await RelationshipsService.getRelationships(pages.docs, includes, { ...query }, isAdmin);
         }
         return pages;
     }

@@ -9,8 +9,6 @@ spec:
   revisionHistoryLimit: 2
   template:
     metadata:
-      annotations:
-        chaos.alpha.kubernetes.io/enabled: "true"
       labels:
         name: dataset
     spec:
@@ -71,11 +69,6 @@ spec:
                 secretKeyRef:
                   name: mssecrets
                   key: S3_SECRET_ACCESS_KEY
-          - name: STAMPERY_TOKEN
-            valueFrom:
-                secretKeyRef:
-                  name: mssecrets
-                  key: STAMPERY_TOKEN
           - name: REDIS_URL
             valueFrom:
                 secretKeyRef:

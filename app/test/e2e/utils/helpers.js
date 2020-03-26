@@ -46,8 +46,6 @@ const expectedDataset = dataset => ({
             status: 'saved',
             published: true,
             overwrite: true,
-            verified: false,
-            blockchain: {},
             mainDateField: null,
             env: 'production',
             geoInfo: false,
@@ -104,7 +102,7 @@ const createDataset = (provider, anotherData = {}) => {
 
     const uuid = getUUID();
 
-    return Object.assign({}, {
+    return {
         name: `Fake dataset ${uuid}`,
         slug: `fake-carto-${uuid}`,
         type: null,
@@ -130,8 +128,9 @@ const createDataset = (provider, anotherData = {}) => {
         overwrite: true,
         status: 'saved',
         sandbox: true,
-        published: true
-    }, anotherData);
+        published: true,
+        ...anotherData
+    };
 };
 
 const mapDatasetToMetadataSearchResult = dataset => ({

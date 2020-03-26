@@ -3,7 +3,6 @@ const koaMulter = require('koa-multer');
 const logger = require('logger');
 const xor = require('lodash/xor');
 const DatasetService = require('services/dataset.service');
-const VerificationService = require('services/verification.service');
 const RelationshipsService = require('services/relationships.service');
 const UserService = require('services/user.service');
 const FileDataService = require('services/fileDataService.service');
@@ -60,7 +59,7 @@ class DatasetRouter {
     static getUser(ctx) {
         const { query, body } = ctx.request;
 
-        let user = Object.assign({}, query.loggedUser ? JSON.parse(query.loggedUser) : {}, ctx.request.body.loggedUser);
+        let user = { ...(query.loggedUser ? JSON.parse(query.loggedUser) : {}), ...ctx.request.body.loggedUser };
         if (body.fields && body.fields.loggedUser) {
             user = Object.assign(user, JSON.parse(body.fields.loggedUser));
         }
@@ -69,7 +68,7 @@ class DatasetRouter {
 
     static async notifyAdapter(ctx, dataset) {
         const { connectorType, provider } = dataset;
-        const clonedDataset = Object.assign({}, dataset.toObject());
+        const clonedDataset = { ...dataset.toObject() };
         clonedDataset.id = dataset._id;
         clonedDataset.connector_url = dataset.connectorUrl;
         clonedDataset.attributes_path = dataset.attributesPath;
@@ -87,6 +86,8 @@ class DatasetRouter {
                 clonedDataset.connectorUrl = process.env.CT_URL + dataset.connectorUrl;
             }
             uri += `/doc-datasets/${provider}`;
+        } else {
+            return null;
         }
 
         if (ctx.request.method === 'DELETE') {
@@ -110,7 +111,7 @@ class DatasetRouter {
 
     static async notifyAdapterCreate(ctx, dataset) {
         const { connectorType, provider } = dataset;
-        const clonedDataset = Object.assign({}, dataset.toObject());
+        const clonedDataset = { ...dataset.toObject() };
 
         clonedDataset.id = dataset._id;
         clonedDataset.connector_url = dataset.connectorUrl;
@@ -383,7 +384,7 @@ class DatasetRouter {
                 ctx.query.ids = [...uniqueIds].join(); // it has to be string
             }
             // Links creation
-            const clonedQuery = Object.assign({}, query);
+            const clonedQuery = { ...query };
             delete clonedQuery['page[size]'];
             delete clonedQuery['page[number]'];
             delete clonedQuery.ids;
@@ -452,24 +453,6 @@ class DatasetRouter {
                 return;
             }
             ctx.throw(500, 'Error recovering dataset status');
-        }
-    }
-
-    static async verification(ctx) {
-        const id = ctx.params.dataset;
-        logger.info(`[DatasetRouter] Getting verification with id: ${id}`);
-        const { query } = ctx;
-        delete query.loggedUser;
-        try {
-            const dataset = await DatasetService.get(id, query);
-            let verificationData = { message: 'Not verification data' };
-            if (dataset.verified && dataset.blockchain && dataset.blockchain.id) {
-                verificationData = await VerificationService.getVerificationData(dataset.blockchain.id);
-            }
-            logger.debug(verificationData);
-            ctx.body = verificationData;
-        } catch (err) {
-            ctx.throw(500, 'Error getting verification data');
         }
     }
 
@@ -544,14 +527,10 @@ const authorizationMiddleware = async (ctx, next) => {
 
     const allowedOperations = newDatasetCreation || uploadDataset;
     if ((user.role === 'MANAGER' || user.role === 'ADMIN') && !allowedOperations) {
-        try {
-            const permission = await DatasetService.hasPermission(ctx.params.dataset, user, datasetApps);
-            if (!permission) {
-                ctx.throw(403, 'Forbidden');
-                return;
-            }
-        } catch (err) {
-            throw err;
+        const permission = await DatasetService.hasPermission(ctx.params.dataset, user, datasetApps);
+        if (!permission) {
+            ctx.throw(403, 'Forbidden');
+            return;
         }
     }
     await next(); // SUPERADMIN is included here
@@ -605,7 +584,6 @@ router.post('/:dataset/flush', authorizationMiddleware, DatasetRouter.flushDatas
 router.post('/:dataset/recover', authorizationRecover, DatasetRouter.recover);
 
 router.get('/:dataset', DatasetRouter.get);
-router.get('/:dataset/verification', DatasetRouter.verification);
 router.patch('/:dataset', validationMiddleware, authorizationMiddleware, DatasetRouter.update);
 router.delete('/:dataset', authorizationMiddleware, DatasetRouter.delete);
 router.post('/:dataset/clone', validationMiddleware, authorizationMiddleware, DatasetRouter.clone);

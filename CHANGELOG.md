@@ -1,7 +1,12 @@
+## 24/03/2020
+
+- Remove blockchain and verified fields and associated blockchain signature logic.
+
 # v1.2.0
 
-## 20/03/2020
+## 23/03/2020
 
+- Fix issue where deleting wms datasets would fail
 - Fix issue where dataset upload would fail.
 - Add support for nested filters in applicationConfig object.
 - Fix issue with sorting for ascending order.
