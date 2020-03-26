@@ -1,4 +1,4 @@
-const widgetsFindById = (dataset) => ({
+const widgetsFindById = dataset => ({
     data: [{
         id: 'a783b2ec-fda3-4706-bf34-e34f50225f8d',
         type: 'widget',

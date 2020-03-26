@@ -33,8 +33,8 @@ class FileDataService {
         };
         const uploader = S3Client.uploadFile(params);
         await new Promise((resolve, reject) => {
-            uploader.on('end', (data) => resolve(data));
-            uploader.on('error', (err) => reject(err));
+            uploader.on('end', data => resolve(data));
+            uploader.on('error', err => reject(err));
         });
         const s3file = s3.getPublicUrlHttp(params.s3Params.Bucket, params.s3Params.Key);
         return s3file;

@@ -20,7 +20,7 @@ let requester;
 
 const mockUsersForSort = (users) => {
     // Add _id property to provided users (some stuff uses _id, some uses id :shrug:)
-    const allUsers = users.map((u) => ({ ...u, _id: u.id }));
+    const allUsers = users.map(u => ({ ...u, _id: u.id }));
 
     // Mock all users request (for sorting by user role)
     createMockUser(allUsers);
@@ -79,7 +79,7 @@ describe('GET datasets sorted by user fields', () => {
         });
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(5);
-        response.body.data.map((dataset) => dataset.attributes.user.role).should.be.deep.equal(['ADMIN', 'MANAGER', 'SUPERADMIN', 'USER', undefined]);
+        response.body.data.map(dataset => dataset.attributes.user.role).should.be.deep.equal(['ADMIN', 'MANAGER', 'SUPERADMIN', 'USER', undefined]);
     });
 
     it('Getting datasets sorted by user.role DESC should return a list of datasets ordered by the role of the user who created the dataset (happy case)', async () => {
@@ -91,7 +91,7 @@ describe('GET datasets sorted by user fields', () => {
         });
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(5);
-        response.body.data.map((dataset) => dataset.attributes.user.role).should.be.deep.equal([undefined, 'USER', 'SUPERADMIN', 'MANAGER', 'ADMIN']);
+        response.body.data.map(dataset => dataset.attributes.user.role).should.be.deep.equal([undefined, 'USER', 'SUPERADMIN', 'MANAGER', 'ADMIN']);
     });
 
     it('Getting datasets sorted by user.name ASC should return a list of datasets ordered by the name of the user who created the dataset (happy case)', async () => {
@@ -103,7 +103,7 @@ describe('GET datasets sorted by user fields', () => {
         });
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(5);
-        response.body.data.map((dataset) => dataset.attributes.user.name).should.be.deep.equal(['test admin', 'test manager', 'test super admin', 'test user', undefined]);
+        response.body.data.map(dataset => dataset.attributes.user.name).should.be.deep.equal(['test admin', 'test manager', 'test super admin', 'test user', undefined]);
     });
 
     it('Getting datasets sorted by user.name DESC should return a list of datasets ordered by the name of the user who created the dataset (happy case)', async () => {
@@ -115,7 +115,7 @@ describe('GET datasets sorted by user fields', () => {
         });
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(5);
-        response.body.data.map((dataset) => dataset.attributes.user.name).should.be.deep.equal([undefined, 'test user', 'test super admin', 'test manager', 'test admin']);
+        response.body.data.map(dataset => dataset.attributes.user.name).should.be.deep.equal([undefined, 'test user', 'test super admin', 'test manager', 'test admin']);
     });
 
     it('Sorting datasets by user role ASC puts datasets without valid users in the end of the list', async () => {
@@ -127,7 +127,7 @@ describe('GET datasets sorted by user fields', () => {
         const noUserDataset2 = await new Dataset(createDataset('cartodb', { userId: '5accc3660bb7c603ba473d0f' })).save();
 
         // Mock requests for includes=user
-        const fullUsers = [USER, MANAGER, ADMIN, SUPERADMIN].map((u) => ({ ...u, _id: u.id }));
+        const fullUsers = [USER, MANAGER, ADMIN, SUPERADMIN].map(u => ({ ...u, _id: u.id }));
 
         // Custom mock find-by-ids call
         const userIds = [USER.id, MANAGER.id, ADMIN.id, SUPERADMIN.id, 'legacy', '5accc3660bb7c603ba473d0f'];
@@ -136,7 +136,7 @@ describe('GET datasets sorted by user fields', () => {
             .reply(200, { data: fullUsers });
 
         nock(process.env.CT_URL)
-            .post('/auth/user/find-by-ids?sort=user.role', (body) => body.ids.length === userIds.length)
+            .post('/auth/user/find-by-ids?sort=user.role', body => body.ids.length === userIds.length)
             .reply(200, { data: fullUsers });
 
         const response = await requester.get('/api/v1/dataset').query({
@@ -147,8 +147,8 @@ describe('GET datasets sorted by user fields', () => {
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(6);
 
-        const returnedNoUserDataset1 = response.body.data.find((dataset) => dataset.id === noUserDataset1._id);
-        const returnedNoUserDataset2 = response.body.data.find((dataset) => dataset.id === noUserDataset2._id);
+        const returnedNoUserDataset1 = response.body.data.find(dataset => dataset.id === noUserDataset1._id);
+        const returnedNoUserDataset2 = response.body.data.find(dataset => dataset.id === noUserDataset2._id);
 
         // Grab the last two layers of the returned data
         const len = response.body.data.length;
@@ -166,7 +166,7 @@ describe('GET datasets sorted by user fields', () => {
         const noUserDataset2 = await new Dataset(createDataset('cartodb', { userId: '5accc3660bb7c603ba473d0f' })).save();
 
         // Mock requests for includes=user
-        const fullUsers = [USER, MANAGER, ADMIN, SUPERADMIN].map((u) => ({ ...u, _id: u.id }));
+        const fullUsers = [USER, MANAGER, ADMIN, SUPERADMIN].map(u => ({ ...u, _id: u.id }));
 
         // Custom mock find-by-ids call
         const userIds = [USER.id, MANAGER.id, ADMIN.id, SUPERADMIN.id, 'legacy', '5accc3660bb7c603ba473d0f'];
@@ -175,7 +175,7 @@ describe('GET datasets sorted by user fields', () => {
             .reply(200, { data: fullUsers });
 
         nock(process.env.CT_URL)
-            .post('/auth/user/find-by-ids?sort=-user.role', (body) => body.ids.length === userIds.length)
+            .post('/auth/user/find-by-ids?sort=-user.role', body => body.ids.length === userIds.length)
             .reply(200, { data: fullUsers });
 
         const response = await requester.get('/api/v1/dataset').query({
@@ -186,8 +186,8 @@ describe('GET datasets sorted by user fields', () => {
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(6);
 
-        const returnedNoUserDataset1 = response.body.data.find((dataset) => dataset.id === noUserDataset1._id);
-        const returnedNoUserDataset2 = response.body.data.find((dataset) => dataset.id === noUserDataset2._id);
+        const returnedNoUserDataset1 = response.body.data.find(dataset => dataset.id === noUserDataset1._id);
+        const returnedNoUserDataset2 = response.body.data.find(dataset => dataset.id === noUserDataset2._id);
 
         // Grab the last two layers of the returned data
         const firstTwoDatasets = response.body.data.slice(0, 2);
@@ -211,7 +211,7 @@ describe('GET datasets sorted by user fields', () => {
         });
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(3);
-        response.body.data.map((dataset) => dataset.attributes.user.name).should.be.deep.equal(['Anthony', 'bernard', 'Carlos']);
+        response.body.data.map(dataset => dataset.attributes.user.name).should.be.deep.equal(['Anthony', 'bernard', 'Carlos']);
     });
 
     it('Sorting datasets by user.name is deterministic, applying an implicit sort by id after sorting by user.name', async () => {
@@ -230,7 +230,7 @@ describe('GET datasets sorted by user fields', () => {
         });
         response.status.should.equal(200);
         response.body.should.have.property('data').and.be.an('array').and.length(3);
-        response.body.data.map((dataset) => dataset.id).should.be.deep.equal(['1', '2', '3']);
+        response.body.data.map(dataset => dataset.id).should.be.deep.equal(['1', '2', '3']);
     });
 
     afterEach(async () => {

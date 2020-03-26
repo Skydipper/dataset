@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-const datasetGetIncludeAllAnonymous = (dataset) => ({
+const datasetGetIncludeAllAnonymous = dataset => ({
     id: dataset.id,
     type: 'dataset',
     attributes: {

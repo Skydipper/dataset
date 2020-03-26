@@ -4,7 +4,7 @@ const { INCLUDES } = require('app.constants');
 const { compact, uniq } = require('lodash');
 const InvalidRequest = require('errors/invalidRequest.error');
 
-const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
+const serializeObjToQuery = obj => Object.keys(obj).reduce((a, k) => {
     a.push(`${k}=${encodeURIComponent(obj[k])}`);
     return a;
 }, []).join('&');
@@ -115,7 +115,7 @@ class RelationshipsService {
             acc[val._id] = val;
             return acc;
         });
-        const users = datasets.map((el) => el.userId);
+        const users = datasets.map(el => el.userId);
         const ids = Object.keys(map);
         const resources = await RelationshipsService.getResources(ids, includes, query, users, isAdmin);
         ids.forEach((id) => {
@@ -140,7 +140,7 @@ class RelationshipsService {
                 }
             });
         });
-        const relationships = Object.keys(map).map((key) => map[key]);
+        const relationships = Object.keys(map).map(key => map[key]);
         return relationships;
     }
 
@@ -174,7 +174,7 @@ class RelationshipsService {
         });
         let ids = ' ';
         if (result.data.length > 0) {
-            const idsArray = result.data[0].attributes.resources.map((el) => el.id);
+            const idsArray = result.data[0].attributes.resources.map(el => el.id);
             ids = idsArray.reduce((acc, next) => `${acc}, ${next}`);
         }
         return ids;
@@ -221,7 +221,7 @@ class RelationshipsService {
                     userId
                 }
             });
-            return result.data.map((col) => col.attributes.resources.filter((res) => res.type === 'dataset')).reduce((pre, cur) => pre.concat(cur)).map((el) => el.id);
+            return result.data.map(col => col.attributes.resources.filter(res => res.type === 'dataset')).reduce((pre, cur) => pre.concat(cur)).map(el => el.id);
         } catch (e) {
             throw new Error(e);
         }
@@ -239,7 +239,7 @@ class RelationshipsService {
                 }
             });
             logger.debug(result);
-            return result.data.filter((fav) => fav.attributes.resourceType === 'dataset').map((el) => el.attributes.resourceId);
+            return result.data.filter(fav => fav.attributes.resourceType === 'dataset').map(el => el.attributes.resourceId);
         } catch (e) {
             throw new Error(e);
         }
@@ -259,7 +259,7 @@ class RelationshipsService {
                 json: true
             });
             logger.debug(result);
-            return result.data.map((m) => m.attributes.dataset);
+            return result.data.map(m => m.attributes.dataset);
         } catch (e) {
             if (e.statusCode === 400) {
                 throw new InvalidRequest(e.message);
@@ -276,7 +276,7 @@ class RelationshipsService {
                 json: true
             });
             logger.debug(result);
-            return result.data.map((m) => m.attributes.dataset);
+            return result.data.map(m => m.attributes.dataset);
         } catch (e) {
             throw new Error(e);
         }

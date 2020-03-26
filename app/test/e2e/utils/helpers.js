@@ -24,7 +24,7 @@ const deserializeDataset = (response) => {
     return response;
 };
 
-const expectedDataset = (dataset) => ({
+const expectedDataset = dataset => ({
     id: dataset.id,
     type: 'dataset',
     attributes:
@@ -133,7 +133,7 @@ const createDataset = (provider, anotherData = {}) => {
     };
 };
 
-const mapDatasetToMetadataSearchResult = (dataset) => ({
+const mapDatasetToMetadataSearchResult = dataset => ({
     id: getUUID(),
     type: 'metadata',
     attributes: {

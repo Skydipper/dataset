@@ -1,6 +1,6 @@
 const { USERS } = require('../utils/test.constants');
 
-const datasetGetIncludeUserAdmin = (dataset) => ({
+const datasetGetIncludeUserAdmin = dataset => ({
     id: dataset.id,
     type: 'dataset',
     attributes: {

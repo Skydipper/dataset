@@ -57,7 +57,7 @@ class DatasetSerializer {
                 while (data.docs.indexOf(undefined) >= 0) {
                     data.docs.splice(data.docs.indexOf(undefined), 1);
                 }
-                result.data = data.docs.map((el) => DatasetSerializer.serializeElement(el));
+                result.data = data.docs.map(el => DatasetSerializer.serializeElement(el));
             } else if (Array.isArray(data)) {
                 result.data = DatasetSerializer.serializeElement(data[0]);
             } else {
