@@ -12,6 +12,15 @@ spec:
       labels:
         name: dataset
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: In
+                    values:
+                      - apps
       containers:
       - name: dataset
         image: vizzuality/dataset

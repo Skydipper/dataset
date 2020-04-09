@@ -1,3 +1,7 @@
+## 09/04/2020
+
+- Add node affinity to kubernetes configuration.
+
 ## 24/03/2020
 
 - Remove blockchain and verified fields and associated blockchain signature logic.
