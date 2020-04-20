@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-vars,no-undef,max-len */
+/* eslint-disable max-len */
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
-const { createDataset, deserializeDataset } = require('./utils/helpers');
+const { createDataset } = require('./utils/helpers');
 const { createMockUser } = require('./utils/mocks');
 
 const metadataGetWithSearchForHuman = require('./dataset-get-includes-responses/metadata-get-search-human');
@@ -78,8 +78,6 @@ describe('Get datasets with includes tests', () => {
 
     it('Get datasets with includes should return requested data except users (anonymous request)', async () => {
         const fakeDatasetOne = await new Dataset(createDataset('cartodb')).save();
-
-        const datasetIds = [fakeDatasetOne.id];
 
         nock(process.env.CT_URL)
             .get('/v1/metadata')
@@ -177,7 +175,6 @@ describe('Get datasets with includes tests', () => {
 
 
         const response = await requester.get(`/api/v1/dataset?application=rw&env=production&includes=layer,metadata,vocabulary,widget,graph,user&language=en&page[number]=1&page[size]=12&published=true&search=human&page[size]=12&page[number]=1`);
-        const datasets = deserializeDataset(response);
 
         response.status.should.equal(200);
         response.body.should.have.property('data').with.lengthOf(1);
@@ -188,8 +185,6 @@ describe('Get datasets with includes tests', () => {
 
     it('Get datasets with includes should return requested data including users (ADMIN user request)', async () => {
         const fakeDatasetOne = await new Dataset(createDataset('cartodb')).save();
-
-        const datasetIds = [fakeDatasetOne.id];
 
         nock(process.env.CT_URL)
             .get('/v1/metadata')
@@ -291,8 +286,6 @@ describe('Get datasets with includes tests', () => {
 
         const response = await requester.get(`/api/v1/dataset?application=rw&env=production&includes=layer,metadata,vocabulary,widget,graph,user&language=en&page[number]=1&page[size]=12&published=true&search=human&page[size]=12&page[number]=1&loggedUser=${JSON.stringify(USERS.ADMIN)}`);
 
-        const datasets = deserializeDataset(response);
-
         response.status.should.equal(200);
         response.body.should.have.property('data').with.lengthOf(1);
         response.body.should.have.property('links').and.be.an('object');
@@ -317,9 +310,9 @@ describe('Get datasets with includes tests', () => {
         response.body.should.have.property('data').with.lengthOf(3);
         response.body.should.have.property('links').and.be.an('object');
 
-        const responseDatasetOne = response.body.data.find(dataset => dataset.id === fakeDatasetOne.id);
-        const responseDatasetTwo = response.body.data.find(dataset => dataset.id === fakeDatasetTwo.id);
-        const responseDatasetThree = response.body.data.find(dataset => dataset.id === fakeDatasetThree.id);
+        const responseDatasetOne = response.body.data.find((dataset) => dataset.id === fakeDatasetOne.id);
+        const responseDatasetTwo = response.body.data.find((dataset) => dataset.id === fakeDatasetTwo.id);
+        const responseDatasetThree = response.body.data.find((dataset) => dataset.id === fakeDatasetThree.id);
 
         responseDatasetOne.attributes.user.role.should.be.a('string').and.equal('USER');
         responseDatasetOne.attributes.user.email.should.be.a('string').and.equal('user-one@control-tower.org');

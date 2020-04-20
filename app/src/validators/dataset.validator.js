@@ -196,30 +196,30 @@ class DatasetValidator {
 
     static async validateCreation(koaObj) {
         logger.info('Validating Dataset Creation');
-        koaObj.checkBody('name').notEmpty().check(name => DatasetValidator.notEmptyString(name), 'can not be empty');
-        koaObj.checkBody('type').optional().check(type => DatasetValidator.isString(type), 'must be a string');
-        koaObj.checkBody('subtitle').optional().check(subtitle => DatasetValidator.isString(subtitle), 'must be a string');
-        koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
-        koaObj.checkBody('dataPath').optional().check(dataPath => DatasetValidator.isString(dataPath), 'must be a string');
-        koaObj.checkBody('attributesPath').optional().check(attributesPath => DatasetValidator.isString(attributesPath), 'must be a string');
-        koaObj.checkBody('mainDateField').optional().check(mainDateField => mainDateField === null || DatasetValidator.isString(mainDateField), 'must be a string');
+        koaObj.checkBody('name').notEmpty().check((name) => DatasetValidator.notEmptyString(name), 'can not be empty');
+        koaObj.checkBody('type').optional().check((type) => DatasetValidator.isString(type), 'must be a string');
+        koaObj.checkBody('subtitle').optional().check((subtitle) => DatasetValidator.isString(subtitle), 'must be a string');
+        koaObj.checkBody('application').notEmpty().check((application) => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
+        koaObj.checkBody('dataPath').optional().check((dataPath) => DatasetValidator.isString(dataPath), 'must be a string');
+        koaObj.checkBody('attributesPath').optional().check((attributesPath) => DatasetValidator.isString(attributesPath), 'must be a string');
+        koaObj.checkBody('mainDateField').optional().check((mainDateField) => mainDateField === null || DatasetValidator.isString(mainDateField), 'must be a string');
         // connectorType
         koaObj.checkBody('connectorType').notEmpty()
             .toLow()
-            .check(connectorType => DatasetValidator.checkConnectorType(connectorType), DatasetValidator.errorMessage('connectorType'));
+            .check((connectorType) => DatasetValidator.checkConnectorType(connectorType), DatasetValidator.errorMessage('connectorType'));
         // provider
         koaObj.checkBody('provider').notEmpty()
             .toLow()
-            .check(provider => DatasetValidator.checkProvider(provider, koaObj), DatasetValidator.errorMessage('provider', koaObj));
+            .check((provider) => DatasetValidator.checkProvider(provider, koaObj), DatasetValidator.errorMessage('provider', koaObj));
         // connectorUrl
 
-        if ([koaObj.checkBody('connectorUrl').exists, koaObj.checkBody('sources').exists, koaObj.checkBody('data').exists].filter(e => e).length > 1) {
+        if ([koaObj.checkBody('connectorUrl').exists, koaObj.checkBody('sources').exists, koaObj.checkBody('data').exists].filter((e) => e).length > 1) {
             koaObj.checkBody('connectorUrl').addError('Specify either `connectorUrl`, `sources` or `data`');
         }
 
-        koaObj.checkBody('connectorUrl').check(connectorUrl => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
-        koaObj.checkBody('sources').check(sources => DatasetValidator.checkSources(sources, koaObj), DatasetValidator.errorMessage('sources'));
-        koaObj.checkBody('tableName').optional().check(tableName => DatasetValidator.isString(tableName), 'must be a string');
+        koaObj.checkBody('connectorUrl').check((connectorUrl) => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
+        koaObj.checkBody('sources').check((sources) => DatasetValidator.checkSources(sources, koaObj), DatasetValidator.errorMessage('sources'));
+        koaObj.checkBody('tableName').optional().check((tableName) => DatasetValidator.isString(tableName), 'must be a string');
         koaObj.checkBody('published').optional().toBoolean();
         koaObj.checkBody('overwrite').optional().toBoolean();
         koaObj.checkBody('dataOverwrite').optional().toBoolean();
@@ -229,16 +229,16 @@ class DatasetValidator {
             }
             return false;
         }, 'must be a valid JSON');
-        koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.checkSubscribable(subscribable), DatasetValidator.errorMessage('subscribable'));
-        koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend), 'must be an object');
-        koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies), 'must be an object');
+        koaObj.checkBody('subscribable').optional().check((subscribable) => DatasetValidator.checkSubscribable(subscribable), DatasetValidator.errorMessage('subscribable'));
+        koaObj.checkBody('legend').optional().check((legend) => DatasetValidator.isObject(legend), 'must be an object');
+        koaObj.checkBody('vocabularies').optional().check((vocabularies) => DatasetValidator.isObject(vocabularies), 'must be an object');
         koaObj.checkBody('applicationConfig')
             .optional()
-            .check(applicationConfig => DatasetValidator.isObject(applicationConfig), 'must be an object');
-        koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
-        koaObj.checkBody('widgetRelevantProps').optional().check(widgetRelevantProps => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
-        koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
-        koaObj.checkBody('dataLastUpdated').optional().check(dataLastUpdated => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
+            .check((applicationConfig) => DatasetValidator.isObject(applicationConfig), 'must be an object');
+        koaObj.checkBody('sync').optional().check((sync) => DatasetValidator.checkSync(sync), 'not valid');
+        koaObj.checkBody('widgetRelevantProps').optional().check((widgetRelevantProps) => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
+        koaObj.checkBody('layerRelevantProps').optional().check((layerRelevantProps) => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
+        koaObj.checkBody('dataLastUpdated').optional().check((dataLastUpdated) => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
         if (koaObj.errors) {
             logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
@@ -248,41 +248,41 @@ class DatasetValidator {
 
     static async validateUpdate(koaObj) {
         logger.info('Validating Dataset Update');
-        koaObj.checkBody('name').optional().check(name => DatasetValidator.notEmptyString(name), 'can not be empty');
-        koaObj.checkBody('type').optional().check(type => DatasetValidator.isString(type), 'must be a string');
-        koaObj.checkBody('subtitle').optional().check(subtitle => DatasetValidator.isString(subtitle), 'must be a string');
-        koaObj.checkBody('application').optional().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
-        koaObj.checkBody('dataPath').optional().check(dataPath => DatasetValidator.isString(dataPath), 'must be a string');
-        koaObj.checkBody('attributesPath').optional().check(attributesPath => DatasetValidator.isString(attributesPath), 'must be a string');
+        koaObj.checkBody('name').optional().check((name) => DatasetValidator.notEmptyString(name), 'can not be empty');
+        koaObj.checkBody('type').optional().check((type) => DatasetValidator.isString(type), 'must be a string');
+        koaObj.checkBody('subtitle').optional().check((subtitle) => DatasetValidator.isString(subtitle), 'must be a string');
+        koaObj.checkBody('application').optional().check((application) => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
+        koaObj.checkBody('dataPath').optional().check((dataPath) => DatasetValidator.isString(dataPath), 'must be a string');
+        koaObj.checkBody('attributesPath').optional().check((attributesPath) => DatasetValidator.isString(attributesPath), 'must be a string');
         koaObj.checkBody('applicationConfig')
             .optional()
-            .check(applicationConfig => DatasetValidator.isObject(applicationConfig), 'must be an object');
-        koaObj.checkBody('connectorType').optional().check(connectorType => DatasetValidator.isString(connectorType), 'must be a string');
-        koaObj.checkBody('provider').optional().check(provider => DatasetValidator.isString(provider), 'must be a string');
+            .check((applicationConfig) => DatasetValidator.isObject(applicationConfig), 'must be an object');
+        koaObj.checkBody('connectorType').optional().check((connectorType) => DatasetValidator.isString(connectorType), 'must be a string');
+        koaObj.checkBody('provider').optional().check((provider) => DatasetValidator.isString(provider), 'must be a string');
 
-        koaObj.checkBody('connectorUrl').optional().check(connectorUrl => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
-        koaObj.checkBody('sources').optional().check(sources => DatasetValidator.checkSources(sources, koaObj), DatasetValidator.errorMessage('sources'));
+        koaObj.checkBody('connectorUrl').optional().check((connectorUrl) => DatasetValidator.checkConnectorUrl(connectorUrl, koaObj), DatasetValidator.errorMessage('connectorUrl'));
+        koaObj.checkBody('sources').optional().check((sources) => DatasetValidator.checkSources(sources, koaObj), DatasetValidator.errorMessage('sources'));
 
-        koaObj.checkBody('tableName').optional().check(tableName => DatasetValidator.isString(tableName), 'must be a string');
+        koaObj.checkBody('tableName').optional().check((tableName) => DatasetValidator.isString(tableName), 'must be a string');
         koaObj.checkBody('published').optional().toBoolean();
         koaObj.checkBody('overwrite').optional().toBoolean();
         koaObj.checkBody('dataOverwrite').optional().toBoolean();
-        koaObj.checkBody('errorMessage').optional().check(errorMessage => DatasetValidator.isString(errorMessage), 'must be a string');
-        koaObj.checkBody('taskId').optional().check(taskId => DatasetValidator.isString(taskId), 'must be a string');
-        koaObj.checkBody('mainDateField').optional().check(mainDateField => DatasetValidator.isString(mainDateField), 'must be a string');
+        koaObj.checkBody('errorMessage').optional().check((errorMessage) => DatasetValidator.isString(errorMessage), 'must be a string');
+        koaObj.checkBody('taskId').optional().check((taskId) => DatasetValidator.isString(taskId), 'must be a string');
+        koaObj.checkBody('mainDateField').optional().check((mainDateField) => DatasetValidator.isString(mainDateField), 'must be a string');
         koaObj.checkBody('data').optional().check((data) => {
             if (DatasetValidator.isArray(data) || DatasetValidator.isObject(data)) {
                 return true;
             }
             return false;
         }, 'must be a valid JSON');
-        koaObj.checkBody('subscribable').optional().check(subscribable => DatasetValidator.checkSubscribable(subscribable), DatasetValidator.errorMessage('subscribable'));
-        koaObj.checkBody('legend').optional().check(legend => DatasetValidator.isObject(legend));
-        koaObj.checkBody('vocabularies').optional().check(vocabularies => DatasetValidator.isObject(vocabularies));
-        koaObj.checkBody('sync').optional().check(sync => DatasetValidator.checkSync(sync), 'not valid');
-        koaObj.checkBody('widgetRelevantProps').optional().check(widgetRelevantProps => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
-        koaObj.checkBody('layerRelevantProps').optional().check(layerRelevantProps => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
-        koaObj.checkBody('dataLastUpdated').optional().check(dataLastUpdated => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
+        koaObj.checkBody('subscribable').optional().check((subscribable) => DatasetValidator.checkSubscribable(subscribable), DatasetValidator.errorMessage('subscribable'));
+        koaObj.checkBody('legend').optional().check((legend) => DatasetValidator.isObject(legend));
+        koaObj.checkBody('vocabularies').optional().check((vocabularies) => DatasetValidator.isObject(vocabularies));
+        koaObj.checkBody('sync').optional().check((sync) => DatasetValidator.checkSync(sync), 'not valid');
+        koaObj.checkBody('widgetRelevantProps').optional().check((widgetRelevantProps) => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
+        koaObj.checkBody('layerRelevantProps').optional().check((layerRelevantProps) => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
+        koaObj.checkBody('dataLastUpdated').optional().check((dataLastUpdated) => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
         if (koaObj.errors) {
             logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
@@ -292,11 +292,11 @@ class DatasetValidator {
 
     static async validateCloning(koaObj) {
         logger.info('Validating Dataset Cloning');
-        koaObj.checkBody('application').notEmpty().check(application => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
+        koaObj.checkBody('application').notEmpty().check((application) => DatasetValidator.notEmptyArray(application), 'must be a non-empty array');
         koaObj.checkBody('datasetUrl').notEmpty().isAscii();
         koaObj.checkBody('applicationConfig')
             .optional()
-            .check(applicationConfig => DatasetValidator.isObject(applicationConfig), 'must be an object');
+            .check((applicationConfig) => DatasetValidator.isObject(applicationConfig), 'must be an object');
         if (koaObj.errors) {
             logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);
@@ -306,7 +306,7 @@ class DatasetValidator {
 
     static async validateFindByIDS(koaObj) {
         logger.info('Validating Dataset Find by ids');
-        koaObj.checkBody('ids').notEmpty().check(ids => ids.some(id => DatasetValidator.isString(id)), 'must be a string');
+        koaObj.checkBody('ids').notEmpty().check((ids) => ids.some((id) => DatasetValidator.isString(id)), 'must be a string');
 
         if (koaObj.errors) {
             logger.info('Error validating dataset find by ids');

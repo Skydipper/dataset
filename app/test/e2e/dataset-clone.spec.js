@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars,no-undef */
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
@@ -6,7 +5,7 @@ const { USERS } = require('./utils/test.constants');
 const { createDataset, deserializeDataset } = require('./utils/helpers');
 const { getTestServer } = require('./utils/test-server');
 
-const should = chai.should();
+chai.should();
 
 const requester = getTestServer();
 nock.disableNetConnect();

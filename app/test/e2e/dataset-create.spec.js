@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars,no-undef */
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
@@ -6,7 +5,7 @@ const { USERS } = require('./utils/test.constants');
 const { deserializeDataset } = require('./utils/helpers');
 const { getTestServer } = require('./utils/test-server');
 
-const should = chai.should();
+chai.should();
 chai.use(require('chai-datetime'));
 
 const requester = getTestServer();
@@ -448,7 +447,6 @@ describe('Dataset create tests', () => {
             dataset,
             loggedUser: USERS.ADMIN
         });
-        const createdDataset = deserializeDataset(response);
 
         response.status.should.equal(400);
         response.body.should.have.property('errors').and.be.an('array');
@@ -484,7 +482,6 @@ describe('Dataset create tests', () => {
             dataset,
             loggedUser: USERS.ADMIN
         });
-        const createdDataset = deserializeDataset(response);
 
         response.status.should.equal(400);
         response.body.should.have.property('errors').and.be.an('array');
@@ -524,7 +521,6 @@ describe('Dataset create tests', () => {
             dataset,
             loggedUser: USERS.ADMIN
         });
-        const createdDataset = deserializeDataset(response);
 
         response.status.should.equal(400);
         response.body.should.have.property('errors').and.be.an('array');

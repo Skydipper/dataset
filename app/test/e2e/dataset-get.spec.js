@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars,no-undef */
 const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
@@ -8,7 +7,7 @@ const { createDataset, deserializeDataset } = require('./utils/helpers');
 const { getTestServer } = require('./utils/test-server');
 const { getUUID, expectedDataset } = require('./utils/helpers');
 
-const should = chai.should();
+chai.should();
 
 const requester = getTestServer();
 
@@ -44,7 +43,7 @@ describe('Get datasets tests', () => {
 
         const response = await requester.get(`/api/v1/dataset?loggedUser=${JSON.stringify(USERS.ADMIN)}`).query({ 'user.role': 'ADMIN' });
         response.body.data.length.should.equal(2);
-        response.body.data.map(dataset => dataset.attributes.userId.should.equal(USERS.ADMIN.id));
+        response.body.data.map((dataset) => dataset.attributes.userId.should.equal(USERS.ADMIN.id));
     });
 
     it('Get datasets filtered by owner\'s role = USER as an ADMIN should be successful and filter by the given role', async () => {
@@ -55,7 +54,7 @@ describe('Get datasets tests', () => {
 
         const response = await requester.get(`/api/v1/dataset?loggedUser=${JSON.stringify(USERS.ADMIN)}`).query({ 'user.role': 'USER' });
         response.body.data.length.should.equal(1);
-        response.body.data.map(dataset => dataset.attributes.userId.should.equal(USERS.USER.id));
+        response.body.data.map((dataset) => dataset.attributes.userId.should.equal(USERS.USER.id));
     });
 
     it('Get datasets filtered by owner\'s as a MANAGER should be successful but not filter by the given role', async () => {
@@ -119,7 +118,7 @@ describe('Get datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(3);
         response.body.should.have.property('links').and.be.an('object');
 
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
 
         datasetIds.should.contain(cartoFakeDataset._id);
         datasetIds.should.contain(jsonFakeDataset._id);
@@ -133,8 +132,8 @@ describe('Get datasets tests', () => {
 
     it('Get the first page with one dataset using pagination', async () => {
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
-        const jsonFakeDataset = await new Dataset(createDataset('json')).save();
-        const csvFakeDataset = await new Dataset(createDataset('csv')).save();
+        await new Dataset(createDataset('json')).save();
+        await new Dataset(createDataset('csv')).save();
 
         const response = await requester.get(`/api/v1/dataset?page[number]=1&page[size]=1`);
         const datasets = deserializeDataset(response);
@@ -143,15 +142,15 @@ describe('Get datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(1);
         response.body.should.have.property('links').and.be.an('object');
 
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
 
         datasetIds.should.contain(cartoFakeDataset._id);
     });
 
     it('Get the second page with one dataset using pagination', async () => {
-        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
+        await new Dataset(createDataset('cartodb')).save();
         const jsonFakeDataset = await new Dataset(createDataset('json')).save();
-        const csvFakeDataset = await new Dataset(createDataset('csv')).save();
+        await new Dataset(createDataset('csv')).save();
 
         const response = await requester.get(`/api/v1/dataset?page[number]=2&page[size]=1`);
         const datasets = deserializeDataset(response);
@@ -160,14 +159,14 @@ describe('Get datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(1);
         response.body.should.have.property('links').and.be.an('object');
 
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
 
         datasetIds.should.contain(jsonFakeDataset._id);
     });
 
     it('Get an existing dataset by ID should be successful - With `sources` field', async () => {
-        const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
-        const jsonFakeDataset = await new Dataset(createDataset('json')).save();
+        await new Dataset(createDataset('cartodb')).save();
+        await new Dataset(createDataset('json')).save();
         const csvFakeDataset = await new Dataset(createDataset('csv')).save();
 
         const response = await requester.get(`/api/v1/dataset/${csvFakeDataset._id}`);
@@ -191,7 +190,7 @@ describe('Get datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(4);
 
         const datasets = deserializeDataset(response);
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
         datasetIds.should.contain(ds1._id);
         datasetIds.should.contain(ds2._id);
         datasetIds.should.contain(ds3._id);
@@ -209,7 +208,7 @@ describe('Get datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(1);
 
         const datasets = deserializeDataset(response);
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
         datasetIds.should.not.contain(ds1._id);
         datasetIds.should.not.contain(ds2._id);
         datasetIds.should.not.contain(ds3._id);
@@ -227,7 +226,7 @@ describe('Get datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(3);
 
         const datasets = deserializeDataset(response);
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
         datasetIds.should.contain(ds1._id);
         datasetIds.should.contain(ds2._id);
         datasetIds.should.contain(ds3._id);
@@ -245,7 +244,7 @@ describe('Get datasets tests', () => {
         response.body.should.have.property('data').with.lengthOf(1);
 
         const datasets = deserializeDataset(response);
-        const datasetIds = datasets.map(dataset => dataset.id);
+        const datasetIds = datasets.map((dataset) => dataset.id);
         datasetIds.should.not.contain(ds1._id);
         datasetIds.should.not.contain(ds2._id);
         datasetIds.should.contain(ds3._id);
@@ -262,7 +261,7 @@ describe('Get datasets tests', () => {
         response1.status.should.equal(200);
         response1.body.should.have.property('data').with.lengthOf(1);
 
-        const datasetIds1 = response1.body.data.map(dataset => dataset.id);
+        const datasetIds1 = response1.body.data.map((dataset) => dataset.id);
         datasetIds1.should.not.contain(ds1._id);
         datasetIds1.should.not.contain(ds2._id);
         datasetIds1.should.contain(ds3._id);
@@ -272,7 +271,7 @@ describe('Get datasets tests', () => {
         response2.status.should.equal(200);
         response2.body.should.have.property('data').with.lengthOf(1);
 
-        const datasetIds2 = response2.body.data.map(dataset => dataset.id);
+        const datasetIds2 = response2.body.data.map((dataset) => dataset.id);
         datasetIds2.should.not.contain(ds1._id);
         datasetIds2.should.contain(ds2._id);
         datasetIds2.should.not.contain(ds3._id);
