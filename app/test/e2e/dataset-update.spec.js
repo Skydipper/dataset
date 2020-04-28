@@ -2,7 +2,7 @@ const nock = require('nock');
 const chai = require('chai');
 const Dataset = require('models/dataset.model');
 const { USERS } = require('./utils/test.constants');
-const { createDataset, deserializeDataset } = require('./utils/helpers');
+const { createDataset, deserializeDataset, ensureCorrectError } = require('./utils/helpers');
 
 chai.should();
 
@@ -16,6 +16,63 @@ describe('Dataset update tests', () => {
         if (process.env.NODE_ENV !== 'test') {
             throw Error(`Running the test suite with NODE_ENV ${process.env.NODE_ENV} may result in permanent data loss. Please use NODE_ENV=test.`);
         }
+    });
+
+    it('Update a dataset without being logged in should return a 401 error', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({
+                name: 'other name',
+                application: ['gfw', 'rw']
+            });
+
+        response.status.should.equal(401);
+        ensureCorrectError(response.body, 'Unauthorized');
+    });
+
+    it('Update a dataset while being logged in with role USER should return a 403 error', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({
+                name: 'other name',
+                application: ['gfw', 'rw'],
+                loggedUser: USERS.USER
+            });
+
+        response.status.should.equal(403);
+        ensureCorrectError(response.body, 'Forbidden');
+    });
+
+    it('Update a dataset while being logged in with role MANAGER should return a 403 error', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({
+                name: 'other name',
+                application: ['gfw', 'rw'],
+                loggedUser: USERS.MANAGER
+            });
+
+        response.status.should.equal(403);
+        ensureCorrectError(response.body, 'Forbidden');
+    });
+
+    it('Update a dataset that doesn\'t exist should return a 404', async () => {
+        const response = await requester
+            .patch(`/api/v1/dataset/12345`)
+            .send({
+                name: 'other name',
+                application: ['gfw', 'rw'],
+                loggedUser: USERS.ADMIN
+            });
+
+        response.status.should.equal(404);
+        ensureCorrectError(response.body, 'Dataset with id \'12345\' doesn\'t exist');
     });
 
     it('Update a dataset as an ADMIN should be successful (happy case)', async () => {
@@ -45,11 +102,53 @@ describe('Dataset update tests', () => {
         dataset.clonedHost.should.be.an.instanceOf(Object);
     });
 
+    // TODO: this should probably fail, as a user should not be able to assign a dataset to an app it does not belong to.
+    it('Update a dataset while being logged in with role ADMIN and a fake app should be sucessful (happy case)', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({
+                name: 'other name',
+                application: ['fake'],
+                loggedUser: USERS.ADMIN
+            });
+
+        response.status.should.equal(200);
+    });
+
     it('Update a dataset as a MICROSERVICE should be successful (happy case)', async () => {
         const fakeDataset = await new Dataset(createDataset('cartodb')).save();
 
         const response = await requester
             .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({
+                name: 'other name',
+                application: ['gfw', 'rw'],
+                loggedUser: USERS.MICROSERVICE
+            });
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        dataset.should.have.property('name').and.equal('other name');
+        dataset.should.have.property('connectorType').and.equal('rest');
+        dataset.should.have.property('provider').and.equal('cartodb');
+        dataset.should.have.property('connectorUrl').and.equal(fakeDataset.connectorUrl);
+        dataset.should.have.property('tableName').and.equal(fakeDataset.tableName);
+        dataset.should.have.property('userId').and.equal(fakeDataset.userId);
+        dataset.should.have.property('applicationConfig').and.deep.equal(fakeDataset.applicationConfig);
+        dataset.should.have.property('status').and.equal('saved');
+        dataset.should.have.property('overwrite').and.equal(true);
+        dataset.legend.should.be.an.instanceOf(Object);
+        dataset.clonedHost.should.be.an.instanceOf(Object);
+    });
+
+    it('Update a dataset by slug should be successful (happy case)', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset.slug}`)
             .send({
                 name: 'other name',
                 application: ['gfw', 'rw'],
