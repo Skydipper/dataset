@@ -107,7 +107,16 @@ describe('Dataset delete tests', () => {
         }
     });
 
-    it('Not authorized dataset deletion should fail', async () => {
+    it('Deleting a non-existing dataset should return a 404 error', async () => {
+        const uuid = getUUID();
+        const response = await requester.delete(`/api/v1/dataset/${uuid}?loggedUser=${JSON.stringify(USERS.ADMIN)}`).send();
+
+        response.status.should.equal(404);
+        response.body.should.have.property('errors').and.be.an('array');
+        response.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${uuid}' doesn't exist`);
+    });
+
+    it('Deleting a dataset without being logged in should return a 401 error', async () => {
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
         const response = await requester
@@ -115,15 +124,7 @@ describe('Dataset delete tests', () => {
             .send();
 
         response.status.should.equal(401);
-    });
-
-    it('Deleting a non-existing dataset should fail', async () => {
-        const uuid = getUUID();
-        const response = await requester.delete(`/api/v1/dataset/${uuid}?loggedUser=${JSON.stringify(USERS.ADMIN)}`).send();
-
-        response.status.should.equal(404);
-        response.body.should.have.property('errors').and.be.an('array');
-        response.body.errors[0].should.have.property('detail').and.equal(`Dataset with id '${uuid}' doesn't exist`);
+        response.body.errors[0].should.have.property('detail').and.equal(`Unauthorized`);
     });
 
     it('Deleting a dataset owned by a different user as a USER should return a 403 error', async () => {
@@ -218,6 +219,38 @@ describe('Dataset delete tests', () => {
             });
 
         await runStandardTestCase('cartodb', cartoFakeDataset);
+    });
+
+    // TODO: This endpoint should not actually call the provider, otherwise we may end up with a dataset with no data.
+    it('Deleting a protected dataset should return a 200', async () => {
+        const fakeDataset = await new Dataset(createDataset('cartodb', { protected: true })).save();
+
+        nock(process.env.CT_URL)
+            .delete(`/v1/rest-datasets/cartodb/${fakeDataset._id}`, (request) => {
+                const requestDataset = request.connector;
+
+                requestDataset.attributesPath.should.deep.equal(fakeDataset.attributesPath);
+                requestDataset.connectorType.should.deep.equal(fakeDataset.connectorType);
+                requestDataset.connectorUrl.should.deep.equal(fakeDataset.connectorUrl);
+                requestDataset.name.should.deep.equal(fakeDataset.name);
+                requestDataset.overwrite.should.deep.equal(fakeDataset.overwrite);
+                requestDataset.slug.should.deep.equal(fakeDataset.slug);
+                requestDataset.tableName.should.deep.equal(fakeDataset.tableName);
+                return true;
+            })
+            .once()
+            .reply(200, {
+                status: 200,
+                data: []
+            });
+
+        const deleteResponse = await requester
+            .delete(`/api/v1/dataset/${fakeDataset._id}?loggedUser=${JSON.stringify(USERS.ADMIN)}`)
+            .send();
+
+        deleteResponse.status.should.equal(400);
+        deleteResponse.body.should.have.property('errors').and.be.an('array');
+        deleteResponse.body.errors[0].should.have.property('detail').and.equal(`Dataset is protected`);
     });
 
     it('Deleting an existing carto dataset with missing layer MS should fail with a meaningful error', async () => {

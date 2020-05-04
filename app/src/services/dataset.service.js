@@ -576,38 +576,39 @@ class DatasetService {
         if (currentDataset.application.length > 0) {
             logger.info(`[DBACCESS-SAVE]: dataset.id: ${id}`);
             deletedDataset = await currentDataset.save();
-        } else {
-            logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
-            logger.debug('[DatasetService]: Deleting layers');
-            try {
-                await DatasetService.deleteLayers(id);
-            } catch (err) {
-                logger.error('Error removing layers of the dataset', err);
-            }
-
-            logger.debug('[DatasetService]: Deleting widgets');
-            try {
-                await DatasetService.deleteWidgets(id);
-            } catch (err) {
-                logger.error('Error removing widgets', err);
-            }
-
-            logger.debug('[DatasetService]: Deleting metadata');
-            try {
-                await DatasetService.deleteMetadata(id);
-            } catch (err) {
-                logger.error('Error removing metadata', err);
-            }
-
-            logger.debug('[DatasetService]: Deleting vocabularies');
-            try {
-                await DatasetService.deleteVocabularies(id);
-            } catch (err) {
-                logger.error('Error removing vocabularies', err);
-            }
-            // remove the dataset at the end
-            deletedDataset = await currentDataset.remove();
+            return deletedDataset;
         }
+
+        logger.info(`[DBACCESS-DELETE]: dataset.id: ${id}`);
+        logger.debug('[DatasetService]: Deleting layers');
+        try {
+            await DatasetService.deleteLayers(id);
+        } catch (err) {
+            logger.error('Error removing layers of the dataset', err);
+        }
+
+        logger.debug('[DatasetService]: Deleting widgets');
+        try {
+            await DatasetService.deleteWidgets(id);
+        } catch (err) {
+            logger.error('Error removing widgets', err);
+        }
+
+        logger.debug('[DatasetService]: Deleting metadata');
+        try {
+            await DatasetService.deleteMetadata(id);
+        } catch (err) {
+            logger.error('Error removing metadata', err);
+        }
+
+        logger.debug('[DatasetService]: Deleting vocabularies');
+        try {
+            await DatasetService.deleteVocabularies(id);
+        } catch (err) {
+            logger.error('Error removing vocabularies', err);
+        }
+        // remove the dataset at the end
+        deletedDataset = await currentDataset.remove();
         return deletedDataset;
     }
 
