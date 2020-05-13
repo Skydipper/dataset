@@ -327,7 +327,7 @@ class DatasetService {
                 if (err instanceof SyncError) {
                     newDataset.status = 'failed';
                     newDataset.errorMessage = 'Error synchronizing dataset';
-                    logger.info(`[DBACCESS-SAVE]: dataset`);
+                    logger.info(`[DatasetService - create]: dataset`);
                     newDataset = await newDataset.save();
                 } else {
                     logger.error(err.message);
@@ -450,10 +450,10 @@ class DatasetService {
         if (user.id === 'microservice' && !isUndefined(dataset.errorMessage)) {
             currentDataset.errorMessage = dataset.errorMessage;
         }
-        logger.info(`[DBACCESS-SAVE]: dataset`);
+        logger.info(`[DatasetService - update]: saving dataset`);
         let newDataset = await currentDataset.save();
         if (updateEnv) {
-            logger.debug('Updating env in all resources');
+            logger.info('[DatasetService - update]: Updating env in all resources');
             await DatasetService.updateEnv(currentDataset._id, currentDataset.env);
         }
         if (dataset.sync && newDataset.connectorType === 'document') {
@@ -463,7 +463,7 @@ class DatasetService {
                 if (err instanceof SyncError) {
                     newDataset.status = 'failed';
                     newDataset.errorMessage = 'Error synchronizing dataset';
-                    logger.info(`[DBACCESS-SAVE]: dataset`);
+                    logger.info(`[DatasetService - update]: error updating sync settings`);
                     newDataset = await newDataset.save();
                 } else {
                     logger.error(err.message);
