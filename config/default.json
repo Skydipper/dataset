@@ -1,17 +1,18 @@
 {
-     "logger": {
-        "name": "dataset-DEV",
-        "level": "debug",
-        "toFile": false,
-        "dirLogFile": null
-    },
-    "service": {
-        "name": "Dataset",
-        "port": 3000
-    },
-    "mongodb":{
-        "database": "dataset",
-        "host": "mymachine",
-        "port": 27017
-    }
+  "logger": {
+    "name": "dataset-DEV",
+    "level": "debug",
+    "toFile": false,
+    "dirLogFile": null
+  },
+  "service": {
+    "name": "Dataset",
+    "port": 3000
+  },
+  "mongodb": {
+    "database": "dataset",
+    "host": "mymachine",
+    "port": 27017,
+    "useUnifiedTopology": true
+  }
 }

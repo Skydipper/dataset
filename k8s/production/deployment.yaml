@@ -43,6 +43,8 @@ spec:
             value: app/src
           - name: LOCAL_URL
             value: http://dataset.default.svc.cluster.local:3000
+          - name: MONGO_USE_UNIFIED_TOPOLOGY
+            value: "false"
           - name: MONGO_URI
             valueFrom:
                 secretKeyRef:
