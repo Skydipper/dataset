@@ -10,15 +10,30 @@ You will need [Control Tower](https://github.com/control-tower/control-tower) up
 The Dataset microservice is built using [Node.js](https://nodejs.org/en/), and can be executed either natively or using Docker, each of which has its own set of requirements.
 
 Native execution requires:
+
 - [Node.js](https://nodejs.org/en/)
 - [MongoDB](https://www.mongodb.com/)
 
 Execution using Docker requires:
+
 - [Docker](https://www.docker.com/)
 - [Docker Compose](https://docs.docker.com/compose/)
 
 Dependencies on other Microservices:
+
 - [Carto adapter](https://github.com/resource-watch/rw-adapter-carto/)
+- [ArcGIS adapter](https://github.com/resource-watch/adapter-arcgis)
+- [Google Earth Engine adapter](https://github.com/resource-watch/adapter-earth-engine)
+- [BigQuery adapter](https://github.com/resource-watch/adapter-bigquery)
+- [NEX-GDDP adapter](https://github.com/Vizzuality/prep-nexgddp)
+- [Graph client](https://github.com/resource-watch/graph-client)
+- [Geostore](https://github.com/gfw-api/gfw-geostore-api)
+- [Layer](https://github.com/resource-watch/layer)
+- [Metadata](https://github.com/resource-watch/rw_metadata)
+- [Task Async](https://github.com/resource-watch/task-executor)
+- [Vocabulary](https://github.com/resource-watch/vocabulary-tag/)
+- [Widget](https://github.com/resource-watch/widget)
+- [Control Tower](https://github.com/resource-watch/control-tower)
 
 ## Getting started
 
