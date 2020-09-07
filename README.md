@@ -1,6 +1,6 @@
 # Dataset microservice
 
-[![Build Status](https://travis-ci.org/resource-watch/dataset.svg?branch=develop)](https://travis-ci.org/resource-watch/dataset)
+[![Build Status](https://travis-ci.org/resource-watch/dataset.svg?branch=dev)](https://travis-ci.org/resource-watch/dataset)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/6e90d8ae68d28c916a5c/test_coverage)](https://codeclimate.com/github/resource-watch/dataset/test_coverage)
 
 ## Dependencies
@@ -12,6 +12,7 @@ The Dataset microservice is built using [Node.js](https://nodejs.org/en/), and c
 Native execution requires:
 
 - [Node.js](https://nodejs.org/en/)
+- [Yarn](https://yarnpkg.com/)
 - [MongoDB](https://www.mongodb.com/)
 
 Execution using Docker requires:
@@ -47,7 +48,7 @@ After that, follow one of the instructions below:
 
 ### Using native execution
 
-1 - Set up your environment variables. See `dev.env.sample` for a list of variables you should set, which are described in detail in [this section](#environment-variables) of the documentation. Native execution will NOT load the `dev.env` file content, so you need to use another way to define those values
+1 - Set up your environment variables. See `dev.env.sample` for a list of variables you should set, which are described in detail in [this section](#environment-variables) of the documentation. Native execution will NOT load the `dev.env` file content, so you need to use another way to define those values.
 
 2 - Install node dependencies using yarn:
 ```
