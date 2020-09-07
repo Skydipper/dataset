@@ -1,6 +1,6 @@
 # Dataset microservice
 
-[![Build Status](https://travis-ci.org/resource-watch/dataset.svg?branch=develop)](https://travis-ci.org/resource-watch/dataset)
+[![Build Status](https://travis-ci.org/resource-watch/dataset.svg?branch=dev)](https://travis-ci.org/resource-watch/dataset)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/6e90d8ae68d28c916a5c/test_coverage)](https://codeclimate.com/github/resource-watch/dataset/test_coverage)
 
 ## Dependencies
