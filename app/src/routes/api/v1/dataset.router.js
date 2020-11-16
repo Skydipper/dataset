@@ -506,7 +506,7 @@ const flushAuthorizationMiddleware = async (ctx, next) => {
     }
     // Everyone else is not allowed
     else {
-        ctx.throw(403, 'Forbidden - dataset flush is limited to admin users and dataset owners');
+        ctx.throw(403, 'Forbidden - dataset flush is limited to admin uesrs and dataset owners');
         return;
     }
 }
