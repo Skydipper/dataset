@@ -109,11 +109,13 @@ koaValidate(app);
 loader.loadRoutes(app);
 
 const server = app.listen(process.env.PORT, () => {
-    RWAPIMicroservice.register().then(() => {
-    }, (error) => {
-        logger.error(error);
-        process.exit(1);
-    });
+    if (process.env.CT_REGISTER_MODE === 'auto') {
+        RWAPIMicroservice.register().then(() => {
+        }, (error) => {
+            logger.error(error);
+            process.exit(1);
+        });
+    }
 });
 
 logger.info('Server started in ', process.env.PORT);
