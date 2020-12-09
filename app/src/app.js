@@ -96,6 +96,7 @@ app.use(async (ctx, next) => {
 app.use(koaLogger());
 
 app.use(RWAPIMicroservice.bootstrap({
+    name: 'dataset',
     info: require('../microservice/register.json'),
     swagger: require('../microservice/public-swagger.json'),
     logger,
@@ -111,6 +112,7 @@ loader.loadRoutes(app);
 const server = app.listen(process.env.PORT, () => {
     if (process.env.CT_REGISTER_MODE === 'auto') {
         RWAPIMicroservice.register().then(() => {
+            logger.info('CT registration process started');
         }, (error) => {
             logger.error(error);
             process.exit(1);
