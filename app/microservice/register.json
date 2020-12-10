@@ -102,6 +102,14 @@
         "method": "POST",
         "path": "/api/v1/dataset/:dataset/recover"
       }
-    }
+     },
+     {
+      "path": "/v1/dataset/:dataset/lastUpdated",
+      "method": "GET",
+      "redirect": {
+        "method": "GET",
+        "path": "/api/v1/dataset/:dataset/lastUpdated"
+       }
+     }
   ]
 }
