@@ -513,6 +513,16 @@ describe('Dataset update tests', () => {
         dataset.should.have.property('application').and.eql(['rw']);
     });
 
+    it('Updating a dataset with null sources and connectorUrl should return a 400', async () => {
+        const fakeDataset = await new Dataset(createDataset('json', { application: ['rw'] })).save();
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .send({ sources: [], connectorUrl: null, loggedUser: USERS.ADMIN });
+
+        response.status.should.equal(400);
+        ensureCorrectError(response.body, '- connectorUrl: empty or invalid connectorUrl - ');
+    });
+
     afterEach(async () => {
         await Dataset.deleteMany({}).exec();
 
