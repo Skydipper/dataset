@@ -5309,10 +5309,10 @@ run-async@^2.2.0:
   dependencies:
     is-promise "^2.1.0"
 
-rw-api-microservice-node@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-2.0.2.tgz#a479f4b58a9ac9bf6cff63ac5447282ac9f2667d"
-  integrity sha512-2QZllEAnw5MsDkjzm9tUPnHDS55a3li6+cnE4GWvNKUbf+x9nYn9BV6UREDeMuZ0evs4SDdXMZrgqeOqTMSz1w==
+rw-api-microservice-node@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-2.0.4.tgz#2fd1b3df116988cec2e5d3cc12fe579b11527265"
+  integrity sha512-xx2vXqpp44Kc00DW0zEGwnCSj68d4p4MRUM8ZqybSqa7e3USWwQQ2pWao4bs+MGKTK8jTJnt45p3ncm3JfQeqg==
   dependencies:
     axios "^0.21.0"
 
