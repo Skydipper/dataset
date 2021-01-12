@@ -606,7 +606,7 @@ axios@0.16.2:
     follow-redirects "^1.2.3"
     is-buffer "^1.1.5"
 
-axios@^0.21.0:
+axios@^0.21.1:
   version "0.21.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
   integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
@@ -3303,12 +3303,12 @@ rimraf@~2.4.0:
   dependencies:
     glob "^6.0.1"
 
-rw-api-microservice-node@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.0.0.tgz#dd55a7dc27862648d07b252d52fa275507315804"
-  integrity sha512-szcvMwepuBinANavEBfdE/MpPuX6rEsODEsoS9n+qS4V95czWUvFQBjgFz9Dw2zaHrg7HG8tM2adAYoFh5AWKw==
+rw-api-microservice-node@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.0.1.tgz#a025581c406ba5c604135ce3c5f58718409363dd"
+  integrity sha512-Lb3BiEaODF17FGkHnd09YW5esMd7dgO/3xBCrhUekkmZLiKHz8gIQuc0lN+hwjA3XuyRE++klP+PcB7s7f+AbA==
   dependencies:
-    axios "^0.21.0"
+    axios "^0.21.1"
     fastly-promises "^0.9.0"
 
 rxjs@^6.6.3:
