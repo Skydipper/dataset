@@ -17,11 +17,14 @@ COPY yarn.lock /opt/$NAME/yarn.lock
 RUN cd /opt/$NAME && yarn
 
 COPY entrypoint.sh /opt/$NAME/entrypoint.sh
+COPY tsconfig.json /opt/$NAME/tsconfig.json
 COPY config /opt/$NAME/config
+COPY ./src /opt/$NAME/src
+COPY ./test opt/$NAME/test
+COPY ./microservice opt/$NAME/microservice
 
 WORKDIR /opt/$NAME
 
-COPY ./app /opt/$NAME/app
 RUN chown -R $USER:$USER /opt/$NAME
 
 # Tell Docker we are going to use this ports
