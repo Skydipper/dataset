@@ -675,6 +675,14 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.8.0.tgz#f0e003d9ca9e7f59c7a508945d7b2ef9a04a542f"
   integrity sha512-ReZxvNHIOv88FlT7rxcXIIC0fPt4KZqZbOlivyWtXLt8ESx84zd3kMC6iK5jVeS2qt+g7ftS7ye4fi06X5rtRQ==
 
+axios@0.16.2:
+  version "0.16.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.16.2.tgz#ba4f92f17167dfbab40983785454b9ac149c3c6d"
+  integrity sha1-uk+S8XFn37q0CYN4VFS5rBScPG0=
+  dependencies:
+    follow-redirects "^1.2.3"
+    is-buffer "^1.1.5"
+
 axios@^0.21.0:
   version "0.21.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.0.tgz#26df088803a2350dff2c27f96fef99fe49442aca"
@@ -2008,6 +2016,13 @@ fast-levenshtein@~2.0.6:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
 
+fastly-promises@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/fastly-promises/-/fastly-promises-0.9.0.tgz#0df0afce93f1ae1fcf741231141126c737886577"
+  integrity sha512-ZWl8SxXFiyIRFppKdGjfXuI9G2dKz2J1XibmbjCtDGdF3lXxGeEmlfzzFB+vDufrhBmeAktBUqXlfYpe+ibn1A==
+  dependencies:
+    axios "0.16.2"
+
 faye-websocket@~0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/faye-websocket/-/faye-websocket-0.10.0.tgz#4e492f8d04dfb6f89003507f6edbf2d501e7c6f4"
@@ -2191,6 +2206,11 @@ follow-redirects@^1.10.0:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.0.tgz#b42e8d93a2a7eea5ed88633676d6597bc8e384db"
   integrity sha512-aq6gF1BEKje4a9i9+5jimNFIpq4Q1WiwBToeRK5NvZBd/TRsmW8BsJfOEGkr76TbOyPVD3OVDN910EcUNtRYEA==
+
+follow-redirects@^1.2.3:
+  version "1.13.1"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.1.tgz#5f69b813376cee4fd0474a3aba835df04ab763b7"
+  integrity sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
 
 for-in@^1.0.1, for-in@^1.0.2:
   version "1.0.2"
@@ -5309,12 +5329,13 @@ run-async@^2.2.0:
   dependencies:
     is-promise "^2.1.0"
 
-rw-api-microservice-node@^2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-2.0.4.tgz#2fd1b3df116988cec2e5d3cc12fe579b11527265"
-  integrity sha512-xx2vXqpp44Kc00DW0zEGwnCSj68d4p4MRUM8ZqybSqa7e3USWwQQ2pWao4bs+MGKTK8jTJnt45p3ncm3JfQeqg==
+rw-api-microservice-node@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.0.0.tgz#dd55a7dc27862648d07b252d52fa275507315804"
+  integrity sha512-szcvMwepuBinANavEBfdE/MpPuX6rEsODEsoS9n+qS4V95czWUvFQBjgFz9Dw2zaHrg7HG8tM2adAYoFh5AWKw==
   dependencies:
     axios "^0.21.0"
+    fastly-promises "^0.9.0"
 
 rxjs@^6.3.3, rxjs@^6.4.0:
   version "6.5.3"
