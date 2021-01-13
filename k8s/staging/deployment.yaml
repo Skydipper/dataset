@@ -84,6 +84,11 @@ spec:
                 secretKeyRef:
                   key: REDIS_URI
                   name: dbsecrets
+            - name: FASTLY_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  key: FASTLY_ENABLED
+                  name: mssecrets
             - name: FASTLY_APIKEY
               valueFrom:
                 secretKeyRef:

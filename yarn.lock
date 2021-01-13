@@ -598,15 +598,7 @@ aws4@^1.8.0:
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
 
-axios@0.16.2:
-  version "0.16.2"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.16.2.tgz#ba4f92f17167dfbab40983785454b9ac149c3c6d"
-  integrity sha1-uk+S8XFn37q0CYN4VFS5rBScPG0=
-  dependencies:
-    follow-redirects "^1.2.3"
-    is-buffer "^1.1.5"
-
-axios@^0.21.1:
+axios@0.21.1, axios@^0.21.1:
   version "0.21.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
   integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
@@ -1374,12 +1366,11 @@ fast-json-stable-stringify@^2.0.0:
   resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz#874bf69c6f404c2b5d99c481341399fd55892633"
   integrity sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==
 
-fastly-promises@^0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/fastly-promises/-/fastly-promises-0.9.0.tgz#0df0afce93f1ae1fcf741231141126c737886577"
-  integrity sha512-ZWl8SxXFiyIRFppKdGjfXuI9G2dKz2J1XibmbjCtDGdF3lXxGeEmlfzzFB+vDufrhBmeAktBUqXlfYpe+ibn1A==
+"fastly-promises@github:tiagojsag/fastly-promises#master":
+  version "0.0.0-semantically-released"
+  resolved "https://codeload.github.com/tiagojsag/fastly-promises/tar.gz/14470364f0d4e62b8ff99c8f7e7dd7cb27039242"
   dependencies:
-    axios "0.16.2"
+    axios "0.21.1"
 
 fd-slicer@~1.0.0:
   version "1.0.1"
@@ -1466,7 +1457,7 @@ flat@^4.1.0:
   dependencies:
     is-buffer "~2.0.3"
 
-follow-redirects@^1.10.0, follow-redirects@^1.2.3:
+follow-redirects@^1.10.0:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.13.1.tgz#5f69b813376cee4fd0474a3aba835df04ab763b7"
   integrity sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==
@@ -1858,11 +1849,6 @@ is-binary-path@~2.1.0:
   integrity sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==
   dependencies:
     binary-extensions "^2.0.0"
-
-is-buffer@^1.1.5:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/is-buffer/-/is-buffer-1.1.6.tgz#efaa2ea9daa0d7ab2ea13a97b2b8ad51fefbe8be"
-  integrity sha512-NcdALwpXkTm5Zvvbk7owOUSvVvBKDgKP5/ewfXEznmQFfs4ZRmanOeKBTjRVjka3QFoN6XJ+9F3USqfHqTaU5w==
 
 is-buffer@~2.0.3:
   version "2.0.5"
@@ -3303,13 +3289,13 @@ rimraf@~2.4.0:
   dependencies:
     glob "^6.0.1"
 
-rw-api-microservice-node@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.0.1.tgz#a025581c406ba5c604135ce3c5f58718409363dd"
-  integrity sha512-Lb3BiEaODF17FGkHnd09YW5esMd7dgO/3xBCrhUekkmZLiKHz8gIQuc0lN+hwjA3XuyRE++klP+PcB7s7f+AbA==
+rw-api-microservice-node@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.2.1.tgz#cc50089e7073606c83769a2c5f02f4b0d7e0738f"
+  integrity sha512-KdWxB4Mgq1yGNZcb6sKTQkZx/0V2dCopBm65b3qtlUOGnWdtWcp1WSpZQNFKEr3TU+Iyma01l0Gomw8341QBMA==
   dependencies:
     axios "^0.21.1"
-    fastly-promises "^0.9.0"
+    fastly-promises tiagojsag/fastly-promises#master
 
 rxjs@^6.6.3:
   version "6.6.3"

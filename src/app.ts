@@ -116,6 +116,7 @@ const init: () => Promise<IInit> = async (): Promise<IInit> => {
                 baseURL: process.env.CT_URL,
                 url: process.env.LOCAL_URL,
                 token: process.env.CT_TOKEN,
+                fastlyEnabled: process.env.FASTLY_ENABLED as boolean|"true"|"false",
                 fastlyServiceId: process.env.FASTLY_SERVICEID,
                 fastlyAPIKey: process.env.FASTLY_APIKEY
             }));
