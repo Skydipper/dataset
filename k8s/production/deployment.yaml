@@ -87,7 +87,24 @@ spec:
                 secretKeyRef:
                   key: REDIS_URI
                   name: dbsecrets
-          image: vizzuality/dataset
+            - name: FASTLY_ENABLED
+              valueFrom:
+                secretKeyRef:
+                  key: FASTLY_ENABLED
+                  name: mssecrets
+            - name: FASTLY_APIKEY
+              valueFrom:
+                secretKeyRef:
+                  key: FASTLY_APIKEY
+                  name: mssecrets
+                  optional: true
+            - name: FASTLY_SERVICEID
+              valueFrom:
+                secretKeyRef:
+                  key: FASTLY_SERVICEID
+                  name: mssecrets
+                  optional: true
+          image: gfwdockerhub/dataset
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -124,9 +141,8 @@ spec:
           terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
       imagePullSecrets:
-          - name: regcred
+        - name: regcred
       restartPolicy: Always
       schedulerName: default-scheduler
-      securityContext: {}
+      securityContext: { }
       terminationGracePeriodSeconds: 30
-status: {}
