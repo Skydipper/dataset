@@ -1,3 +1,7 @@
+## 22/02/2021
+
+- Update `rw-api-microservice-node` to fix issue with Fastly headers.
+
 ## 18/12/2020
 
 - Initial migration to Typescript
