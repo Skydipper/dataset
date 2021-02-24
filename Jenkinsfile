@@ -59,9 +59,7 @@ node {
           def userInput = true
           def didTimeout = false
 
-          echo "SKIP_DEPLOYMENT_CONFIRMATION is ${SKIP_DEPLOYMENT_CONFIRMATION}"
-
-          if (env.SKIP_DEPLOYMENT_CONFIRMATION != true || env.SKIP_DEPLOYMENT_CONFIRMATION != 'true') {
+          if ("${SKIP_DEPLOYMENT_CONFIRMATION}" != "true") {
               try {
                 timeout(time: 60, unit: 'SECONDS') {
                   userInput = input(
@@ -79,7 +77,7 @@ node {
                   }
               }
           }
-          if ((userInput == true && !didTimeout) || (SKIP_DEPLOYMENT_CONFIRMATION != true || SKIP_DEPLOYMENT_CONFIRMATION != 'true')) {
+          if ((userInput == true && !didTimeout) || "${SKIP_DEPLOYMENT_CONFIRMATION}" != "true") {
             sh("echo Deploying to PROD cluster")
             sh("kubectl config use-context ${KUBECTL_CONTEXT_PREFIX}_${CLOUD_PROJECT_NAME}_${CLOUD_PROJECT_ZONE}_${KUBE_PROD_CLUSTER}")
             sh("kubectl apply -f k8s/production/")
