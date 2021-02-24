@@ -61,7 +61,7 @@ node {
 
           echo "SKIP_DEPLOYMENT_CONFIRMATION is ${SKIP_DEPLOYMENT_CONFIRMATION}"
 
-          if (SKIP_DEPLOYMENT_CONFIRMATION != true || SKIP_DEPLOYMENT_CONFIRMATION != 'true') {
+          if (env.SKIP_DEPLOYMENT_CONFIRMATION != true || env.SKIP_DEPLOYMENT_CONFIRMATION != 'true') {
               try {
                 timeout(time: 60, unit: 'SECONDS') {
                   userInput = input(
