@@ -59,6 +59,8 @@ node {
           def userInput = true
           def didTimeout = false
 
+          echo "SKIP_DEPLOYMENT_CONFIRMATION is ${SKIP_DEPLOYMENT_CONFIRMATION}"
+
           if (SKIP_DEPLOYMENT_CONFIRMATION != true || SKIP_DEPLOYMENT_CONFIRMATION != 'true') {
               try {
                 timeout(time: 60, unit: 'SECONDS') {
