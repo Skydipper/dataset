@@ -3289,10 +3289,10 @@ rimraf@~2.4.0:
   dependencies:
     glob "^6.0.1"
 
-rw-api-microservice-node@^3.3.2:
-  version "3.3.2"
-  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.3.2.tgz#143711c1d421594c811677b45d63154b92394099"
-  integrity sha512-c3kXHIk3r0IXq3kPeS511b9jvNXpto359yuoXhApcY1PSkRWTnkJux6fFQNq9/HHe15xv4QhVx9oBABEzyo/yg==
+rw-api-microservice-node@^3.3.3:
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.3.3.tgz#02084f2046820a3f7be5fc7de791cdf04fc56720"
+  integrity sha512-Old/4sUDUal7X1w5loPYu2cuYIygig2Qe8K1Q3A2vwm4E3QOEzBqgyRBQeC13wlnAKaskcUEFnHCBe+86FEYhg==
   dependencies:
     axios "^0.21.1"
     fastly-promises tiagojsag/fastly-promises#master
