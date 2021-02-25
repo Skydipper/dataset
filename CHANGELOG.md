@@ -1,3 +1,7 @@
+## 22/02/2021
+
+- Update `rw-api-microservice-node` to fix issue with Fastly headers.
+
 ## 12/02/2021
 
 - Remove dependency on CT's `authenticated` functionality
