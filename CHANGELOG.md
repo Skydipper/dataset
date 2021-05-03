@@ -1,3 +1,7 @@
+## 03/05/2021
+
+- Fix issue preventing updating `dataLastUpdated` with `null`.
+
 ## 22/02/2021
 
 - Update `rw-api-microservice-node` to fix issue with Fastly headers.
