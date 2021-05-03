@@ -282,7 +282,8 @@ class DatasetValidator {
         koaObj.checkBody('sync').optional().check((sync) => DatasetValidator.checkSync(sync), 'not valid');
         koaObj.checkBody('widgetRelevantProps').optional().check((widgetRelevantProps) => DatasetValidator.isArray(widgetRelevantProps), 'must be an array');
         koaObj.checkBody('layerRelevantProps').optional().check((layerRelevantProps) => DatasetValidator.isArray(layerRelevantProps), 'must be an array');
-        koaObj.checkBody('dataLastUpdated').optional().check((dataLastUpdated) => DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
+        koaObj.checkBody('dataLastUpdated').optional().check((dataLastUpdated) => dataLastUpdated === null || DatasetValidator.isISOString(dataLastUpdated), 'must be an date');
+
         if (koaObj.errors) {
             logger.info('Error validating dataset creation');
             throw new DatasetNotValid(koaObj.errors);

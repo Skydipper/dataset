@@ -430,7 +430,9 @@ class DatasetService {
         currentDataset.widgetRelevantProps = dataset.widgetRelevantProps || currentDataset.widgetRelevantProps;
         currentDataset.layerRelevantProps = dataset.layerRelevantProps || currentDataset.layerRelevantProps;
         currentDataset.updatedAt = new Date();
-        currentDataset.dataLastUpdated = dataset.dataLastUpdated || currentDataset.dataLastUpdated;
+        if (dataset.dataLastUpdated !== undefined) {
+            currentDataset.dataLastUpdated = dataset.dataLastUpdated;
+        }
         const oldStatus = currentDataset.status;
         if (user.id === 'microservice' && (dataset.status === 0 || dataset.status === 1 || dataset.status === 2)) {
             if (dataset.status === 0) {

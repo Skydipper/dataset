@@ -210,7 +210,6 @@ describe('Dataset update tests', () => {
         dataset.should.have.property('createdAt').and.equal(fakeDataset.createdAt.toISOString());
     });
 
-
     it('Update a dataset with an invalid dataLastUpdated should fail', async () => {
         mockGetUserFromToken(USERS.ADMIN);
 
@@ -226,6 +225,25 @@ describe('Dataset update tests', () => {
         response.status.should.equal(400);
         response.body.should.have.property('errors').and.be.an('array');
         response.body.errors[0].should.have.property('detail').and.equal(`- dataLastUpdated: must be an date - `);
+    });
+
+    it('Update a dataset with a null dataLastUpdated should work correctly', async () => {
+        mockGetUserFromToken(USERS.ADMIN);
+
+        const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+        fakeDataset.dataLastUpdated.should.not.equal(null);
+
+        const response = await requester
+            .patch(`/api/v1/dataset/${fakeDataset._id}`)
+            .set('Authorization', `Bearer abcd`)
+            .send({
+                dataLastUpdated: null,
+            });
+        const dataset = deserializeDataset(response);
+
+        response.status.should.equal(200);
+        response.body.should.have.property('data').and.be.an('object');
+        dataset.should.have.property('dataLastUpdated').and.equal(null);
     });
 
     it('Update status for a dataset as USER that owns the dataset should fail', async () => {
