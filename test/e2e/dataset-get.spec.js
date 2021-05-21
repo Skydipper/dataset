@@ -22,7 +22,7 @@ describe('Get datasets', () => {
         requester = await getTestServer();
     });
 
-    describe('Test links objects', () => {
+    describe('Test pagination links', () => {
         it('Get all datasets without referer header should be successful and use the request host', async () => {
             const cartoFakeDataset = await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
 
@@ -348,19 +348,6 @@ describe('Get datasets', () => {
         datasetIds2.should.contain(ds2._id);
         datasetIds2.should.not.contain(ds3._id);
         datasetIds2.should.not.contain(ds4._id);
-    });
-
-    it('Get an existing dataset by ID should be successful and you should be able to retrieve latestUpdated information', async () => {
-        const cartoFakeDataset = await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
-
-        const response = await requester
-            .get(`/api/v1/dataset/${cartoFakeDataset._id}/lastUpdated`);
-       // const dataset = deserializeDataset(response);
-
-        response.status.should.equal(200);
-       // response.body.should.have.property('data').and.be.an('object');
-        //dataset.should.have.property('name').and.equal(cartoFakeDataset.name);
-       // response.body.data.should.deep.equal(expectedDataset(cartoFakeDataset));
     });
 
     /**

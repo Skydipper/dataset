@@ -471,17 +471,6 @@ class DatasetRouter {
         ctx.body = 'OK';
     }
 
-
-// Adding endpoint that was created to test Developer Docs
-    static async lastUpdated(ctx) {
-        const datasetId = ctx.params.dataset;
-        const dataset = await DatasetService.get(datasetId);
-        logger.info(`[DatasetRouter: lastUpdated endpoint] dataset ` + datasetId + ' was created on ' + dataset.createdAt + ' and was updated on ' + dataset.updatedAt);
-        ctx.body = dataset.updatedAt;
-
-    }
-
-
 }
 
 const validationMiddleware = async (ctx, next) => {
@@ -616,6 +605,5 @@ router.get('/:dataset', DatasetRouter.get);
 router.patch('/:dataset', isAuthenticated, validationMiddleware, authorizationMiddleware, DatasetRouter.update);
 router.delete('/:dataset', isAuthenticated, authorizationMiddleware, DatasetRouter.delete);
 router.post('/:dataset/clone', isAuthenticated, validationMiddleware, authorizationMiddleware, DatasetRouter.clone);
-router.get('/:dataset/lastUpdated', DatasetRouter.lastUpdated);
 
 module.exports = router;
