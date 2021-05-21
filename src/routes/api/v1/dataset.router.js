@@ -271,6 +271,7 @@ class DatasetRouter {
 
     static async getAll(ctx) {
         logger.info(`[DatasetRouter] Getting all datasets`);
+        logger.info(JSON.stringify(ctx.request));
         const user = DatasetRouter.getUser(ctx);
         const { query } = ctx;
         const { search } = query;
