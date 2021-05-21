@@ -32,6 +32,7 @@ describe('Get datasets', () => {
             response.status.should.equal(200);
             response.body.should.have.property('data').and.be.an('array');
             response.body.should.have.property('links').and.be.an('object');
+            response.body.links.should.have.property('self').and.equal(`http://127.0.0.1:${config.get('service.port')}/v1/dataset?page[number]=1&page[size]=10`);
             response.body.links.should.have.property('prev').and.equal(`http://127.0.0.1:${config.get('service.port')}/v1/dataset?page[number]=1&page[size]=10`);
             response.body.links.should.have.property('next').and.equal(`http://127.0.0.1:${config.get('service.port')}/v1/dataset?page[number]=1&page[size]=10`);
             response.body.links.should.have.property('first').and.equal(`http://127.0.0.1:${config.get('service.port')}/v1/dataset?page[number]=1&page[size]=10`);
@@ -48,6 +49,7 @@ describe('Get datasets', () => {
             response.status.should.equal(200);
             response.body.should.have.property('data').and.be.an('array');
             response.body.should.have.property('links').and.be.an('object');
+            response.body.links.should.have.property('self').and.equal('http://potato.com/v1/dataset?page[number]=1&page[size]=10');
             response.body.links.should.have.property('prev').and.equal('http://potato.com/v1/dataset?page[number]=1&page[size]=10');
             response.body.links.should.have.property('next').and.equal('http://potato.com/v1/dataset?page[number]=1&page[size]=10');
             response.body.links.should.have.property('first').and.equal('http://potato.com/v1/dataset?page[number]=1&page[size]=10');
