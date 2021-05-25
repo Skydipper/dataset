@@ -184,18 +184,7 @@ describe('Dataset delete tests', () => {
         })).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/cartodb/${fakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(fakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(fakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(fakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(fakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(fakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(fakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(fakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/cartodb/${fakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -224,18 +213,7 @@ describe('Dataset delete tests', () => {
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(cartoFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(cartoFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(cartoFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(cartoFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(cartoFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(cartoFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(cartoFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -252,18 +230,7 @@ describe('Dataset delete tests', () => {
         const fakeDataset = await new Dataset(createDataset('cartodb', { protected: true })).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/cartodb/${fakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(fakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(fakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(fakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(fakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(fakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(fakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(fakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/cartodb/${fakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -294,18 +261,7 @@ describe('Dataset delete tests', () => {
             });
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(cartoFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(cartoFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(cartoFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(cartoFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(cartoFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(cartoFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(cartoFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -344,18 +300,7 @@ describe('Dataset delete tests', () => {
             });
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(cartoFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(cartoFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(cartoFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(cartoFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(cartoFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(cartoFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(cartoFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -378,18 +323,7 @@ describe('Dataset delete tests', () => {
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(cartoFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(cartoFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(cartoFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(cartoFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(cartoFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(cartoFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(cartoFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`)
             .once()
             .reply(404, {
                 status: 404,
@@ -410,18 +344,7 @@ describe('Dataset delete tests', () => {
         const jsonFakeDataset = await new Dataset(createDataset('json')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(jsonFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(jsonFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(jsonFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(jsonFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(jsonFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(jsonFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(jsonFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -435,18 +358,7 @@ describe('Dataset delete tests', () => {
         const tsvFakeDataset = await new Dataset(createDataset('tsv')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/doc-datasets/tsv/${tsvFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(tsvFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(tsvFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(tsvFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(tsvFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(tsvFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(tsvFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(tsvFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/doc-datasets/tsv/${tsvFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -460,18 +372,7 @@ describe('Dataset delete tests', () => {
         const xmlFakeDataset = await new Dataset(createDataset('xml')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/doc-datasets/xml/${xmlFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(xmlFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(xmlFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(xmlFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(xmlFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(xmlFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(xmlFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(xmlFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/doc-datasets/xml/${xmlFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -485,18 +386,7 @@ describe('Dataset delete tests', () => {
         const featureserviceFakeDataset = await new Dataset(createDataset('featureservice')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/featureservice/${featureserviceFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(featureserviceFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(featureserviceFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(featureserviceFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(featureserviceFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(featureserviceFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(featureserviceFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(featureserviceFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/featureservice/${featureserviceFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -510,18 +400,7 @@ describe('Dataset delete tests', () => {
         const geeFakeDataset = await new Dataset(createDataset('gee')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/gee/${geeFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(geeFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(geeFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(geeFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(geeFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(geeFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(geeFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(geeFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/gee/${geeFakeDataset._id}`)
             .once()
             .reply(204);
 
@@ -532,18 +411,7 @@ describe('Dataset delete tests', () => {
         const bigqueryFakeDataset = await new Dataset(createDataset('bigquery')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/bigquery/${bigqueryFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(bigqueryFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(bigqueryFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(bigqueryFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(bigqueryFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(bigqueryFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(bigqueryFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(bigqueryFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/bigquery/${bigqueryFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -557,18 +425,7 @@ describe('Dataset delete tests', () => {
         const rasdamanFakeDataset = await new Dataset(createDataset('rasdaman')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/rasdaman/${rasdamanFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(rasdamanFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(rasdamanFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(rasdamanFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(rasdamanFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(rasdamanFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(rasdamanFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(rasdamanFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/rasdaman/${rasdamanFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -582,18 +439,7 @@ describe('Dataset delete tests', () => {
         const nexgddpFakeDataset = await new Dataset(createDataset('nexgddp')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/nexgddp/${nexgddpFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(nexgddpFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(nexgddpFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(nexgddpFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(nexgddpFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(nexgddpFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(nexgddpFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(nexgddpFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/nexgddp/${nexgddpFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -607,18 +453,7 @@ describe('Dataset delete tests', () => {
         const locaFakeDataset = await new Dataset(createDataset('loca')).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/rest-datasets/loca/${locaFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(locaFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(locaFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(locaFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(locaFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(locaFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(locaFakeDataset.slug);
-                requestDataset.tableName.should.deep.equal(locaFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/rest-datasets/loca/${locaFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,
@@ -635,18 +470,7 @@ describe('Dataset delete tests', () => {
         })).save();
 
         nock(process.env.CT_URL)
-            .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`, (request) => {
-                const requestDataset = request.connector;
-
-                requestDataset.attributesPath.should.deep.equal(jsonFakeDataset.attributesPath);
-                requestDataset.connectorType.should.deep.equal(jsonFakeDataset.connectorType);
-                requestDataset.connectorUrl.should.deep.equal(jsonFakeDataset.connectorUrl);
-                requestDataset.name.should.deep.equal(jsonFakeDataset.name);
-                requestDataset.overwrite.should.deep.equal(jsonFakeDataset.overwrite);
-                requestDataset.slug.should.deep.equal(jsonFakeDataset.slug);
-                requestDataset.should.have.property('tableName').and.equal(jsonFakeDataset.tableName);
-                return true;
-            })
+            .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`)
             .once()
             .reply(200, {
                 status: 200,

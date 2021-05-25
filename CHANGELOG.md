@@ -1,3 +1,7 @@
+## 25/05/2021
+
+- Remove body from `DELETE` requests to other microservices
+
 ## 21/05/2021
 
 - Add support for hosts from `referer` header when generating pagination links.
