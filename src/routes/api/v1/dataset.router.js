@@ -98,22 +98,21 @@ class DatasetRouter {
             return null;
         }
 
-        let method = 'POST';
-        let body = { connector: clonedDataset };
-        
+        const request = {
+            uri,
+            method: 'POST',
+            json: true,
+            body: { connector: clonedDataset }
+        };
+
         if (ctx.request.method === 'DELETE') {
-            uri += `/${dataset.id}`;
-            method = 'DELETE'
-            body = null
+            request.uri += `/${dataset.id}`;
+            request.method = 'DELETE'
+            delete request.body
         }
 
         try {
-            return await RWAPIMicroservice.requestToMicroservice({
-                uri,
-                method,
-                json: true,
-                body
-            });
+            return await RWAPIMicroservice.requestToMicroservice(request);
         } catch (err) {
             logger.error('Error connecting to dataset adapter');
             throw new MicroserviceConnection(`Error connecting to dataset adapter: ${err.message}`);
