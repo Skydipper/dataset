@@ -207,6 +207,13 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
+"@koa/cors@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@koa/cors/-/cors-3.1.0.tgz#618bb073438cfdbd3ebd0e648a76e33b84f3a3b2"
+  integrity sha512-7ulRC1da/rBa6kj6P4g2aJfnET3z8Uf3SWu60cjbtxTA5g8lxRdX/Bd2P92EagGwwAhANeNw8T8if99rJliR6Q==
+  dependencies:
+    vary "^1.1.2"
+
 "@types/accepts@*":
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/@types/accepts/-/accepts-1.3.5.tgz#c34bec115cfc746e04fe5a059df4ce7e7b391575"
@@ -3289,13 +3296,15 @@ rimraf@~2.4.0:
   dependencies:
     glob "^6.0.1"
 
-rw-api-microservice-node@^3.3.3:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.3.3.tgz#02084f2046820a3f7be5fc7de791cdf04fc56720"
-  integrity sha512-Old/4sUDUal7X1w5loPYu2cuYIygig2Qe8K1Q3A2vwm4E3QOEzBqgyRBQeC13wlnAKaskcUEFnHCBe+86FEYhg==
+rw-api-microservice-node@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.4.0.tgz#97b88427e3752058011304b981bf209d42465d25"
+  integrity sha512-qkFYS3VnUFzfCjkVHGhhu4413peBF9hRS74cFJ3N072t3kkfPdXRTSl1kD+lxts3pf9GeIqeUGlnVeboTDsV6g==
   dependencies:
+    "@koa/cors" "^3.1.0"
     axios "^0.21.1"
     fastly-promises tiagojsag/fastly-promises#master
+    koa-compose "^4.1.0"
 
 rxjs@^6.6.3:
   version "6.6.3"

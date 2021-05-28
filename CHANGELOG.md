@@ -1,3 +1,7 @@
+## 28/05/2021
+
+- Update `rw-api-microservice-node` to add CORS support.
+
 ## 25/05/2021
 
 - Remove body from `DELETE` requests to other microservices
