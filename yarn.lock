@@ -3296,10 +3296,10 @@ rimraf@~2.4.0:
   dependencies:
     glob "^6.0.1"
 
-rw-api-microservice-node@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.4.0.tgz#97b88427e3752058011304b981bf209d42465d25"
-  integrity sha512-qkFYS3VnUFzfCjkVHGhhu4413peBF9hRS74cFJ3N072t3kkfPdXRTSl1kD+lxts3pf9GeIqeUGlnVeboTDsV6g==
+rw-api-microservice-node@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/rw-api-microservice-node/-/rw-api-microservice-node-3.4.1.tgz#01b2876d2b2acc13aaf01d630784e10b7410e186"
+  integrity sha512-blxLH1IXYudV+fMzuXFDPqkQyfqgWg2XDhjpDwRBdxW6PRW8ztOh7IKhVHov/RWeonrVQI6OzLnYEWsv3CBw0Q==
   dependencies:
     "@koa/cors" "^3.1.0"
     axios "^0.21.1"
