@@ -32,8 +32,8 @@ const serializeObjToQuery = (obj) => Object.keys(obj).reduce((a, k) => {
 }, []).join('&');
 
 const getHostForPaginationLink = (ctx) => {
+    logger.debug(`getHostForPaginationLink request: ${JSON.stringify(ctx.request)}`)
     if ('referer' in ctx.request.header) {
-        logger.debug(`getHostForPaginationLink request: ${JSON.stringify(ctx.request)}`)
         const url = new URL(ctx.request.header.referer)
         return url.host;
     }
