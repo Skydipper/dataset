@@ -19,7 +19,6 @@ COPY tsconfig.json /opt/$NAME/tsconfig.json
 COPY config /opt/$NAME/config
 COPY ./src /opt/$NAME/src
 COPY ./test opt/$NAME/test
-COPY ./microservice opt/$NAME/microservice
 
 WORKDIR /opt/$NAME
 
