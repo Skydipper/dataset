@@ -27,7 +27,7 @@ class RelationshipsService {
         let resources = includes.map(async (include) => {
             const obj = {};
             if (INCLUDES.indexOf(include) >= 0) {
-                let uri = '';
+                let uri = '/v1';
                 let payload = {
                     ids
                 };
@@ -39,7 +39,7 @@ class RelationshipsService {
                     }
                 }
                 if (include === 'vocabulary' || include === 'metadata') {
-                    uri = '/dataset';
+                    uri = '/v1/dataset';
                 }
                 if (include === 'user') {
                     payload = {
@@ -147,7 +147,7 @@ class RelationshipsService {
     static async createVocabularies(id, vocabularies) {
         try {
             return await RWAPIMicroservice.requestToMicroservice({
-                uri: `/dataset/${id}/vocabulary`,
+                uri: `/v1/dataset/${id}/vocabulary`,
                 method: 'POST',
                 json: true,
                 body: vocabularies
@@ -168,7 +168,7 @@ class RelationshipsService {
         vocabularyQuery = vocabularyQuery.substring(0, vocabularyQuery.length - 1);
         logger.debug(vocabularyQuery);
         const result = await RWAPIMicroservice.requestToMicroservice({
-            uri: `/dataset/vocabulary/find${vocabularyQuery}`,
+            uri: `/v1/dataset/vocabulary/find${vocabularyQuery}`,
             method: 'GET',
             json: true,
         });
@@ -183,7 +183,7 @@ class RelationshipsService {
     static async cloneVocabularies(oldId, newId) {
         try {
             return await RWAPIMicroservice.requestToMicroservice({
-                uri: `/dataset/${oldId}/vocabulary/clone/dataset`,
+                uri: `/v1/dataset/${oldId}/vocabulary/clone/dataset`,
                 method: 'POST',
                 json: true,
                 body: {
@@ -198,7 +198,7 @@ class RelationshipsService {
     static async cloneMetadatas(oldId, newId) {
         try {
             return await RWAPIMicroservice.requestToMicroservice({
-                uri: `/dataset/${oldId}/metadata/clone`,
+                uri: `/v1/dataset/${oldId}/metadata/clone`,
                 method: 'POST',
                 json: true,
                 body: {
@@ -213,7 +213,7 @@ class RelationshipsService {
     static async getCollections(ids, userId) {
         try {
             const result = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/collection/find-by-ids`,
+                uri: `/v1/collection/find-by-ids`,
                 method: 'POST',
                 json: true,
                 body: {
@@ -230,7 +230,7 @@ class RelationshipsService {
     static async getFavorites(app, userId) {
         try {
             const result = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/favourite/find-by-user`,
+                uri: `/v1/favourite/find-by-user`,
                 method: 'POST',
                 json: true,
                 body: {
@@ -246,7 +246,7 @@ class RelationshipsService {
     }
 
     static async filterByMetadata(search, sort) {
-        let uri = `/metadata?search=${search}`;
+        let uri = `/v1/metadata?search=${search}`;
 
         if (sort !== null) {
             uri = `${uri}&sort=${sort}`;
@@ -271,7 +271,7 @@ class RelationshipsService {
     static async sortByMetadata(sign, query) {
         try {
             const result = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/metadata?sort=${sign}name&type=dataset&${query}`,
+                uri: `/v1/metadata?sort=${sign}name&type=dataset&${query}`,
                 method: 'GET',
                 json: true
             });
@@ -285,7 +285,7 @@ class RelationshipsService {
     static async filterByConcepts(query) {
         try {
             const result = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/graph/query/search-datasets-ids?${query}`,
+                uri: `/v1/graph/query/search-datasets-ids?${query}`,
                 method: 'GET',
                 json: true
             });
@@ -298,7 +298,7 @@ class RelationshipsService {
     static async searchBySynonyms(query) {
         try {
             const result = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/graph/query/search-by-label-synonyms?${query}`,
+                uri: `/v1/graph/query/search-by-label-synonyms?${query}`,
                 method: 'GET',
                 json: true
             });

@@ -88,13 +88,13 @@ class DatasetRouter {
         clonedDataset.table_name = dataset.tableName;
         clonedDataset.data = ctx.request.body.data;
 
-        let uri = '';
+        let uri = '/v1';
         if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
         } else if (connectorType === 'document') {
             if (ctx.request.path.indexOf('clone') >= 0) {
-                clonedDataset.connector_url = process.env.CT_URL + dataset.connector_url;
-                clonedDataset.connectorUrl = process.env.CT_URL + dataset.connectorUrl;
+                clonedDataset.connector_url = process.env.GATEWAY_URL + dataset.connector_url;
+                clonedDataset.connectorUrl = process.env.GATEWAY_URL + dataset.connectorUrl;
             }
             uri += `/doc-datasets/${provider}`;
         } else {
@@ -134,7 +134,7 @@ class DatasetRouter {
         clonedDataset.table_name = dataset.tableName;
         clonedDataset.data = ctx.request.body.data;
 
-        let uri = '';
+        let uri = '/v1';
         if (connectorType === 'rest') {
             uri += `/rest-datasets/${provider}`;
         } else if (connectorType === 'document') {

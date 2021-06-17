@@ -16,49 +16,49 @@ nock.disableNetConnect();
 nock.enableNetConnect(process.env.HOST_IP);
 
 const runStandardTestCase = async (provider, fakeDataset, requestingUser = USERS.ADMIN) => {
-    nock(process.env.CT_URL)
+    nock(process.env.GATEWAY_URL)
         .get(`/v1/dataset/${fakeDataset._id}/layer?protected=true`)
         .reply(200, {
             status: 200,
             data: []
         });
 
-    nock(process.env.CT_URL)
+    nock(process.env.GATEWAY_URL)
         .get(`/v1/dataset/${fakeDataset._id}/widget?protected=true`)
         .reply(200, {
             status: 200,
             data: []
         });
 
-    nock(process.env.CT_URL)
+    nock(process.env.GATEWAY_URL)
         .delete(`/v1/dataset/${fakeDataset._id}/vocabulary/knowledge_graph?application=rw`)
         .reply(200, {
             status: 200,
             data: []
         });
 
-    nock(process.env.CT_URL)
+    nock(process.env.GATEWAY_URL)
         .delete(`/v1/dataset/${fakeDataset._id}/layer`)
         .reply(200, {
             status: 200,
             data: []
         });
 
-    nock(process.env.CT_URL)
+    nock(process.env.GATEWAY_URL)
         .delete(`/v1/dataset/${fakeDataset._id}/widget`)
         .reply(200, {
             status: 200,
             data: []
         });
 
-    nock(process.env.CT_URL)
+    nock(process.env.GATEWAY_URL)
         .delete(`/v1/dataset/${fakeDataset._id}/metadata`)
         .reply(200, {
             status: 200,
             data: []
         });
 
-    nock(process.env.CT_URL)
+    nock(process.env.GATEWAY_URL)
         .delete(`/v1/dataset/${fakeDataset._id}/vocabulary`)
         .reply(200, {
             status: 200,
@@ -183,7 +183,7 @@ describe('Dataset delete tests', () => {
             userId: USERS.MANAGER.id,
         })).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/cartodb/${fakeDataset._id}`)
             .once()
             .reply(200, {
@@ -212,7 +212,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing dataset should be successful and return the dataset (happy case)', async () => {
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -229,7 +229,7 @@ describe('Dataset delete tests', () => {
 
         const fakeDataset = await new Dataset(createDataset('cartodb', { protected: true })).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/cartodb/${fakeDataset._id}`)
             .once()
             .reply(200, {
@@ -252,7 +252,7 @@ describe('Dataset delete tests', () => {
 
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/dataset/${cartoFakeDataset._id}/layer?protected=true`)
             .once()
             .reply(404, {
@@ -260,7 +260,7 @@ describe('Dataset delete tests', () => {
                 detail: 'Endpoint not found'
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -283,7 +283,7 @@ describe('Dataset delete tests', () => {
 
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/dataset/${cartoFakeDataset._id}/layer?protected=true`)
             .once()
             .reply(200, {
@@ -291,7 +291,7 @@ describe('Dataset delete tests', () => {
                 data: []
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/dataset/${cartoFakeDataset._id}/widget?protected=true`)
             .once()
             .reply(404, {
@@ -299,7 +299,7 @@ describe('Dataset delete tests', () => {
                 detail: 'Endpoint not found'
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -322,7 +322,7 @@ describe('Dataset delete tests', () => {
 
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/cartodb/${cartoFakeDataset._id}`)
             .once()
             .reply(404, {
@@ -343,7 +343,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing json dataset should be successful and return the dataset (happy case)', async () => {
         const jsonFakeDataset = await new Dataset(createDataset('json')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -357,7 +357,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing tsv dataset should be successful and return the dataset (happy case)', async () => {
         const tsvFakeDataset = await new Dataset(createDataset('tsv')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/doc-datasets/tsv/${tsvFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -371,7 +371,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing xml dataset should be successful and return the dataset (happy case)', async () => {
         const xmlFakeDataset = await new Dataset(createDataset('xml')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/doc-datasets/xml/${xmlFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -385,7 +385,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing featureservice dataset should be successful and return the dataset (happy case)', async () => {
         const featureserviceFakeDataset = await new Dataset(createDataset('featureservice')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/featureservice/${featureserviceFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -399,7 +399,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing gee dataset should be successful and return the dataset (happy case)', async () => {
         const geeFakeDataset = await new Dataset(createDataset('gee')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/gee/${geeFakeDataset._id}`)
             .once()
             .reply(204);
@@ -410,7 +410,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing bigquery dataset should be successful and return the dataset (happy case)', async () => {
         const bigqueryFakeDataset = await new Dataset(createDataset('bigquery')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/bigquery/${bigqueryFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -424,7 +424,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing rasdaman dataset should be successful and return the dataset (happy case)', async () => {
         const rasdamanFakeDataset = await new Dataset(createDataset('rasdaman')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/rasdaman/${rasdamanFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -438,7 +438,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing nexgddp dataset should be successful and return the dataset (happy case)', async () => {
         const nexgddpFakeDataset = await new Dataset(createDataset('nexgddp')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/nexgddp/${nexgddpFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -452,7 +452,7 @@ describe('Dataset delete tests', () => {
     it('Deleting an existing loca dataset should be successful and return the dataset (happy case)', async () => {
         const locaFakeDataset = await new Dataset(createDataset('loca')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/rest-datasets/loca/${locaFakeDataset._id}`)
             .once()
             .reply(200, {
@@ -469,7 +469,7 @@ describe('Dataset delete tests', () => {
             connectorType: 'document'
         })).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .delete(`/v1/doc-datasets/json/${jsonFakeDataset._id}`)
             .once()
             .reply(200, {

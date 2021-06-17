@@ -52,7 +52,7 @@ describe('Dataset create tests', () => {
             overwrite: true
         };
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post(/v1\/graph\/dataset\/(\w|-)*$/)
             .once()
             .reply(200, {
@@ -60,7 +60,7 @@ describe('Dataset create tests', () => {
                 detail: 'Ok'
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/rest-datasets/cartodb', (request) => {
                 request.should.have.property('connector').and.be.an('object');
                 const requestDataset = request.connector;
@@ -131,7 +131,7 @@ describe('Dataset create tests', () => {
             overwrite: true
         };
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/rest-datasets/featureservice', (request) => {
                 request.should.have.property('connector').and.be.an('object');
                 const requestDataset = request.connector;
@@ -208,7 +208,7 @@ describe('Dataset create tests', () => {
             }
         };
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/doc-datasets/json', (request) => {
                 request.should.have.property('connector').and.be.an('object');
                 const requestDataset = request.connector;
@@ -274,7 +274,7 @@ describe('Dataset create tests', () => {
             dataLastUpdated: timestamp.toISOString()
         };
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/doc-datasets/json', (request) => {
                 request.should.have.property('connector').and.be.an('object');
                 const requestDataset = request.connector;
@@ -344,7 +344,7 @@ describe('Dataset create tests', () => {
         };
 
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/doc-datasets/json', (request) => {
                 request.should.have.property('connector').and.be.an('object');
                 const requestDataset = request.connector;
@@ -415,7 +415,7 @@ describe('Dataset create tests', () => {
         };
 
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/doc-datasets/csv', (request) => {
                 request.should.have.property('connector').and.be.an('object');
                 const requestDataset = request.connector;
@@ -587,7 +587,7 @@ describe('Dataset create tests', () => {
             dataLastUpdated: timestamp.toISOString()
         };
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/doc-datasets/csv', (request) => {
                 request.should.have.property('connector').and.be.an('object');
                 const requestDataset = request.connector;

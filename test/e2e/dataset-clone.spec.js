@@ -114,7 +114,7 @@ describe('Dataset clone tests', () => {
 
         const cartoFakeDataset = await new Dataset(createDataset('cartodb', { userId: USERS.MANAGER.id })).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post(/v1\/graph\/dataset\/(\w|-)*$/)
             .once()
             .reply(200, {
@@ -122,7 +122,7 @@ describe('Dataset clone tests', () => {
                 detail: 'Ok'
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/doc-datasets/json', (request) => {
                 const expected = {
                     connectorType: 'document',
@@ -164,13 +164,13 @@ describe('Dataset clone tests', () => {
                     overwrite: true,
                     status: 'pending',
                     tableName: cartoFakeDataset.tableName,
-                    connectorUrl: `${process.env.CT_URL}/query/123456?sql=select * from data`,
+                    connectorUrl: `${process.env.GATEWAY_URL}/query/123456?sql=select * from data`,
                     attributesPath: cartoFakeDataset.attributesPath,
                     dataPath: 'data',
                     application: ['gfw', 'rw'],
                     subtitle: cartoFakeDataset.subtitle,
                     type: null,
-                    connector_url: `${process.env.CT_URL}undefined`,
+                    connector_url: `${process.env.GATEWAY_URL}undefined`,
                     attributes_path: cartoFakeDataset.attributesPath,
                     data_path: 'data',
                     table_name: cartoFakeDataset.tableName
@@ -270,7 +270,7 @@ describe('Dataset clone tests', () => {
 
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post(/v1\/graph\/dataset\/(\w|-)*$/)
             .once()
             .reply(200, {
@@ -278,7 +278,7 @@ describe('Dataset clone tests', () => {
                 detail: 'Ok'
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/doc-datasets/json', (request) => {
                 const expected = {
                     connectorType: 'document',
@@ -320,13 +320,13 @@ describe('Dataset clone tests', () => {
                     overwrite: true,
                     status: 'pending',
                     tableName: cartoFakeDataset.tableName,
-                    connectorUrl: `${process.env.CT_URL}/query/123456?sql=select * from data`,
+                    connectorUrl: `${process.env.GATEWAY_URL}/query/123456?sql=select * from data`,
                     attributesPath: cartoFakeDataset.attributesPath,
                     dataPath: 'data',
                     application: ['gfw', 'rw'],
                     subtitle: cartoFakeDataset.subtitle,
                     type: null,
-                    connector_url: `${process.env.CT_URL}undefined`,
+                    connector_url: `${process.env.GATEWAY_URL}undefined`,
                     attributes_path: cartoFakeDataset.attributesPath,
                     data_path: 'data',
                     table_name: cartoFakeDataset.tableName
@@ -374,14 +374,14 @@ describe('Dataset clone tests', () => {
 
         const cartoFakeDataset = await new Dataset(createDataset('cartodb')).save();
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post(/v1\/graph\/dataset\/(\w|-)*$/)
             .reply(200, {
                 status: 200,
                 detail: 'Ok'
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post(`/v1/dataset/${cartoFakeDataset._id}/vocabulary/clone/dataset`, (request) => {
                 // eslint-disable-next-line no-unused-expressions
                 request.should.have.property('newDataset').and.not.be.empty;
@@ -393,7 +393,7 @@ describe('Dataset clone tests', () => {
             });
 
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post(`/v1/dataset/${cartoFakeDataset._id}/metadata/clone`, (request) => {
                 // eslint-disable-next-line no-unused-expressions
                 request.should.have.property('newDataset').and.not.be.empty;
@@ -404,7 +404,7 @@ describe('Dataset clone tests', () => {
                 detail: 'Ok'
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/v1/doc-datasets/json', (request) => {
                 const expected = {
                     connectorType: 'document',
@@ -446,13 +446,13 @@ describe('Dataset clone tests', () => {
                     overwrite: true,
                     status: 'pending',
                     tableName: cartoFakeDataset.tableName,
-                    connectorUrl: `${process.env.CT_URL}/query/123456?sql=select * from data`,
+                    connectorUrl: `${process.env.GATEWAY_URL}/query/123456?sql=select * from data`,
                     attributesPath: cartoFakeDataset.attributesPath,
                     dataPath: 'data',
                     application: ['gfw', 'rw'],
                     subtitle: cartoFakeDataset.subtitle,
                     type: null,
-                    connector_url: `${process.env.CT_URL}undefined`,
+                    connector_url: `${process.env.GATEWAY_URL}undefined`,
                     attributes_path: cartoFakeDataset.attributesPath,
                     data_path: 'data',
                     table_name: cartoFakeDataset.tableName

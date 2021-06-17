@@ -1,7 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  creationTimestamp: null
   labels:
     app: rw
     name: dataset
@@ -20,7 +19,6 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         name: dataset
     spec:
@@ -43,8 +41,6 @@ spec:
               value: prod
             - name: NODE_PATH
               value: app/src
-            - name: LOCAL_URL
-              value: http://dataset.default.svc.cluster.local:3000
             - name: MONGO_USE_UNIFIED_TOPOLOGY
               value: "false"
             - name: MONGO_URI
@@ -52,25 +48,15 @@ spec:
                 secretKeyRef:
                   key: DATASET_MONGO_URI
                   name: dbsecrets
-            - name: CT_URL
+            - name: GATEWAY_URL
               valueFrom:
                 secretKeyRef:
-                  key: CT_URL
+                  key: GATEWAY_URL
                   name: mssecrets
-            - name: CT_TOKEN
+            - name: MICROSERVICE_TOKEN
               valueFrom:
                 secretKeyRef:
-                  key: CT_TOKEN
-                  name: mssecrets
-            - name: CT_REGISTER_MODE
-              valueFrom:
-                secretKeyRef:
-                  key: CT_REGISTER_MODE
-                  name: mssecrets
-            - name: API_VERSION
-              valueFrom:
-                secretKeyRef:
-                  key: API_VERSION
+                  key: MICROSERVICE_TOKEN
                   name: mssecrets
             - name: S3_ACCESS_KEY_ID
               valueFrom:

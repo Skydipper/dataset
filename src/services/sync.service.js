@@ -8,7 +8,7 @@ class SyncService {
         logger.debug('Sync creation');
         try {
             const response = await RWAPIMicroservice.requestToMicroservice({
-                uri: '/task/sync-dataset',
+                uri: '/v1/task/sync-dataset',
                 method: 'POST',
                 json: true,
                 body: {
@@ -31,7 +31,7 @@ class SyncService {
         logger.debug('Sync update');
         try {
             const response = await RWAPIMicroservice.requestToMicroservice({
-                uri: '/task/sync-dataset/by-dataset',
+                uri: '/v1/task/sync-dataset/by-dataset',
                 method: 'PUT',
                 json: true,
                 body: {
@@ -54,7 +54,7 @@ class SyncService {
         logger.debug('Sync deletion');
         try {
             const response = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/task/sync-dataset/by-dataset/${id}`,
+                uri: `/v1/task/sync-dataset/by-dataset/${id}`,
                 method: 'DELETE',
                 json: true
             });

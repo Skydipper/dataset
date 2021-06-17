@@ -161,11 +161,11 @@ describe('Get datasets sorted by user fields', () => {
 
         // Custom mock find-by-ids call
         const userIds = [USERS.USER.id, USERS.MANAGER.id, USERS.ADMIN.id, USERS.SUPERADMIN.id, 'legacy', '5accc3660bb7c603ba473d0f'];
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/auth/user/find-by-ids', { ids: userIds })
             .reply(200, { data: fullUsers });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/auth/user/find-by-ids?sort=user.role', (body) => body.ids.length === userIds.length)
             .reply(200, { data: fullUsers });
 
@@ -204,11 +204,11 @@ describe('Get datasets sorted by user fields', () => {
 
         // Custom mock find-by-ids call
         const userIds = [USERS.USER.id, USERS.MANAGER.id, USERS.ADMIN.id, USERS.SUPERADMIN.id, 'legacy', '5accc3660bb7c603ba473d0f'];
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/auth/user/find-by-ids', { ids: userIds })
             .reply(200, { data: fullUsers });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .post('/auth/user/find-by-ids?sort=-user.role', (body) => body.ids.length === userIds.length)
             .reply(200, { data: fullUsers });
 

@@ -7,7 +7,7 @@ class GraphService {
         logger.debug('[GraphService]: Creating dataset in graph');
         try {
             return await RWAPIMicroservice.requestToMicroservice({
-                uri: `/graph/dataset/${id}`,
+                uri: `/v1/graph/dataset/${id}`,
                 method: 'POST',
                 json: true
             });
@@ -25,7 +25,7 @@ class GraphService {
                 return null;
             });
             return await RWAPIMicroservice.requestToMicroservice({
-                uri: `/graph/dataset/${id}/associate`,
+                uri: `/v1/graph/dataset/${id}/associate`,
                 method: 'POST',
                 json: true,
                 body: {

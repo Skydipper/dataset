@@ -342,7 +342,7 @@ class DatasetService {
         try {
             logger.debug('Updating widgets');
             await RWAPIMicroservice.requestToMicroservice({
-                uri: `/widget/change-environment/${datasetId}/${env}`,
+                uri: `/v1/widget/change-environment/${datasetId}/${env}`,
                 method: 'PATCH',
                 json: true
             });
@@ -352,7 +352,7 @@ class DatasetService {
         try {
             logger.debug('Updating layers');
             await RWAPIMicroservice.requestToMicroservice({
-                uri: `/layer/change-environment/${datasetId}/${env}`,
+                uri: `/v1/layer/change-environment/${datasetId}/${env}`,
                 method: 'PATCH',
                 json: true
             });
@@ -478,7 +478,7 @@ class DatasetService {
     static async deleteWidgets(datasetId) {
         logger.info('Deleting widgets of dataset', datasetId);
         await RWAPIMicroservice.requestToMicroservice({
-            uri: `/dataset/${datasetId}/widget`,
+            uri: `/v1/dataset/${datasetId}/widget`,
             method: 'DELETE'
         });
     }
@@ -486,7 +486,7 @@ class DatasetService {
     static async deleteLayers(datasetId) {
         logger.info('Deleting layers of dataset', datasetId);
         await RWAPIMicroservice.requestToMicroservice({
-            uri: `/dataset/${datasetId}/layer`,
+            uri: `/v1/dataset/${datasetId}/layer`,
             method: 'DELETE'
         });
     }
@@ -494,7 +494,7 @@ class DatasetService {
     static async deleteMetadata(datasetId) {
         logger.info('Deleting metadata of dataset', datasetId);
         await RWAPIMicroservice.requestToMicroservice({
-            uri: `/dataset/${datasetId}/metadata`,
+            uri: `/v1/dataset/${datasetId}/metadata`,
             method: 'DELETE'
         });
     }
@@ -502,7 +502,7 @@ class DatasetService {
     static async deleteVocabularies(datasetId) {
         logger.info('Deleting vocabularies of dataset', datasetId);
         await RWAPIMicroservice.requestToMicroservice({
-            uri: `/dataset/${datasetId}/vocabulary`,
+            uri: `/v1/dataset/${datasetId}/vocabulary`,
             method: 'DELETE'
         });
     }
@@ -510,7 +510,7 @@ class DatasetService {
     static async deleteKnowledgeGraphVocabulary(datasetId, application) {
         logger.info('Deleting knowledge graph of dataset', datasetId);
         await RWAPIMicroservice.requestToMicroservice({
-            uri: `/dataset/${datasetId}/vocabulary/knowledge_graph?application=${application}`,
+            uri: `/v1/dataset/${datasetId}/vocabulary/knowledge_graph?application=${application}`,
             method: 'DELETE'
         });
     }
@@ -519,7 +519,7 @@ class DatasetService {
         logger.info('Checking if it is safe to delete the associated resources (layer, widget) of the dataset');
         try {
             const layers = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/dataset/${id}/layer?protected=true`,
+                uri: `/v1/dataset/${id}/layer?protected=true`,
                 method: 'GET',
                 json: true
             });
@@ -533,7 +533,7 @@ class DatasetService {
         }
         try {
             const widgets = await RWAPIMicroservice.requestToMicroservice({
-                uri: `/dataset/${id}/widget?protected=true`,
+                uri: `/v1/dataset/${id}/widget?protected=true`,
                 method: 'GET',
                 json: true
             });

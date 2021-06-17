@@ -29,7 +29,7 @@ describe('Search datasets tests', () => {
     });
 
     it('Search for common elements in name and description should return 2 results (no synonyms)', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=fake%20dataset`)
             .reply(200, {
                 data: [
@@ -38,7 +38,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-by-label-synonyms?search=fake%20dataset`)
             .reply(200, {
                 data: []
@@ -59,7 +59,7 @@ describe('Search datasets tests', () => {
     });
 
     it('Search for name of one dataset should return a single result (no synonyms)', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=${encodeURIComponent(cartoFakeDataset.name)}`)
             .reply(200, {
                 data: [
@@ -67,7 +67,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-by-label-synonyms?search=${encodeURIComponent(cartoFakeDataset.name)}`)
             .reply(200, {
                 data: []
@@ -90,7 +90,7 @@ describe('Search datasets tests', () => {
      * Sort tests
      */
     it('Search with keyword and no explicit sort', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=keyword`)
             .once()
             .reply(200, {
@@ -100,7 +100,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-by-label-synonyms?search=keyword`)
             .once()
             .reply(200, {
@@ -122,7 +122,7 @@ describe('Search datasets tests', () => {
     });
 
     it('Search with keyword and sort by most viewed is sorted using the graph', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=keyword`)
             .twice()
             .reply(200, {
@@ -132,14 +132,14 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-by-label-synonyms?search=keyword&sort=-most-viewed`)
             .twice()
             .reply(200, {
                 data: []
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-datasets-ids?search=keyword&sort=-most-viewed`)
             .once()
             .reply(200, {
@@ -163,7 +163,7 @@ describe('Search datasets tests', () => {
         datasetIdsOne[1].should.equal(cartoFakeDataset._id);
 
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-datasets-ids?search=keyword&sort=-most-viewed`)
             .once()
             .reply(200, {
@@ -188,7 +188,7 @@ describe('Search datasets tests', () => {
     });
 
     it('Search with keyword and sort by most favorited is sorted using the graph', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=keyword`)
             .twice()
             .reply(200, {
@@ -198,14 +198,14 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-by-label-synonyms?search=keyword&sort=-most-favorited`)
             .twice()
             .reply(200, {
                 data: []
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-datasets-ids?search=keyword&sort=-most-favorited`)
             .once()
             .reply(200, {
@@ -229,7 +229,7 @@ describe('Search datasets tests', () => {
         datasetIdsOne[1].should.equal(cartoFakeDataset._id);
 
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-datasets-ids?search=keyword&sort=-most-favorited`)
             .once()
             .reply(200, {
@@ -254,7 +254,7 @@ describe('Search datasets tests', () => {
     });
 
     it('Search with keyword and sort by relevance non-specified is sorted using metadata', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=keyword&sort=relevance`)
             .once()
             .reply(200, {
@@ -264,7 +264,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-by-label-synonyms?search=keyword&sort=relevance`)
             .once()
             .reply(200, {
@@ -287,7 +287,7 @@ describe('Search datasets tests', () => {
     });
 
     it('Search with keyword and sort by relevance descending is sorted using metadata', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=keyword&sort=-relevance`)
             .once()
             .reply(200, {
@@ -297,7 +297,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-by-label-synonyms?search=keyword&sort=-relevance`)
             .once()
             .reply(200, {
@@ -321,7 +321,7 @@ describe('Search datasets tests', () => {
 
 
     it('Search with keyword and sort by relevance ascending return an error for invalid request', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=keyword&sort=+relevance`)
             .once()
             .reply(400, {
@@ -342,7 +342,7 @@ describe('Search datasets tests', () => {
     });
 
     it('Search with keyword and sort by other keyword is sorted using the metadata', async () => {
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=keyword&sort=metadata`)
             .once()
             .reply(200, {
@@ -352,7 +352,7 @@ describe('Search datasets tests', () => {
                 ]
             });
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/graph/query/search-by-label-synonyms?search=keyword&sort=metadata`)
             .twice()
             .reply(200, {
@@ -372,7 +372,7 @@ describe('Search datasets tests', () => {
         datasetIdsOne[0].should.equal(cartoFakeDataset._id);
         datasetIdsOne[1].should.equal(jsonFakeDataset._id);
 
-        nock(process.env.CT_URL)
+        nock(process.env.GATEWAY_URL)
             .get(`/v1/metadata?search=keyword&sort=metadata`)
             .once()
             .reply(200, {

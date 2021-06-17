@@ -114,7 +114,7 @@ describe('Get datasets', () => {
         await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
         await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
         await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
-        nock(process.env.CT_URL).get('/auth/user/ids/ADMIN').reply(200, { data: [USERS.ADMIN.id] });
+        nock(process.env.GATEWAY_URL).get('/auth/user/ids/ADMIN').reply(200, { data: [USERS.ADMIN.id] });
 
         const response = await requester
             .get(`/api/v1/dataset`)
@@ -130,7 +130,7 @@ describe('Get datasets', () => {
         await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
         await new Dataset(createDataset('cartodb', { userId: USERS.ADMIN.id })).save();
         await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
-        nock(process.env.CT_URL).get('/auth/user/ids/USER').reply(200, { data: [USERS.USER.id] });
+        nock(process.env.GATEWAY_URL).get('/auth/user/ids/USER').reply(200, { data: [USERS.USER.id] });
 
         const response = await requester
             .get(`/api/v1/dataset`)
