@@ -670,6 +670,70 @@ describe('Dataset create tests', () => {
 
     describe('Environments', () => {
 
+        it('Create a dataset with no custom env should be successful and have the production env', async () => {
+            mockGetUserFromToken(USERS.ADMIN);
+
+            const timestamp = new Date().getTime();
+            const dataset = {
+                name: `Carto DB Dataset - ${timestamp}`,
+                application: ['rw'],
+                applicationConfig: {
+                    rw: {
+                        foo: 'bar'
+                    }
+                },
+                connectorType: 'rest',
+                provider: 'cartodb',
+                connectorUrl: 'https://wri-01.carto.com/tables/wdpa_protected_areas/table',
+                overwrite: true
+            };
+
+            nock(process.env.GATEWAY_URL)
+                .post(/v1\/graph\/dataset\/(\w|-)*$/)
+                .once()
+                .reply(200, {
+                    status: 200,
+                    detail: 'Ok'
+                });
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/rest-datasets/cartodb')
+                .once()
+                .reply(200, {
+                    status: 200,
+                    detail: 'Ok'
+                });
+
+            const response = await requester
+                .post(`/api/v1/dataset`)
+                .set('Authorization', `Bearer abcd`)
+                .send({
+                    dataset
+                });
+
+            const createdDataset = deserializeDataset(response);
+
+            response.status.should.equal(200);
+            response.body.should.have.property('data').and.be.an('object');
+            createdDataset.should.have.property('name').and.equal(`Carto DB Dataset - ${timestamp}`);
+            // createdDataset.application.should.be.an.instanceOf(Array).and.have.lengthOf(1);
+            createdDataset.should.have.property('connectorType').and.equal('rest');
+            createdDataset.should.have.property('provider').and.equal('cartodb');
+            createdDataset.should.have.property('connectorUrl').and.equal('https://wri-01.carto.com/tables/wdpa_protected_areas/table');
+            createdDataset.should.have.property('tableName').and.equal('wdpa_protected_areas');
+            createdDataset.should.have.property('userId').and.equal(USERS.ADMIN.id);
+            createdDataset.should.have.property('status').and.equal('pending');
+            createdDataset.should.have.property('env').and.equal('production');
+            createdDataset.should.have.property('overwrite').and.equal(true);
+            createdDataset.should.have.property('applicationConfig').and.deep.equal(dataset.applicationConfig);
+            createdDataset.should.have.property('createdAt').and.be.a('string');
+            createdDataset.should.have.property('updatedAt').and.be.a('string');
+            createdDataset.should.have.property('dataLastUpdated');
+            new Date(createdDataset.updatedAt).should.equalDate(new Date(createdDataset.createdAt));
+            createdDataset.legend.should.be.an.instanceOf(Object);
+            createdDataset.clonedHost.should.be.an.instanceOf(Object);
+        });
+
         it('Create a dataset with a custom env should be successful', async () => {
             mockGetUserFromToken(USERS.ADMIN);
 

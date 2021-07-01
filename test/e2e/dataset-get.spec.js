@@ -93,7 +93,6 @@ describe('Get datasets', () => {
         });
     })
 
-
     describe('Filter by owner\'s role', () => {
 
         it('Get datasets filtered by owner\'s role = ADMIN as an ADMIN should be successful and filter by the given role', async () => {
@@ -260,7 +259,7 @@ describe('Get datasets', () => {
         // });
     });
 
-    describe('Fitlers', () => {
+    describe('Filters', () => {
 
         it('Getting datasets without applying subscribable filter returns 200 OK response including all datasets', async () => {
             const ds1 = await new Dataset(createDataset('cartodb')).save();
@@ -365,6 +364,71 @@ describe('Get datasets', () => {
             datasetIds2.should.contain(ds2._id);
             datasetIds2.should.not.contain(ds3._id);
             datasetIds2.should.not.contain(ds4._id);
+        });
+
+    });
+
+    describe('Environments', () => {
+
+        it('Getting datasets without applying env filter returns all datasets with env production', async () => {
+            const ds1 = await new Dataset(createDataset('cartodb')).save();
+            const ds2 = await new Dataset(createDataset('cartodb', { env: 'production' })).save();
+            const ds3 = await new Dataset(createDataset('cartodb', { env: 'custom' })).save();
+            const ds4 = await new Dataset(createDataset('cartodb', { env: 'potato' })).save();
+
+            const response = await requester
+                .get(`/api/v1/dataset`);
+            response.status.should.equal(200);
+            response.body.should.have.property('data').with.lengthOf(2);
+
+            const datasets = deserializeDataset(response);
+            const datasetIds = datasets.map((dataset) => dataset.id);
+            datasetIds.should.contain(ds1._id);
+            datasetIds.should.contain(ds2._id);
+        });
+
+        it('Getting datasets with the env filter set to a custom value should returns all datasets with that env', async () => {
+            const ds1 = await new Dataset(createDataset('cartodb')).save();
+            const ds2 = await new Dataset(createDataset('cartodb', { env: 'production' })).save();
+            const ds3 = await new Dataset(createDataset('cartodb', { env: 'custom' })).save();
+            const ds4 = await new Dataset(createDataset('cartodb', { env: 'potato' })).save();
+
+            const response = await requester
+                .get(`/api/v1/dataset`)
+                .query({
+                    env: 'custom'
+                });
+            response.status.should.equal(200);
+            response.body.should.have.property('data').with.lengthOf(1);
+
+            const datasets = deserializeDataset(response);
+            const datasetIds = datasets.map((dataset) => dataset.id);
+            datasetIds.should.not.contain(ds1._id);
+            datasetIds.should.not.contain(ds2._id);
+            datasetIds.should.contain(ds3._id);
+            datasetIds.should.not.contain(ds4._id);
+        });
+
+        it('Getting datasets with the env filter set to a custom comma separated list of values should returns all datasets with those envs', async () => {
+            const ds1 = await new Dataset(createDataset('cartodb')).save();
+            const ds2 = await new Dataset(createDataset('cartodb', { env: 'production' })).save();
+            const ds3 = await new Dataset(createDataset('cartodb', { env: 'custom' })).save();
+            const ds4 = await new Dataset(createDataset('cartodb', { env: 'potato' })).save();
+
+            const response = await requester
+                .get(`/api/v1/dataset`)
+                .query({
+                    env: ['custom','potato'].join(',')
+                });
+            response.status.should.equal(200);
+            response.body.should.have.property('data').with.lengthOf(2);
+
+            const datasets = deserializeDataset(response);
+            const datasetIds = datasets.map((dataset) => dataset.id);
+            datasetIds.should.not.contain(ds1._id);
+            datasetIds.should.not.contain(ds2._id);
+            datasetIds.should.contain(ds3._id);
+            datasetIds.should.contain(ds4._id);
         });
 
     });

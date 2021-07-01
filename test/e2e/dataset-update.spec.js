@@ -456,27 +456,27 @@ describe('Dataset update', () => {
         });
 
         it('Clear the error message of a dataset as a MICROSERVICE should succeed and clear the message', async () => {
-        mockGetUserFromToken(USERS.MICROSERVICE);
+            mockGetUserFromToken(USERS.MICROSERVICE);
 
-        const fakeDataset = await new Dataset(createDataset('cartodb', {
-            errorMessage: 'Old error message'
-        })).save();
+            const fakeDataset = await new Dataset(createDataset('cartodb', {
+                errorMessage: 'Old error message'
+            })).save();
 
-        const response = await requester
-            .patch(`/api/v1/dataset/${fakeDataset._id}`)
-            .set('Authorization', `Bearer abcd`)
-            .send({
-                name: 'Updated dataset name',
-                errorMessage: '',
-            });
+            const response = await requester
+                .patch(`/api/v1/dataset/${fakeDataset._id}`)
+                .set('Authorization', `Bearer abcd`)
+                .send({
+                    name: 'Updated dataset name',
+                    errorMessage: '',
+                });
 
-        response.status.should.equal(200);
-        response.body.should.have.property('data').and.be.an('object');
-        const dataset = deserializeDataset(response);
+            response.status.should.equal(200);
+            response.body.should.have.property('data').and.be.an('object');
+            const dataset = deserializeDataset(response);
 
-        dataset.should.have.property('name').and.equal('Updated dataset name');
-        dataset.should.have.property('errorMessage').and.eql('');
-    });
+            dataset.should.have.property('name').and.equal('Updated dataset name');
+            dataset.should.have.property('errorMessage').and.eql('');
+        });
     });
 
     describe('Apps', () => {
@@ -584,20 +584,20 @@ describe('Dataset update', () => {
         });
 
         it('As an ADMIN, editing the dataset without changing the dataset apps should return 200 OK with the updated dataset', async () => {
-        mockGetUserFromToken(USERS.RW_ADMIN);
+            mockGetUserFromToken(USERS.RW_ADMIN);
 
-        const fakeDataset = await new Dataset(createDataset('cartodb', { application: ['rw'] })).save();
-        const response = await requester
-            .patch(`/api/v1/dataset/${fakeDataset._id}`)
-            .set('Authorization', `Bearer abcd`)
-            .send({ application: ['rw'] });
+            const fakeDataset = await new Dataset(createDataset('cartodb', { application: ['rw'] })).save();
+            const response = await requester
+                .patch(`/api/v1/dataset/${fakeDataset._id}`)
+                .set('Authorization', `Bearer abcd`)
+                .send({ application: ['rw'] });
 
-        response.status.should.equal(200);
-        response.body.should.have.property('data').and.be.an('object');
-        const dataset = deserializeDataset(response);
-        dataset.should.have.property('status').and.equal('saved');
-        dataset.should.have.property('application').and.eql(['rw']);
-    });
+            response.status.should.equal(200);
+            response.body.should.have.property('data').and.be.an('object');
+            const dataset = deserializeDataset(response);
+            dataset.should.have.property('status').and.equal('saved');
+            dataset.should.have.property('application').and.eql(['rw']);
+        });
 
         it('Update the applications of a dataset as an app ADMIN with associated app should succeed', async () => {
             mockGetUserFromToken(USERS.ADMIN);
@@ -616,6 +616,102 @@ describe('Dataset update', () => {
             const dataset = deserializeDataset(response);
             dataset.should.have.property('status').and.equal('saved');
             dataset.should.have.property('application').and.eql(['gfw']);
+        });
+    });
+
+    describe('Environments', () => {
+        it('Update env for a dataset as USER that owns the dataset should fail', async () => {
+            mockGetUserFromToken(USERS.USER);
+
+            const fakeDataset = await new Dataset(createDataset('cartodb', { userId: USERS.USER.id })).save();
+
+            const response = await requester
+                .patch(`/api/v1/dataset/${fakeDataset._id}`)
+                .set('Authorization', `Bearer abcd`)
+                .send({
+                    env: 'custom',
+                    application: ['gfw', 'rw'],
+                });
+
+            response.status.should.equal(403);
+            response.body.should.have.property('errors').and.be.an('array');
+            response.body.errors[0].should.have.property('detail').and.equal(`Forbidden`);
+        });
+
+        it('Update env for a dataset as MANAGER that does not own the dataset should fail', async () => {
+            mockGetUserFromToken(USERS.MANAGER);
+
+            const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+            const response = await requester
+                .patch(`/api/v1/dataset/${fakeDataset._id}`)
+                .set('Authorization', `Bearer abcd`)
+                .send({
+                    env: 'custom',
+                    application: ['gfw', 'rw'],
+                });
+
+            response.status.should.equal(403);
+            response.body.should.have.property('errors').and.be.an('array');
+            response.body.errors[0].should.have.property('detail').and.equal(`Forbidden`);
+        });
+
+        it('Update env for a dataset as MANAGER that owns the dataset should update the dataset and propagate env change to layers and widgets', async () => {
+            mockGetUserFromToken(USERS.MANAGER);
+
+            const fakeDataset = await new Dataset(createDataset('cartodb', { userId: USERS.MANAGER.id })).save();
+
+            nock(process.env.GATEWAY_URL)
+                .patch(`/v1/widget/change-environment/${fakeDataset.id}/custom`)
+                .reply(200, '');
+
+            nock(process.env.GATEWAY_URL)
+                .patch(`/v1/layer/change-environment/${fakeDataset.id}/custom`)
+                .reply(200, '');
+
+            const response = await requester
+                .patch(`/api/v1/dataset/${fakeDataset._id}`)
+                .set('Authorization', `Bearer abcd`)
+                .send({
+                    env: 'custom',
+                    application: ['gfw', 'rw'],
+                });
+            const dataset = deserializeDataset(response);
+
+            response.status.should.equal(200);
+            response.body.should.have.property('data').and.be.an('object');
+            dataset.should.have.property('env').and.equal('custom');
+            dataset.legend.should.be.an.instanceOf(Object);
+            dataset.clonedHost.should.be.an.instanceOf(Object);
+        });
+
+        it('Update env for a dataset as ADMIN should update the dataset and propagate env change to layers and widgets', async () => {
+            mockGetUserFromToken(USERS.ADMIN);
+
+            const fakeDataset = await new Dataset(createDataset('cartodb')).save();
+
+            nock(process.env.GATEWAY_URL)
+                .patch(`/v1/widget/change-environment/${fakeDataset.id}/custom`)
+                .reply(200, '');
+
+            nock(process.env.GATEWAY_URL)
+                .patch(`/v1/layer/change-environment/${fakeDataset.id}/custom`)
+                .reply(200, '');
+
+            const response = await requester
+                .patch(`/api/v1/dataset/${fakeDataset._id}`)
+                .set('Authorization', `Bearer abcd`)
+                .send({
+                    env: 'custom',
+                    application: ['gfw', 'rw'],
+                });
+            const dataset = deserializeDataset(response);
+
+            response.status.should.equal(200);
+            response.body.should.have.property('data').and.be.an('object');
+            dataset.should.have.property('env').and.equal('custom');
+            dataset.legend.should.be.an.instanceOf(Object);
+            dataset.clonedHost.should.be.an.instanceOf(Object);
         });
     });
 

@@ -176,7 +176,16 @@ describe('Get datasets with includes', () => {
 
 
         const response = await requester
-            .get(`/api/v1/dataset?application=rw&env=production&includes=layer,metadata,vocabulary,widget,graph,user&language=en&page[number]=1&page[size]=12&published=true&search=human&page[size]=12&page[number]=1`);
+            .get(`/api/v1/dataset`)
+            .query({
+                application: 'rw',
+                env: 'production',
+                includes: ['layer', 'metadata', 'vocabulary', 'widget', 'graph', 'user'].join(','),
+                language: 'en',
+                page: { number: '1,1', size: '12,12' },
+                published: true,
+                search: 'human'
+            });
 
         response.status.should.equal(200);
         response.body.should.have.property('data').with.lengthOf(1);
@@ -359,6 +368,252 @@ describe('Get datasets with includes', () => {
         response.body.links.should.have.property('prev').and.not.contain('usersRole=');
         response.body.links.should.have.property('next').and.not.contain('usersRole=');
         response.body.links.should.have.property('self').and.not.contain('usersRole=');
+    });
+
+
+    describe('Environments', () => {
+
+        it.skip('Get datasets with includes and search, with no filterIncludesByEnv filter and no env value, should load included data without filtering it by env', async () => {
+            const fakeDatasetOne = await new Dataset(createDataset('cartodb')).save();
+
+            nock(process.env.GATEWAY_URL)
+                .get('/v1/metadata')
+                .query({ search: 'human' })
+                .reply(200, metadataGetWithSearchForHuman(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .get('/v1/graph/query/search-by-label-synonyms')
+                .query({
+                    includes: 'layer,metadata,vocabulary,widget,graph,user',
+                    search: 'human'
+                })
+                .reply(200, { data: [fakeDatasetOne.id] });
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/auth/user/find-by-ids', { ids: [fakeDatasetOne.userId] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, { data: [] });
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/widget/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, widgetsFindById(fakeDatasetOne));
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/dataset/vocabulary/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, vocabularyFindById());
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/dataset/metadata/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, metadataFindById(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/layer/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, layersFindById(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/graph/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, graphFindById(fakeDatasetOne));
+
+
+            const response = await requester
+                .get(`/api/v1/dataset`)
+                .query({
+                    includes: ['layer', 'metadata', 'vocabulary', 'widget', 'graph', 'user'].join(','),
+                    search: 'human'
+                });
+
+            response.status.should.equal(200);
+            response.body.should.have.property('data').with.lengthOf(1);
+            response.body.should.have.property('links').and.be.an('object');
+
+            response.body.data[0].should.deep.equal(datasetGetIncludeAllAnonymous(fakeDatasetOne));
+        });
+
+        it.skip('Get datasets with includes and search, with no filterIncludesByEnv filter and custom env, should load included data without filtering it by env', async () => {
+            const fakeDatasetOne = await new Dataset(createDataset('cartodb', { env: 'custom' })).save();
+
+            nock(process.env.GATEWAY_URL)
+                .get('/v1/metadata')
+                .query({ search: 'human' })
+                .reply(200, metadataGetWithSearchForHuman(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .get('/v1/graph/query/search-by-label-synonyms')
+                .query({
+                    includes: 'layer,metadata,vocabulary,widget,graph,user',
+                    search: 'human'
+                })
+                .reply(200, { data: [fakeDatasetOne.id] });
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/auth/user/find-by-ids', { ids: [fakeDatasetOne.userId] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, { data: [] });
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/widget/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, widgetsFindById(fakeDatasetOne));
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/dataset/vocabulary/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, vocabularyFindById());
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/dataset/metadata/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, metadataFindById(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/layer/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, layersFindById(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/graph/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    search: 'human'
+                })
+                .reply(200, graphFindById(fakeDatasetOne));
+
+
+            const response = await requester
+                .get(`/api/v1/dataset`)
+                .query({
+                    env: 'custom',
+                    includes: ['layer', 'metadata', 'vocabulary', 'widget', 'graph', 'user'].join(','),
+                    search: 'human'
+                });
+
+            response.status.should.equal(200);
+            response.body.should.have.property('data').with.lengthOf(1);
+            response.body.should.have.property('links').and.be.an('object');
+
+            response.body.data[0].should.deep.equal(datasetGetIncludeAllAnonymous(fakeDatasetOne));
+        });
+
+        it.skip('Get datasets with includes and search, with filterIncludesByEnv set to true and custom env, should load included data filtered by env', async () => {
+            const fakeDatasetOne = await new Dataset(createDataset('cartodb')).save();
+
+            nock(process.env.GATEWAY_URL)
+                .get('/v1/metadata')
+                .query({ search: 'human' })
+                .reply(200, metadataGetWithSearchForHuman(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .get('/v1/graph/query/search-by-label-synonyms')
+                .query({
+                    env: 'custom',
+                    includes: 'layer,metadata,vocabulary,widget,graph,user',
+                    search: 'human'
+                })
+                .reply(200, { data: [fakeDatasetOne.id] });
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/auth/user/find-by-ids', { ids: [fakeDatasetOne.userId] })
+                .query({
+                    env: 'custom',
+                    search: 'human'
+                })
+                .reply(200, { data: [] });
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/widget/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    env: 'custom',
+                    search: 'human'
+                })
+                .reply(200, widgetsFindById(fakeDatasetOne));
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/dataset/vocabulary/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    env: 'custom',
+                    search: 'human'
+                })
+                .reply(200, vocabularyFindById());
+
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/dataset/metadata/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    env: 'custom',
+                    search: 'human'
+                })
+                .reply(200, metadataFindById(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/layer/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    env: 'custom',
+                    search: 'human'
+                })
+                .reply(200, layersFindById(fakeDatasetOne));
+
+            nock(process.env.GATEWAY_URL)
+                .post('/v1/graph/find-by-ids', { ids: [fakeDatasetOne.id] })
+                .query({
+                    env: 'custom',
+                    search: 'human'
+                })
+                .reply(200, graphFindById(fakeDatasetOne));
+
+
+            const response = await requester
+                .get(`/api/v1/dataset`)
+                .query({
+                    env: 'custom',
+                    includes: ['layer', 'metadata', 'vocabulary', 'widget', 'graph', 'user'].join(','),
+                    search: 'human',
+                    filterIncludesByEnv: true
+                });
+
+            response.status.should.equal(200);
+            response.body.should.have.property('data').with.lengthOf(1);
+            response.body.should.have.property('links').and.be.an('object');
+
+            response.body.data[0].should.deep.equal(datasetGetIncludeAllAnonymous(fakeDatasetOne));
+        });
+
     });
 
     afterEach(async () => {
