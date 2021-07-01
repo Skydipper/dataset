@@ -77,7 +77,6 @@ describe('Get datasets with includes', () => {
         await Dataset.deleteMany({}).exec();
     });
 
-
     it('Get datasets with includes should return requested data except users (anonymous request)', async () => {
         const fakeDatasetOne = await new Dataset(createDataset('cartodb')).save();
 
