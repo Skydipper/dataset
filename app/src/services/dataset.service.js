@@ -262,7 +262,7 @@ class DatasetService {
             sources: dataset.sources,
             tableName: DatasetService.getTableName(dataset),
             overwrite: dataset.overwrite || dataset.dataOverwrite,
-            status: dataset.connectorType === 'wms' ? 'saved' : 'pending',
+            status: 'saved',
             published: user.role === 'ADMIN' ? dataset.published : false,
             subscribable: dataset.subscribable,
             mainDateField: dataset.mainDateField,
@@ -308,6 +308,7 @@ class DatasetService {
                 [newDataset] = result;
             }
         }
+        // Document type
         if (dataset.sync && dataset.connectorType === 'document') {
             try {
                 await SyncService.create(Object.assign(newDataset, dataset));
@@ -516,19 +517,6 @@ class DatasetService {
             logger.error('Error obtaining protected layers of the dataset');
             throw new MicroserviceConnection(`Error obtaining protected layers of the dataset: ${err.message}`);
         }
-        // try {
-        //     const widgets = await ctRegisterMicroservice.requestToMicroservice({
-        //         uri: `/dataset/${id}/widget?protected=true`,
-        //         method: 'GET',
-        //         json: true
-        //     });
-        //     if (widgets && widgets.data.length > 0) {
-        //         throw new DatasetProtected('There are widgets layers associated with the dataset');
-        //     }
-        // } catch (err) {
-        //     logger.error('Error obtaining protected widgets for the dataset');
-        //     throw new MicroserviceConnection(`Error obtaining protected widgets of the dataset: ${err.message}`);
-        // }
     }
 
     static async delete(id, user) {
